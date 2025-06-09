@@ -3,11 +3,12 @@ package dnacenter
 import (
 	"context"
 	"errors"
-	"log"
 	"reflect"
 	"time"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	"log"
+
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,8 +18,8 @@ func resourceSitesImageDistributionSettings() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read and update operations on Network Settings.
 
-- Set image distribution settings for a site; *null* values indicate that the setting will be inherited from the parent
-site; empty objects (*{}*) indicate that the settings is unset.
+- Set image distribution settings for a site; **null** values indicate that the setting will be inherited from the
+parent site; empty objects (**{}**) indicate that the settings is unset.
 `,
 
 		CreateContext: resourceSitesImageDistributionSettingsCreate,
@@ -234,6 +235,7 @@ func resourceSitesImageDistributionSettingsDelete(ctx context.Context, d *schema
 		"Failure at SitesImageDistributionSettingsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestSitesImageDistributionSettingsSetImageDistributionSettingsForASite(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsSetImageDistributionSettingsForASite {
 	request := dnacentersdkgo.RequestNetworkSettingsSetImageDistributionSettingsForASite{}
 	request.ImageDistribution = expandRequestSitesImageDistributionSettingsSetImageDistributionSettingsForASiteImageDistribution(ctx, key, d)

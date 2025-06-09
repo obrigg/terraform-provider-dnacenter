@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -525,7 +525,21 @@ func dataSourceAnalyticsEndpointsRead(ctx context.Context, d *schema.ResourceDat
 			queryParams1.Include = vInclude.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.AIEndpointAnalytics.QueryTheEndpoints(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 QueryTheEndpoints", err,
+				"Failure at QueryTheEndpoints, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -549,6 +563,8 @@ func dataSourceAnalyticsEndpointsRead(ctx context.Context, d *schema.ResourceDat
 			queryParams2.Include = vInclude.(string)
 		}
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.AIEndpointAnalytics.GetEndpointDetails(vvEpID, &queryParams2)
 
 		if err != nil || response2 == nil {
@@ -563,7 +579,19 @@ func dataSourceAnalyticsEndpointsRead(ctx context.Context, d *schema.ResourceDat
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
-		vItem2 := flattenAIEndpointAnalyticsGetEndpointDetailsItem(response2)
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetEndpointDetails", err,
+				"Failure at GetEndpointDetails, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
+
+		vItem2 := flattenAiEndpointAnalyticsGetEndpointDetailsItem(response2)
 		if err := d.Set("item", vItem2); err != nil {
 			diags = append(diags, diagError(
 				"Failure when setting GetEndpointDetails response",
@@ -578,7 +606,7 @@ func dataSourceAnalyticsEndpointsRead(ctx context.Context, d *schema.ResourceDat
 	return diags
 }
 
-func flattenAIEndpointAnalyticsGetEndpointDetailsItem(item *dnacentersdkgo.ResponseAIEndpointAnalyticsGetEndpointDetails) []map[string]interface{} {
+func flattenAiEndpointAnalyticsGetEndpointDetailsItem(item *dnacentersdkgo.ResponseAIEndpointAnalyticsGetEndpointDetails) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -593,16 +621,16 @@ func flattenAIEndpointAnalyticsGetEndpointDetailsItem(item *dnacentersdkgo.Respo
 	respItem["last_probe_collection_timestamp"] = item.LastProbeCollectionTimestamp
 	respItem["random_mac"] = boolPtrToString(item.RandomMac)
 	respItem["registered"] = boolPtrToString(item.Registered)
-	respItem["attributes"] = flattenAIEndpointAnalyticsGetEndpointDetailsItemAttributes(item.Attributes)
-	respItem["trust_data"] = flattenAIEndpointAnalyticsGetEndpointDetailsItemTrustData(item.TrustData)
+	respItem["attributes"] = flattenAiEndpointAnalyticsGetEndpointDetailsItemAttributes(item.Attributes)
+	respItem["trust_data"] = flattenAiEndpointAnalyticsGetEndpointDetailsItemTrustData(item.TrustData)
 	respItem["anc_policy"] = item.AncPolicy
-	respItem["granular_anc_policy"] = flattenAIEndpointAnalyticsGetEndpointDetailsItemGranularAncPolicy(item.GranularAncPolicy)
+	respItem["granular_anc_policy"] = flattenAiEndpointAnalyticsGetEndpointDetailsItemGranularAncPolicy(item.GranularAncPolicy)
 	return []map[string]interface{}{
 		respItem,
 	}
 }
 
-func flattenAIEndpointAnalyticsGetEndpointDetailsItemAttributes(item *dnacentersdkgo.ResponseAIEndpointAnalyticsGetEndpointDetailsAttributes) interface{} {
+func flattenAiEndpointAnalyticsGetEndpointDetailsItemAttributes(item *dnacentersdkgo.ResponseAIEndpointAnalyticsGetEndpointDetailsAttributes) interface{} {
 	if item == nil {
 		return nil
 	}
@@ -612,7 +640,7 @@ func flattenAIEndpointAnalyticsGetEndpointDetailsItemAttributes(item *dnacenters
 
 }
 
-func flattenAIEndpointAnalyticsGetEndpointDetailsItemTrustData(item *dnacentersdkgo.ResponseAIEndpointAnalyticsGetEndpointDetailsTrustData) []map[string]interface{} {
+func flattenAiEndpointAnalyticsGetEndpointDetailsItemTrustData(item *dnacentersdkgo.ResponseAIEndpointAnalyticsGetEndpointDetailsTrustData) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -634,7 +662,7 @@ func flattenAIEndpointAnalyticsGetEndpointDetailsItemTrustData(item *dnacentersd
 
 }
 
-func flattenAIEndpointAnalyticsGetEndpointDetailsItemGranularAncPolicy(items *[]dnacentersdkgo.ResponseAIEndpointAnalyticsGetEndpointDetailsGranularAncPolicy) []map[string]interface{} {
+func flattenAiEndpointAnalyticsGetEndpointDetailsItemGranularAncPolicy(items *[]dnacentersdkgo.ResponseAIEndpointAnalyticsGetEndpointDetailsGranularAncPolicy) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}

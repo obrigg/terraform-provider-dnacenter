@@ -10,7 +10,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,16 +20,17 @@ func resourceImagesSiteWiseProductNames() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages create, read, update and delete operations on Software Image Management (SWIM).
 
-- Assign network device product name and sites for the given image identifier. Refer */dna/intent/api/v1/images* API for
-obtaining imageId
+- Assign network device product name and sites for the given image identifier. Refer **/dna/intent/api/v1/images** API
+for obtaining imageId
 
 - This resource unassigns the network device product name from all the sites for the given software image.
-        Refer to */dna/intent/api/v1/images* and */dna/intent/api/v1/images/{imageId}/siteWiseProductNames* GET APIs for
-obtaining  *imageId* and *productNameOrdinal* respectively.
+
+        Refer to **/dna/intent/api/v1/images** and **/dna/intent/api/v1/images/{imageId}/siteWiseProductNames** GET APIs
+for obtaining  **imageId** and **productNameOrdinal** respectively.
 
 - Update the list of sites for the network device product name assigned to the software image. Refer to
-*/dna/intent/api/v1/images* and */dna/intent/api/v1/images/{imageId}/siteWiseProductNames* GET APIs for obtaining
-*imageId* and *productNameOrdinal* respectively.
+**/dna/intent/api/v1/images** and **/dna/intent/api/v1/images/{imageId}/siteWiseProductNames** GET APIs for obtaining
+**imageId** and **productNameOrdinal** respectively.
 `,
 
 		CreateContext: resourceImagesSiteWiseProductNamesCreate,
@@ -104,7 +105,7 @@ obtaining  *imageId* and *productNameOrdinal* respectively.
 					Schema: map[string]*schema.Schema{
 
 						"image_id": &schema.Schema{
-							Description: `imageId path parameter. Software image identifier. Refer */dna/intent/api/v1/images* API for obtaining *imageId*
+							Description: `imageId path parameter. Software image identifier. Refer **/dna/intent/api/v1/images** API for obtaining **imageId**
 `,
 							Type:     schema.TypeString,
 							Required: true,

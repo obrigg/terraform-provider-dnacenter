@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,7 +15,7 @@ func dataSourceSiteWiseProductNamesCount() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Software Image Management (SWIM).
 
-- Returns the count of network device product names for given filters. The default value of *siteId* is global.
+- Returns the count of network device product names for given filters. The default value of **siteId** is global.
 `,
 
 		ReadContext: dataSourceSiteWiseProductNamesCountRead,
@@ -71,7 +71,21 @@ func dataSourceSiteWiseProductNamesCountRead(ctx context.Context, d *schema.Reso
 			queryParams1.ProductName = vProductName.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SoftwareImageManagementSwim.ReturnsTheCountOfNetworkDeviceProductNamesForASite(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReturnsTheCountOfNetworkDeviceProductNamesForASite", err,
+				"Failure at ReturnsTheCountOfNetworkDeviceProductNamesForASite, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

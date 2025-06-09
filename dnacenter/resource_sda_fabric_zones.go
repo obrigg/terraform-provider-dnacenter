@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -356,6 +356,7 @@ func resourceSdaFabricZonesDelete(ctx context.Context, d *schema.ResourceData, m
 
 	return diags
 }
+
 func expandRequestSdaFabricZonesAddFabricZone(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddFabricZone {
 	request := dnacentersdkgo.RequestSdaAddFabricZone{}
 	if v := expandRequestSdaFabricZonesAddFabricZoneItemArray(ctx, key+".payload", d); v != nil {

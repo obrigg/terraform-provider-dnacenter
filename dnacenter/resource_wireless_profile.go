@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -113,8 +113,20 @@ should be provided.
 													Type:     schema.TypeString,
 													Computed: true,
 												},
+												"policy_profile_name": &schema.Schema{
+													Description: `Policy Profile Name
+`,
+													Type:     schema.TypeString,
+													Computed: true,
+												},
 												"type": &schema.Schema{
 													Description: `SSID Type(enum: Enterprise/Guest)
+`,
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"wlan_profile_name": &schema.Schema{
+													Description: `WLAN Profile Name
 `,
 													Type:     schema.TypeString,
 													Computed: true,
@@ -192,7 +204,7 @@ should be provided.
 																Computed:     true,
 															},
 															"local_to_vlan": &schema.Schema{
-																Description: `Local To Vlan Id
+																Description: `Local to VLAN ID. Required if enableFlexConnect is true.
 `,
 																Type:     schema.TypeInt,
 																Optional: true,

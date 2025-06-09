@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -313,7 +313,7 @@ func resourceSdaProvisionDevicesDelete(ctx context.Context, d *schema.ResourceDa
 	resourceMap := separateResourceID(resourceID)
 
 	vvID := resourceMap["id"]
-	response1, restyResp1, err := client.Sda.DeleteProvisionedDeviceByID(vvID)
+	response1, restyResp1, err := client.Sda.DeleteProvisionedDeviceByID(vvID, nil)
 	if err != nil || response1 == nil {
 		if restyResp1 != nil {
 			log.Printf("[DEBUG] resty response for delete operation => %v", restyResp1.String())
@@ -363,6 +363,7 @@ func resourceSdaProvisionDevicesDelete(ctx context.Context, d *schema.ResourceDa
 
 	return diags
 }
+
 func expandRequestSdaProvisionDevicesProvisionDevices(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaProvisionDevices {
 	request := dnacentersdkgo.RequestSdaProvisionDevices{}
 	if v := expandRequestSdaProvisionDevicesProvisionDevicesItemArray(ctx, key+".payload", d); v != nil {

@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -100,6 +100,12 @@ func resourceSdaTransitNetworks() *schema.Resource {
 									},
 								},
 							},
+						},
+						"site_id": &schema.Schema{
+							Description: `ID of the site of this transit network.
+`,
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"type": &schema.Schema{
 							Description: `Type of the transit network.
@@ -192,6 +198,13 @@ func resourceSdaTransitNetworks() *schema.Resource {
 												},
 											},
 										},
+									},
+									"site_id": &schema.Schema{
+										Description: `ID of the site of this transit network. The transit network will be anchored at this Site. Only Fabric Sites within this Site location can associate their borders with this transit network. Additionally, the Transit Control Plane Devices must be located within the transit network's Site.
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
 									},
 									"type": &schema.Schema{
 										Description: `Type of the transit network.
@@ -442,6 +455,9 @@ func expandRequestSdaTransitNetworksAddTransitNetworksItem(ctx context.Context, 
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".name")))) {
 		request.Name = interfaceToString(v)
 	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".site_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".site_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".site_id")))) {
+		request.SiteID = interfaceToString(v)
+	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".type")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".type")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".type")))) {
 		request.Type = interfaceToString(v)
 	}
@@ -527,6 +543,9 @@ func expandRequestSdaTransitNetworksUpdateTransitNetworksItem(ctx context.Contex
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".name")))) {
 		request.Name = interfaceToString(v)
 	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".site_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".site_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".site_id")))) {
+		request.SiteID = interfaceToString(v)
+	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".type")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".type")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".type")))) {
 		request.Type = interfaceToString(v)
 	}
@@ -590,9 +609,6 @@ func searchSdaGetTransitNetworks(m interface{}, queryParams dnacentersdkgo.GetTr
 			queryParams.Limit = float64(maxPageSize)
 			queryParams.Offset += float64(maxPageSize)
 			nResponse, _, err = client.Sda.GetTransitNetworks(&queryParams)
-			if nResponse == nil || nResponse.Response == nil {
-				break
-			}
 		}
 		return nil, err
 	} else if queryParams.Name != "" {

@@ -6,7 +6,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -191,6 +191,7 @@ func resourceUsersExternalServersAAAAttributeDelete(ctx context.Context, d *sche
 
 	return diags
 }
+
 func expandRequestUsersExternalServersAAAAttributeAddAndUpdateAAAAttributeAPI(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestUserandRolesAddAndUpdateAAAAttributeAPI {
 	request := dnacentersdkgo.RequestUserandRolesAddAndUpdateAAAAttributeAPI{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".attribute_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".attribute_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".attribute_name")))) {

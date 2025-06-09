@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -109,50 +109,60 @@ func resourceSdaFabricAuthenticationProfile() *schema.Resource {
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"payload": &schema.Schema{
+							Description: `Array of RequestApplicationPolicyCreateApplication`,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
 
-						"authenticate_template_name": &schema.Schema{
-							Description: `Authenticate Template Name
+									"authenticate_template_name": &schema.Schema{
+										Description: `Authenticate Template Name
 `,
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"authentication_order": &schema.Schema{
-							Description: `Authentication Order
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"authentication_order": &schema.Schema{
+										Description: `Authentication Order
 `,
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"dot1x_to_mab_fallback_timeout": &schema.Schema{
-							Description: `Dot1x To MabFallback Timeout( Allowed range is [3-120])
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"dot1x_to_mab_fallback_timeout": &schema.Schema{
+										Description: `Dot1x To MabFallback Timeout( Allowed range is [3-120])
 `,
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"number_of_hosts": &schema.Schema{
-							Description: `Number Of Hosts
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"number_of_hosts": &schema.Schema{
+										Description: `Number Of Hosts
 `,
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"site_name_hierarchy": &schema.Schema{
-							Description: `Path of sda Fabric Site
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"site_name_hierarchy": &schema.Schema{
+										Description: `Path of sda Fabric Site
 `,
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"wake_on_lan": &schema.Schema{
-							Description: `Wake On Lan
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"wake_on_lan": &schema.Schema{
+										Description: `Wake On Lan
 `,
-							// Type:        schema.TypeBool,
-							Type:         schema.TypeString,
-							ValidateFunc: validateStringHasValueFunc([]string{"", "true", "false"}),
-							Optional:     true,
-							Computed:     true,
+										// Type:        schema.TypeBool,
+										Type:         schema.TypeString,
+										ValidateFunc: validateStringHasValueFunc([]string{"", "true", "false"}),
+										Optional:     true,
+										Computed:     true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -421,6 +431,7 @@ func resourceSdaFabricAuthenticationProfileDelete(ctx context.Context, d *schema
 
 	return diags
 }
+
 func expandRequestSdaFabricAuthenticationProfileAddDefaultAuthenticationTemplateInSdaFabric(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddDefaultAuthenticationTemplateInSdaFabric {
 	request := dnacentersdkgo.RequestSdaAddDefaultAuthenticationTemplateInSdaFabric{}
 	if v := expandRequestSdaFabricAuthenticationProfileAddDefaultAuthenticationTemplateInSdaFabricItemArray(ctx, key+".payload", d); v != nil {

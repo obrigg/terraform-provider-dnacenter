@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -239,6 +239,7 @@ func resourceProjectsDelete(ctx context.Context, d *schema.ResourceData, m inter
 	//       Returning empty diags to delete it on Terraform
 	return diags
 }
+
 func expandRequestProjectsCreateTemplateProject(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestConfigurationTemplatesCreateTemplateProject {
 	request := dnacentersdkgo.RequestConfigurationTemplatesCreateTemplateProject{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".name")))) {
@@ -253,19 +254,19 @@ func expandRequestProjectsCreateTemplateProject(ctx context.Context, key string,
 	return &request
 }
 
-func searchConfigurationTemplatesGetTemplateProjects(m interface{}, queryParams dnacentersdkgo.GetTemplateProjectsQueryParams, name string) (*dnacentersdkgo.ResponseConfigurationTemplatesGetTemplateProjectsResponse, error) {
+func searchConfigurationTemplatesGetTemplateProjects(m interface{}, queryParams dnacentersdkgo.GetTemplateProjectsQueryParams, vID string) (*dnacentersdkgo.ResponseConfigurationTemplatesGetTemplateProjectsResponse, error) {
 	client := m.(*dnacentersdkgo.Client)
 	var err error
 	var foundItem *dnacentersdkgo.ResponseConfigurationTemplatesGetTemplateProjectsResponse
 	var ite *dnacentersdkgo.ResponseConfigurationTemplatesGetTemplateProjects
-	if name != "" {
+	if vID != "" {
 		queryParams.Offset = 1
 		nResponse, _, err := client.ConfigurationTemplates.GetTemplateProjects(nil)
 		maxPageSize := len(*nResponse.Response)
 		for len(*nResponse.Response) > 0 {
 			time.Sleep(15 * time.Second)
 			for _, item := range *nResponse.Response {
-				if name == item.Name {
+				if vID == item.ProjectID {
 					foundItem = &item
 					return foundItem, err
 				}

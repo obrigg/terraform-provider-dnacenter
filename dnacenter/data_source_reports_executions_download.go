@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -38,11 +38,6 @@ format available from content-disposition response header.
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
-			"item": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -60,12 +55,21 @@ func dataSourceReportsExecutionsDownloadRead(ctx context.Context, d *schema.Reso
 		vvReportID := vReportID.(string)
 		vvExecutionID := vExecutionID.(string)
 
+		// has_unknown_response: None
+
 		response1, _, err := client.Reports.DownloadReportContent(vvReportID, vvExecutionID)
 
 		if err != nil {
 			diags = append(diags, diagError(
-				"Failure when setting DownloadReportContent response",
-				err))
+				"Failure when executing DownloadReportContent", err))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response")
+
+		if err != nil {
+			diags = append(diags, diagError(
+				"Failure when executing DownloadReportContent", err))
 			return diags
 		}
 

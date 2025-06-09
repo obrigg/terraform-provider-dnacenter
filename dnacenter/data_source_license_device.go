@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -71,6 +71,8 @@ func dataSourceLicenseDeviceRead(ctx context.Context, d *schema.ResourceData, m 
 	if selectedMethod == 1 {
 		log.Printf("[DEBUG] Selected method: SmartAccountDetails")
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Licenses.SmartAccountDetails()
 
 		if err != nil || response1 == nil {
@@ -85,7 +87,19 @@ func dataSourceLicenseDeviceRead(ctx context.Context, d *schema.ResourceData, m 
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-		vItems1 := flattenLicensesAccountDetailsItems(response1.Response)
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 SmartAccountDetails", err,
+				"Failure at SmartAccountDetails, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
+
+		vItems1 := flattenLicensesSmartAccountDetailsItems(response1.Response)
 		if err := d.Set("items", vItems1); err != nil {
 			diags = append(diags, diagError(
 				"Failure when setting SmartAccountDetails response",
@@ -100,7 +114,7 @@ func dataSourceLicenseDeviceRead(ctx context.Context, d *schema.ResourceData, m 
 	return diags
 }
 
-func flattenLicensesAccountDetailsItems(items *[]dnacentersdkgo.ResponseLicensesSmartAccountDetailsResponse) []map[string]interface{} {
+func flattenLicensesSmartAccountDetailsItems(items *[]dnacentersdkgo.ResponseLicensesSmartAccountDetailsResponse) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}
@@ -114,4 +128,18 @@ func flattenLicensesAccountDetailsItems(items *[]dnacentersdkgo.ResponseLicenses
 		respItems = append(respItems, respItem)
 	}
 	return respItems
+}
+
+func flattenLicensesSmartAccountDetailsItem(item *dnacentersdkgo.ResponseLicensesSmartAccountDetailsResponse) []map[string]interface{} {
+	if item == nil {
+		return nil
+	}
+	respItem := make(map[string]interface{})
+	respItem["name"] = item.Name
+	respItem["id"] = item.ID
+	respItem["domain"] = item.Domain
+	respItem["is_active_smart_account"] = boolPtrToString(item.IsActiveSmartAccount)
+	return []map[string]interface{}{
+		respItem,
+	}
 }

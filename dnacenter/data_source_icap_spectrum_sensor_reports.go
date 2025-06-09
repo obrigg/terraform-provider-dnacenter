@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -30,7 +30,7 @@ api-specs/blob/main/Assurance/CE_Cat_Center_Org-icap-1.0.0-resolved.yaml
 			},
 			"data_type": &schema.Schema{
 				Description: `dataType query parameter. Data type reported by the sensor
-|Data Type | Description | | --| --| | *0* | Duty Cycle | | *1* | Max Power | | *2* | Average Power | | *3* | Max Power in dBm with adjusted base of +48 | | *4* | Average Power in dBm with adjusted base of +48 |
+|Data Type | Description | | --| --| | **0** | Duty Cycle | | **1** | Max Power | | **2** | Average Power | | **3** | Max Power in dBm with adjusted base of +48 | | **4** | Average Power in dBm with adjusted base of +48 |
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -216,7 +216,21 @@ func dataSourceIcapSpectrumSensorReportsRead(ctx context.Context, d *schema.Reso
 		}
 		headerParams1.XCaLLERID = vXCaLLERID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sensors.RetrievesTheSpectrumSensorReportsSentByWLCForProvidedApMac(&headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesTheSpectrumSensorReportsSentByWLCForProvidedApMac", err,
+				"Failure at RetrievesTheSpectrumSensorReportsSentByWLCForProvidedApMac, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -27,7 +27,8 @@ More data about the Cisco IMC can be retrieved using the APIs exposed directly b
 the Cisco IMC documentation https://www.cisco.com/c/en/us/support/servers-unified-computing/ucs-c-series-integrated-
 management-controller/series.html#~tab-documents
 The Cisco IMC configuration is relevant only for Catalyst Center deployments based on UCS appliances. In cases where
-Cisco IMC configuration is not supported by the deployment, these APIs will respond with a *404 Not Found* status code.
+Cisco IMC configuration is not supported by the deployment, these APIs will respond with a **404 Not Found** status
+code.
 
 - This resource updates the Cisco Integrated Management Controller (IMC) configuration for a Catalyst Center node,
 identified by the specified ID.
@@ -38,7 +39,8 @@ More data about the Cisco IMC can be retrieved using the APIs exposed directly b
 the Cisco IMC documentation https://www.cisco.com/c/en/us/support/servers-unified-computing/ucs-c-series-integrated-
 management-controller/series.html#~tab-documents
 The Cisco IMC configuration is relevant only for Catalyst Center deployments based on UCS appliances. In cases where
-Cisco IMC configuration is not supported by the deployment, these APIs will respond with a *404 Not Found* status code.
+Cisco IMC configuration is not supported by the deployment, these APIs will respond with a **404 Not Found** status
+code.
 When Cisco IMC configuration is supported, this API responds with the URL of a diagnostic task.
 `,
 
@@ -74,7 +76,7 @@ When Cisco IMC configuration is supported, this API responds with the URL of a d
 							Computed: true,
 						},
 						"node_id": &schema.Schema{
-							Description: `The UUID that represents the Catalyst Center node. Its value can be obtained from the *id* attribute of the response of the */dna/intent/api/v1/nodes-config* API.
+							Description: `The UUID that represents the Catalyst Center node. Its value can be obtained from the **id** attribute of the response of the **/dna/intent/api/v1/nodes-config** API.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -276,6 +278,7 @@ func resourceCiscoImcsIDDelete(ctx context.Context, d *schema.ResourceData, m in
 
 	return diags
 }
+
 func expandRequestCiscoImcsIDUpdatesTheCiscoIMCConfigurationForACatalystCenterNode(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestCiscoIMCUpdatesTheCiscoIMCConfigurationForACatalystCenterNode {
 	request := dnacentersdkgo.RequestCiscoIMCUpdatesTheCiscoIMCConfigurationForACatalystCenterNode{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ip_address")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ip_address")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ip_address")))) {

@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -135,107 +135,97 @@ func resourceSdaFabricDevicesLayer2HandoffsIPTransits() *schema.Resource {
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"payload": &schema.Schema{
-							Description: `Array of RequestApplicationPolicyCreateApplication`,
-							Type:        schema.TypeList,
-							Optional:    true,
-							Computed:    true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
 
-									"external_connectivity_ip_pool_name": &schema.Schema{
-										Description: `External connectivity ip pool will be used by Catalyst Center to allocate IP address for the connection between the border node and peer.
+						"external_connectivity_ip_pool_name": &schema.Schema{
+							Description: `External connectivity ip pool will be used by Catalyst Center to allocate IP address for the connection between the border node and peer.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"fabric_id": &schema.Schema{
-										Description: `ID of the fabric this device is assigned to.
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"fabric_id": &schema.Schema{
+							Description: `ID of the fabric this device is assigned to.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"id": &schema.Schema{
-										Description: `ID of the fabric device layer 3 handoff ip transit. (updating this field is not allowed).
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"id": &schema.Schema{
+							Description: `ID of the fabric device layer 3 handoff ip transit. (updating this field is not allowed).
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"interface_name": &schema.Schema{
-										Description: `Interface name of the layer 3 handoff ip transit.
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"interface_name": &schema.Schema{
+							Description: `Interface name of the layer 3 handoff ip transit.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"local_ip_address": &schema.Schema{
-										Description: `Local ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name.
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"local_ip_address": &schema.Schema{
+							Description: `Local ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"local_ipv6_address": &schema.Schema{
-										Description: `Local ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name.
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"local_ipv6_address": &schema.Schema{
+							Description: `Local ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"network_device_id": &schema.Schema{
-										Description: `Network device ID of the fabric device.
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"network_device_id": &schema.Schema{
+							Description: `Network device ID of the fabric device.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"remote_ip_address": &schema.Schema{
-										Description: `Remote ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name.
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"remote_ip_address": &schema.Schema{
+							Description: `Remote ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"remote_ipv6_address": &schema.Schema{
-										Description: `Remote ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name.
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"remote_ipv6_address": &schema.Schema{
+							Description: `Remote ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"tcp_mss_adjustment": &schema.Schema{
-										Description: `TCP maximum segment size (mss) value for the layer 3 handoff. Allowed range is [500-1440]. TCP MSS Adjustment value is applicable for the TCP sessions over both IPv4 and IPv6.
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"tcp_mss_adjustment": &schema.Schema{
+							Description: `TCP maximum segment size (mss) value for the layer 3 handoff. Allowed range is [500-1440]. TCP MSS Adjustment value is applicable for the TCP sessions over both IPv4 and IPv6.
 `,
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
-									},
-									"transit_network_id": &schema.Schema{
-										Description: `ID of the transit network of the layer 3 handoff ip transit.
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"transit_network_id": &schema.Schema{
+							Description: `ID of the transit network of the layer 3 handoff ip transit.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"virtual_network_name": &schema.Schema{
-										Description: `Name of the virtual network associated with this fabric site.
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"virtual_network_name": &schema.Schema{
+							Description: `Name of the virtual network associated with this fabric site.
 `,
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"vlan_id": &schema.Schema{
-										Description: `VLAN number for the Switch Virtual Interface (SVI) used to establish BGP peering with the external domain for the virtual network.  Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094).
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"vlan_id": &schema.Schema{
+							Description: `VLAN number for the Switch Virtual Interface (SVI) used to establish BGP peering with the external domain for the virtual network.  Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094).
 `,
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
-									},
-								},
-							},
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -492,6 +482,7 @@ func resourceSdaFabricDevicesLayer2HandoffsIPTransitsDelete(ctx context.Context,
 
 	return diags
 }
+
 func expandRequestSdaFabricDevicesLayer2HandoffsIPTransitsAddFabricDevicesLayer3HandoffsWithIPTransit(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddFabricDevicesLayer3HandoffsWithIPTransit {
 	request := dnacentersdkgo.RequestSdaAddFabricDevicesLayer3HandoffsWithIPTransit{}
 	if v := expandRequestSdaFabricDevicesLayer2HandoffsIPTransitsAddFabricDevicesLayer3HandoffsWithIPTransitItemArray(ctx, key+".payload", d); v != nil {

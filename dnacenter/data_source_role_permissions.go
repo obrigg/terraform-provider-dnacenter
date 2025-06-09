@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,7 +15,7 @@ func dataSourceRolePermissions() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on User and Roles.
 
-- Get permissions for a role from Cisco DNA Center System.
+- Get permissions for a role in the system.
 `,
 
 		ReadContext: dataSourceRolePermissionsRead,
@@ -76,7 +76,21 @@ func dataSourceRolePermissionsRead(ctx context.Context, d *schema.ResourceData, 
 	if selectedMethod == 1 {
 		log.Printf("[DEBUG] Selected method: GetPermissionsAPI")
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.UserandRoles.GetPermissionsAPI()
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetPermissionsAPI", err,
+				"Failure at GetPermissionsAPI, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

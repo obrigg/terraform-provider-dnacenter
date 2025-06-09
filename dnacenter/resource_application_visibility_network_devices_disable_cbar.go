@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -11,7 +12,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -26,7 +27,7 @@ func resourceApplicationVisibilityNetworkDevicesDisableCbar() *schema.Resource {
 include the list of network devices where it has to be disabled.
 This operation pushes configuration to the network devices, and is only permitted if the provisioning settings do not
 mandate a config preview for CBAR disablement. In cases where such settings are active, attempting to use this endpoint
-will result in *422 Unprocessable Content* error.
+will result in **422 Unprocessable Content** error.
 `,
 
 		CreateContext: resourceApplicationVisibilityNetworkDevicesDisableCbarCreate,
@@ -133,7 +134,7 @@ func resourceApplicationVisibilityNetworkDevicesDisableCbarCreate(ctx context.Co
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

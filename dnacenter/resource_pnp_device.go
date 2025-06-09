@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -42,11 +42,7 @@ func resourcePnpDevice() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type_id": &schema.Schema{
-							Description: `Id`,
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
+
 						"id": &schema.Schema{
 							Description: `Id`,
 							Type:        schema.TypeString,
@@ -1495,11 +1491,6 @@ func resourcePnpDevice() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
-						"id": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
 						"device_info": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1731,6 +1722,12 @@ func resourcePnpDevice() *schema.Resource {
 								},
 							},
 						},
+						"id": &schema.Schema{
+							Description: `Id`,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -1925,6 +1922,7 @@ func resourcePnpDeviceDelete(ctx context.Context, d *schema.ResourceData, m inte
 
 	return diags
 }
+
 func expandRequestPnpDeviceAddDevice(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestDeviceOnboardingPnpAddDevice {
 	request := dnacentersdkgo.RequestDeviceOnboardingPnpAddDevice{}
 	request.DeviceInfo = expandRequestPnpDeviceAddDeviceDeviceInfo(ctx, key, d)

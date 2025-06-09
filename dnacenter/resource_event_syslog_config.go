@@ -2,13 +2,12 @@ package dnacenter
 
 import (
 	"context"
-
 	"errors"
 	"reflect"
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -148,7 +147,7 @@ func resourceEventSyslogConfig() *schema.Resource {
 							Description: `Name`,
 							Type:        schema.TypeString,
 							Optional:    true,
-							Default:     "",
+							Computed:    true,
 						},
 						"port": &schema.Schema{
 							Description: `Port`,
@@ -287,6 +286,7 @@ func resourceEventSyslogConfigDelete(ctx context.Context, d *schema.ResourceData
 
 	return diags
 }
+
 func expandRequestEventSyslogConfigCreateSyslogDestination(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestEventManagementCreateSyslogDestination {
 	request := dnacentersdkgo.RequestEventManagementCreateSyslogDestination{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".config_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".config_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".config_id")))) {

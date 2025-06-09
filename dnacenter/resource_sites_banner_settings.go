@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,8 +18,8 @@ func resourceSitesBannerSettings() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read and update operations on Network Settings.
 
-- Set banner settings for a site; *null* values indicate that the setting will be inherited from the parent site; empty
-objects (*{}*) indicate that the settings is unset.
+- Set banner settings for a site; **null** values indicate that the setting will be inherited from the parent site;
+empty objects (**{}**) indicate that the settings is unset.
 `,
 
 		CreateContext: resourceSitesBannerSettingsCreate,
@@ -240,6 +240,7 @@ func resourceSitesBannerSettingsDelete(ctx context.Context, d *schema.ResourceDa
 		"Failure at SitesBannerSettingsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestSitesBannerSettingsSetBannerSettingsForASite(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsSetBannerSettingsForASite {
 	request := dnacentersdkgo.RequestNetworkSettingsSetBannerSettingsForASite{}
 	request.Banner = expandRequestSitesBannerSettingsSetBannerSettingsForASiteBanner(ctx, key, d)

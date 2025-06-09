@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"time"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	"log"
+
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -156,7 +157,7 @@ func resourceSdaMulticastVirtualNetworks() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"payload": &schema.Schema{
-							Description: `Array of RequestApplicationPolicyCreateApplication`,
+							Description: `Array of RequestSdaAddMulticastVirtualNetworks`,
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
@@ -535,6 +536,7 @@ func resourceSdaMulticastVirtualNetworksDelete(ctx context.Context, d *schema.Re
 
 	return diags
 }
+
 func expandRequestSdaMulticastVirtualNetworksAddMulticastVirtualNetworks(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddMulticastVirtualNetworks {
 	request := dnacentersdkgo.RequestSdaAddMulticastVirtualNetworks{}
 	if v := expandRequestSdaMulticastVirtualNetworksAddMulticastVirtualNetworksItemArray(ctx, key+".payload", d); v != nil {

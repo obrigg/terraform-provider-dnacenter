@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -158,6 +158,7 @@ func resourceFlexibleReportScheduleDelete(ctx context.Context, d *schema.Resourc
 		"Failure at FlexibleReportScheduleDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestFlexibleReportScheduleUpdateScheduleOfFlexibleReport(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestReportsUpdateScheduleOfFlexibleReport {
 	request := dnacentersdkgo.RequestReportsUpdateScheduleOfFlexibleReport{}
 	request.Schedule = expandRequestFlexibleReportScheduleUpdateScheduleOfFlexibleReportSchedule(ctx, key, d)

@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -117,7 +117,7 @@ func resourcePnpDeviceAuthorizeCreate(ctx context.Context, d *schema.ResourceDat
 
 	log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-	vItem1 := flattenDeviceOnboardingPnpAuthorizeDeviceItem(response1)
+	vItem1 := flattenCiscoDnaCenterSystemAuthorizeDeviceItem(response1)
 	if err := d.Set("item", vItem1); err != nil {
 		diags = append(diags, diagError(
 			"Failure when setting AuthorizeDevice response",
@@ -152,12 +152,12 @@ func expandRequestPnpDeviceAuthorizeAuthorizeDevice(ctx context.Context, key str
 	return &request
 }
 
-func flattenDeviceOnboardingPnpAuthorizeDeviceItem(item *dnacentersdkgo.ResponseDeviceOnboardingPnpAuthorizeDevice) []map[string]interface{} {
+func flattenCiscoDnaCenterSystemAuthorizeDeviceItem(item *dnacentersdkgo.ResponseDeviceOnboardingPnpAuthorizeDevice) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
 	respItem := make(map[string]interface{})
-	respItem["json_response"] = flattenDeviceOnboardingPnpAuthorizeDeviceItemJSONResponse(item.JSONResponse)
+	respItem["json_response"] = flattenCiscoDnaCenterSystemAuthorizeDeviceItemJSONResponse(item.JSONResponse)
 	respItem["message"] = item.Message
 	respItem["status_code"] = item.StatusCode
 	respItem["json_array_response"] = item.JSONArrayResponse
@@ -166,7 +166,7 @@ func flattenDeviceOnboardingPnpAuthorizeDeviceItem(item *dnacentersdkgo.Response
 	}
 }
 
-func flattenDeviceOnboardingPnpAuthorizeDeviceItemJSONResponse(item *dnacentersdkgo.ResponseDeviceOnboardingPnpAuthorizeDeviceJSONResponse) []map[string]interface{} {
+func flattenCiscoDnaCenterSystemAuthorizeDeviceItemJSONResponse(item *dnacentersdkgo.ResponseDeviceOnboardingPnpAuthorizeDeviceJSONResponse) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}

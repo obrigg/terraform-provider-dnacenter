@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -61,6 +61,13 @@ func dataSourceAreas() *schema.Resource {
 							Computed: true,
 						},
 
+						"site_hierarchy_id": &schema.Schema{
+							Description: `Site Hierarchical Id. Read Only. Can be used to add the access groups using the API POST:/dna/system/api/v1/accessGroups, this value should be used to populate the srcResourceId field of the request payload.
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
 						"type": &schema.Schema{
 							Description: `Site Type.
 `,
@@ -85,7 +92,21 @@ func dataSourceAreasRead(ctx context.Context, d *schema.ResourceData, m interfac
 		log.Printf("[DEBUG] Selected method: GetsAnArea")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SiteDesign.GetsAnArea(vvID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetsAnArea", err,
+				"Failure at GetsAnArea, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -120,6 +141,7 @@ func flattenSiteDesignGetsAnAreaItem(item *dnacentersdkgo.ResponseSiteDesignGets
 	}
 	respItem := make(map[string]interface{})
 	respItem["id"] = item.ID
+	respItem["site_hierarchy_id"] = item.SiteHierarchyID
 	respItem["name"] = item.Name
 	respItem["name_hierarchy"] = item.NameHierarchy
 	respItem["parent_id"] = item.ParentID

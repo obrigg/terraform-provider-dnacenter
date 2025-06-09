@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -12,7 +13,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -25,7 +26,7 @@ func resourceLanAutomationV2() *schema.Resource {
 
 - Invoke V2 LAN Automation Start API, which supports optional auto-stop processing feature based on the provided timeout
 or a specific device list, or both. The stop processing will be executed automatically when either of the cases is
-satisfied, without specifically calling the stop API. The V2 API behaves similarly to  if no timeout or device list is
+satisfied, without specifically calling the stop API. The V2 API behaves similarly to V1 if no timeout or device list is
 provided, and the user needs to call the stop API for LAN Automation stop processing. With the V2 API, the user can also
 specify the level up to which the devices can be LAN automated.
 `,
@@ -301,7 +302,7 @@ func resourceLanAutomationV2Create(ctx context.Context, d *schema.ResourceData, 
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

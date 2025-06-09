@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -41,7 +41,7 @@ programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-
 				Optional: true,
 			},
 			"attribute": &schema.Schema{
-				Description: `attribute query parameter. List of attributes related to the issue. If these are provided, then only those attributes will be part of response along with the default attributes. Please refer to the *IssuesResponseAttribute* Model for supported attributes. Examples: *attribute=deviceType* (single attribute requested) *attribute=deviceType&attribute=updatedBy* (multiple attributes requested)
+				Description: `attribute query parameter. List of attributes related to the issue. If these are provided, then only those attributes will be part of response along with the default attributes. Please refer to the **IssuesResponseAttribute** Model for supported attributes. Examples: **attribute=deviceType** (single attribute requested) **attribute=deviceType&attribute=updatedBy** (multiple attributes requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -66,6 +66,7 @@ programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-
 			},
 			"entity_id": &schema.Schema{
 				Description: `entityId query parameter. Id of the entity for which this issue belongs to. For example, it
+
     could be mac address of AP or UUID of Sensor
   example: 68:ca:e4:79:3f:20 4de02167-901b-43cf-8822-cffd3caa286f
 Examples: entityId=68:ca:e4:79:3f:20 (single entity id requested) entityId=68:ca:e4:79:3f:20&entityId=864d0421-02c0-43a6-9c52-81cad45f66d8 (multiple entity ids requested)
@@ -146,9 +147,9 @@ Examples: entityId=68:ca:e4:79:3f:20 (single entity id requested) entityId=68:ca
 				Optional: true,
 			},
 			"mac_address": &schema.Schema{
-				Description: `macAddress query parameter. The macAddress of the network device or client This field supports wildcard (***) character-based search.  Ex: **AB:AB:AB** or *AB:AB:AB** or **AB:AB:AB* Examples:
-*macAddress=AB:AB:AB:CD:CD:CD* (single macAddress requested)
-*macAddress=AB:AB:AB:CD:CD:DC&macAddress=AB:AB:AB:CD:CD:FE* (multiple macAddress requested)
+				Description: `macAddress query parameter. The macAddress of the network device or client This field supports wildcard (*****) character-based search. Ex: ***AB:AB:AB*** or **AB:AB:AB*** or ***AB:AB:AB** Examples:
+**macAddress=AB:AB:AB:CD:CD:CD** (single macAddress requested)
+**macAddress=AB:AB:AB:CD:CD:DC&macAddress=AB:AB:AB:CD:CD:FE** (multiple macAddress requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -160,20 +161,20 @@ Examples: entityId=68:ca:e4:79:3f:20 (single entity id requested) entityId=68:ca
 				Optional: true,
 			},
 			"network_device_id": &schema.Schema{
-				Description: `networkDeviceId query parameter. The list of Network Device Uuids. (Ex. *6bef213c-19ca-4170-8375-b694e251101c*)
+				Description: `networkDeviceId query parameter. The list of Network Device Uuids. (Ex. **6bef213c-19ca-4170-8375-b694e251101c**)
 Examples:
-*networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c* (single networkDeviceId requested)
-*networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c&networkDeviceId=32219612-819e-4b5e-a96b-cf22aca13dd9&networkDeviceId=2541e9a7-b80d-4955-8aa2-79b233318ba0* (multiple networkDeviceIds with & separator)
+**networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c** (single networkDeviceId requested)
+**networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c&networkDeviceId=32219612-819e-4b5e-a96b-cf22aca13dd9&networkDeviceId=2541e9a7-b80d-4955-8aa2-79b233318ba0** (multiple networkDeviceIds with & separator)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"network_device_ip_address": &schema.Schema{
-				Description: `networkDeviceIpAddress query parameter. The list of Network Device management IP Address. (Ex. *121.1.1.10*)
-This field supports wildcard (***) character-based search.  Ex: **1.1** or *1.1** or **1.1*
+				Description: `networkDeviceIpAddress query parameter. The list of Network Device management IP Address. (Ex. **121.1.1.10**)
+This field supports wildcard (*****) character-based search. Ex: ***1.1*** or **1.1*** or ***1.1**
 Examples:
-*networkDeviceIpAddress=121.1.1.10*
-*networkDeviceIpAddress=121.1.1.10&networkDeviceIpAddress=172.20.1.10&networkDeviceIpAddress=10.10.20.10* (multiple networkDevice IP Address with & separator)
+**networkDeviceIpAddress=121.1.1.10**
+**networkDeviceIpAddress=121.1.1.10&networkDeviceIpAddress=172.20.1.10&networkDeviceIpAddress=10.10.20.10** (multiple networkDevice IP Address with & separator)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -203,41 +204,41 @@ Examples:
 				Optional: true,
 			},
 			"site_hierarchy": &schema.Schema{
-				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. *Global/AreaName/BuildingName/FloorName*)
+				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. **Global/AreaName/BuildingName/FloorName**)
 This field supports wildcard asterisk (*) character search support. E.g. */San*, */San, /San*
 Examples:
-*?siteHierarchy=Global/AreaName/BuildingName/FloorName* (single siteHierarchy requested)
-*?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2* (multiple siteHierarchies requested)
+**?siteHierarchy=Global/AreaName/BuildingName/FloorName** (single siteHierarchy requested)
+**?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2** (multiple siteHierarchies requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_hierarchy_id": &schema.Schema{
-				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. *globalUuid/areaUuid/buildingUuid/floorUuid*)
-This field supports wildcard asterisk (*) character search support. E.g. **uuid*, *uuid, uuid*
+				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. **globalUuid/areaUuid/buildingUuid/floorUuid**)
+This field supports wildcard asterisk (*) character search support. E.g. ***uuid*, *uuid, uuid*
 Examples:
-*?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid *(single siteHierarchyId requested)
-*?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2* (multiple siteHierarchyIds requested)
+**?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid **(single siteHierarchyId requested)
+**?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2** (multiple siteHierarchyIds requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_id": &schema.Schema{
-				Description: `siteId query parameter. The UUID of the site. (Ex. *flooruuid*)
+				Description: `siteId query parameter. The UUID of the site. (Ex. **flooruuid**)
 This field supports wildcard asterisk (*) character search support. E.g.*flooruuid*, *flooruuid, flooruuid*
 Examples:
-*?siteId=id1* (single id requested)
-*?siteId=id1&siteId=id2&siteId=id3* (multiple ids requested)
+**?siteId=id1** (single id requested)
+**?siteId=id1&siteId=id2&siteId=id3** (multiple ids requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_name": &schema.Schema{
-				Description: `siteName query parameter. The name of the site. (Ex. *FloorName*)
+				Description: `siteName query parameter. The name of the site. (Ex. **FloorName**)
 This field supports wildcard asterisk (*) character search support. E.g. *San*, *San, San*
 Examples:
-*?siteName=building1* (single siteName requested)
-*?siteName=building1&siteName=building2&siteName=building3* (multiple siteNames requested)
+**?siteName=building1** (single siteName requested)
+**?siteName=building1&siteName=building2&siteName=building3** (multiple siteNames requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -249,7 +250,7 @@ Examples:
 			},
 			"start_time": &schema.Schema{
 				Description: `startTime query parameter. Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
-If *startTime* is not provided, API will default to current time.
+If **startTime** is not provided, API will default to current time.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -267,8 +268,8 @@ If *startTime* is not provided, API will default to current time.
 				Optional: true,
 			},
 			"view": &schema.Schema{
-				Description: `view query parameter. The name of the View. Each view represents a specific data set. Please refer to the *IssuesView* Model for supported views. View is predefined set of attributes supported by the API. Only the attributes related to the given view will be part of the API response along with default attributes. If multiple views are provided, then response will contain attributes from all those views. If no views are specified, all attributes will be returned.
-| View Name | Included Attributes | | --| --| | *update* | updatedTime, updatedBy | | *site* | siteName, siteHierarchy, siteId, siteHierarchyId | Examples: *view=update* (single view requested) *view=update&view=site* (multiple views requested)
+				Description: `view query parameter. The name of the View. Each view represents a specific data set. Please refer to the **IssuesView** Model for supported views. View is predefined set of attributes supported by the API. Only the attributes related to the given view will be part of the API response along with default attributes. If multiple views are provided, then response will contain attributes from all those views. If no views are specified, all attributes will be returned.
+| View Name | Included Attributes | | --| --| | **update** | updatedTime, updatedBy | | **site** | siteName, siteHierarchy, siteId, siteHierarchyId | Examples: **view=update** (single view requested) **view=update&view=site** (multiple views requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -808,7 +809,21 @@ func dataSourceAssuranceIssuesRead(ctx context.Context, d *schema.ResourceData, 
 			headerParams1.XCaLLERID = vXCaLLERID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Issues.GetTheDetailsOfIssuesForGivenSetOfFiltersKnowYourNetwork(&headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetTheDetailsOfIssuesForGivenSetOfFiltersKnowYourNetwork", err,
+				"Failure at GetTheDetailsOfIssuesForGivenSetOfFiltersKnowYourNetwork, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -854,7 +869,21 @@ func dataSourceAssuranceIssuesRead(ctx context.Context, d *schema.ResourceData, 
 			headerParams2.XCaLLERID = vXCaLLERID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Issues.GetAllTheDetailsAndSuggestedActionsOfAnIssueForTheGivenIssueID(vvID, &headerParams2, &queryParams2)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetAllTheDetailsAndSuggestedActionsOfAnIssueForTheGivenIssueID", err,
+				"Failure at GetAllTheDetailsAndSuggestedActionsOfAnIssueForTheGivenIssueID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

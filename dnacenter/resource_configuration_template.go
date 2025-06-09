@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -1965,6 +1965,12 @@ func resourceConfigurationTemplate() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"template_id": &schema.Schema{
+							Description: `templateId path parameter. templateId(UUID) of template to be deleted
+`,
+							Type:     schema.TypeString,
+							Required: true,
+						},
 						"template_params": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
@@ -2510,6 +2516,7 @@ func resourceConfigurationTemplateDelete(ctx context.Context, d *schema.Resource
 
 	return diags
 }
+
 func expandRequestConfigurationTemplateCreateTemplate(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestConfigurationTemplatesCreateTemplate {
 	request := dnacentersdkgo.RequestConfigurationTemplatesCreateTemplate{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".tags")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".tags")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".tags")))) {

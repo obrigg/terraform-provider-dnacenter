@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,6 +18,7 @@ func dataSourceInterfaces() *schema.Resource {
 - Retrieves the list of the interfaces from all network devices based on the provided query parameters. The latest
 interfaces data in the specified start and end time range will be returned. When there is no start and end time
 specified returns the latest available data.
+
 The elements are grouped and sorted by deviceUuid first, and are then sorted by the given sort field, or by the default
 value: name.
 
@@ -31,8 +32,7 @@ operStatus, portChannelId, portMode, portType,speed, vlanId
 This data source can paginate up to 500,000 records, please narrow matching results with additional filters beyond that
 value. The elements are grouped and sorted by deviceUuid first, and are then sorted by the given sort field, or by the
 default value: name.
-
- The supported sorting options are: name, adminStatus, description, duplexConfig,
+The supported sorting options are: name, adminStatus, description, duplexConfig,
 duplexOper,interfaceIfIndex,interfaceType, macAddress,mediaType, operStatus,portChannelId, portMode, portType,speed,
 vlanId,pdPowerAdminMaxInWatt,pdPowerBudgetInWatt,pdPowerConsumedInWatt,pdPowerRemainingInWatt,pdMaxPowerDrawn. For
 detailed information about the usage of the API, please refer to the Open API specification document
@@ -49,12 +49,7 @@ specs/blob/main/Assurance/CE_Cat_Center_Org-interfaces-2.0.0-resolved.yaml
 		ReadContext: dataSourceInterfacesRead,
 		Schema: map[string]*schema.Schema{
 			"attribute": &schema.Schema{
-				Description: `attribute query parameter. The following list of attributes can be provided in the attribute field
-[id,adminStatus, description,duplexConfig,duplexOper,interfaceIfIndex,interfaceType,ipv4Address,ipv6AddressList,isL3Interface,isWan,macAddress,mediaType,name,operStatus,peerStackMember,peerStackPort, portChannelId,portMode, portType,rxDiscards,rxError,rxRate,rxUtilization,speed,stackPortType,timestamp,txDiscards,txError,txRate,txUtilization,vlanId,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId]
-If length of attribute list is too long, please use 'views' param instead.
-Examples:
-attributes=name (single attribute requested)
-attributes=name,description,duplexOper (multiple attributes with comma separator)
+				Description: `attribute query parameter. The following list of attributes can be provided in the attribute field          [id,adminStatus, description,duplexConfig,duplexOper,interfaceIfIndex,interfaceType,ipv4Address,ipv6AddressList,isL3Interface,isWan,macAddress,mediaType,name,operStatus,peerStackMember,peerStackPort, portChannelId,portMode, portType,rxDiscards,rxError,rxRate,rxUtilization,speed,stackPortType,timestamp,txDiscards,txError,txRate,txUtilization,vlanId,networkDeviceId,networkDeviceIpAddress,networkDeviceMacAddress,siteName,siteHierarchy,siteHierarchyId,poeAdminStatus,poeOperStatus,chassisId,moduleId,pdClassSignal,pdClassSpare,pdDeviceType,pdDeviceModel,pdPowerAdminMaxInWatt,pdPowerBudgetInWatt,pdPowerConsumedInWatt,pdPowerRemainingInWatt,pdMaxPowerDrawn,pdConnectedDeviceList,poeOperPriority,fastPoEEnabled,perpetualPoEEnabled,policingPoEEnabled,upoePlusEnabled,fourPairEnabled,poeDataTimestamp,pdLocation,pdDeviceName,pdConnectedSwitch,connectedSwitchUuid,ieeeCompliant,connectedSwitchType]          If length of attribute list is too long, please use 'views' param instead.          Examples:          attributes=name (single attribute requested)          attributes=name&description&duplexOper (multiple attributes with comma separator)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -72,19 +67,19 @@ attributes=name,description,duplexOper (multiple attributes with comma separator
 				Optional: true,
 			},
 			"interface_id": &schema.Schema{
-				Description: `interfaceId query parameter. The list of Interface Uuids. (Ex. *6bef213c-19ca-4170-8375-b694e251101c*)
+				Description: `interfaceId query parameter. The list of Interface Uuids. (Ex. **6bef213c-19ca-4170-8375-b694e251101c**)
 Examples:
-*interfaceId=6bef213c-19ca-4170-8375-b694e251101c* (single interface uuid )
-*interfaceId=6bef213c-19ca-4170-8375-b694e251101c&32219612-819e-4b5e-a96b-cf22aca13dd9&2541e9a7-b80d-4955-8aa2-79b233318ba0* (multiple Interface uuid with & separator)
+**interfaceId=6bef213c-19ca-4170-8375-b694e251101c** (single interface uuid )
+**interfaceId=6bef213c-19ca-4170-8375-b694e251101c&32219612-819e-4b5e-a96b-cf22aca13dd9&2541e9a7-b80d-4955-8aa2-79b233318ba0** (multiple Interface uuid with & separator)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"interface_name": &schema.Schema{
-				Description: `interfaceName query parameter. The list of Interface name (Ex. *GigabitEthernet1/0/1*) This field supports wildcard (***) character-based search.  Ex: **1/0/1** or *1/0/1** or **1/0/1*
+				Description: `interfaceName query parameter. The list of Interface name (Ex. **GigabitEthernet1/0/1**) This field supports wildcard (*****) character-based search. Ex: ***1/0/1*** or **1/0/1*** or ***1/0/1**
 Examples:
-*interfaceNames=GigabitEthernet1/0/1* (single interface name)
-*interfaceNames=GigabitEthernet1/0/1&GigabitEthernet2/0/1&GigabitEthernet3/0/1* (multiple interface names with & separator)
+**interfaceNames=GigabitEthernet1/0/1** (single interface name)
+**interfaceNames=GigabitEthernet1/0/1&GigabitEthernet2/0/1&GigabitEthernet3/0/1** (multiple interface names with & separator)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -96,30 +91,30 @@ Examples:
 				Optional: true,
 			},
 			"network_device_id": &schema.Schema{
-				Description: `networkDeviceId query parameter. The list of Network Device Uuids. (Ex. *6bef213c-19ca-4170-8375-b694e251101c*)
+				Description: `networkDeviceId query parameter. The list of Network Device Uuids. (Ex. **6bef213c-19ca-4170-8375-b694e251101c**)
 Examples:
-*networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c* (single networkDeviceId requested)
-*networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c&networkDeviceId=32219612-819e-4b5e-a96b-cf22aca13dd9&networkDeviceId=2541e9a7-b80d-4955-8aa2-79b233318ba0* (multiple networkDeviceIds with & separator)
+**networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c** (single networkDeviceId requested)
+**networkDeviceId=6bef213c-19ca-4170-8375-b694e251101c&networkDeviceId=32219612-819e-4b5e-a96b-cf22aca13dd9&networkDeviceId=2541e9a7-b80d-4955-8aa2-79b233318ba0** (multiple networkDeviceIds with & separator)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"network_device_ip_address": &schema.Schema{
-				Description: `networkDeviceIpAddress query parameter. The list of Network Device management IP Address. (Ex. *121.1.1.10*)
-This field supports wildcard (***) character-based search.  Ex: **1.1** or *1.1** or **1.1*
+				Description: `networkDeviceIpAddress query parameter. The list of Network Device management IP Address. (Ex. **121.1.1.10**)
+This field supports wildcard (*****) character-based search. Ex: ***1.1*** or **1.1*** or ***1.1**
 Examples:
-*networkDeviceIpAddress=121.1.1.10*
-*networkDeviceIpAddress=121.1.1.10&networkDeviceIpAddress=172.20.1.10&networkDeviceIpAddress=10.10.20.10* (multiple networkDevice IP Address with & separator)
+**networkDeviceIpAddress=121.1.1.10**
+**networkDeviceIpAddress=121.1.1.10&networkDeviceIpAddress=172.20.1.10&networkDeviceIpAddress=10.10.20.10** (multiple networkDevice IP Address with & separator)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"network_device_mac_address": &schema.Schema{
-				Description: `networkDeviceMacAddress query parameter. The list of Network Device MAC Address. (Ex. *64:f6:9d:07:9a:00*)
-This field supports wildcard (***) character-based search.  Ex: **AB:AB:AB** or *AB:AB:AB** or **AB:AB:AB*
+				Description: `networkDeviceMacAddress query parameter. The list of Network Device MAC Address. (Ex. **64:f6:9d:07:9a:00**)
+This field supports wildcard (*****) character-based search. Ex: ***AB:AB:AB*** or **AB:AB:AB*** or ***AB:AB:AB**
 Examples:
-*networkDeviceMacAddress=64:f6:9d:07:9a:00*
-*networkDeviceMacAddress=64:f6:9d:07:9a:00&networkDeviceMacAddress=70:56:9d:07:ac:77* (multiple networkDevice MAC addresses with & separator)
+**networkDeviceMacAddress=64:f6:9d:07:9a:00**
+**networkDeviceMacAddress=64:f6:9d:07:9a:00&networkDeviceMacAddress=70:56:9d:07:ac:77** (multiple networkDevice MAC addresses with & separator)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -137,30 +132,30 @@ Examples:
 				Optional: true,
 			},
 			"site_hierarchy": &schema.Schema{
-				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. *Global/AreaName/BuildingName/FloorName*)
-This field supports wildcard asterisk (***) character search support. E.g. **/San*, */San, /San**
+				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. **Global/AreaName/BuildingName/FloorName**)
+This field supports wildcard asterisk (*****) character search support. E.g. ***/San*, */San, /San***
 Examples:
-*?siteHierarchy=Global/AreaName/BuildingName/FloorName* (single siteHierarchy requested)
-*?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2* (multiple siteHierarchies requested)
+**?siteHierarchy=Global/AreaName/BuildingName/FloorName** (single siteHierarchy requested)
+**?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2** (multiple siteHierarchies requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_hierarchy_id": &schema.Schema{
-				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. *globalUuid/areaUuid/buildingUuid/floorUuid*)
-This field supports wildcard asterisk (***) character search support. E.g. **uuid*, *uuid, uuid**
+				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. **globalUuid/areaUuid/buildingUuid/floorUuid**)
+This field supports wildcard asterisk (*****) character search support. E.g. ***uuid*, *uuid, uuid***
 Examples:
-*?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid *(single siteHierarchyId requested)
-*?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2* (multiple siteHierarchyIds requested)
+**?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid **(single siteHierarchyId requested)
+**?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2** (multiple siteHierarchyIds requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_id": &schema.Schema{
-				Description: `siteId query parameter. The UUID of the site. (Ex. *flooruuid*)
+				Description: `siteId query parameter. The UUID of the site. (Ex. **flooruuid**)
 Examples:
-*?siteId=id1* (single id requested)
-*?siteId=id1&siteId=id2&siteId=id3* (multiple ids requested)
+**?siteId=id1** (single id requested)
+**?siteId=id1&siteId=id2&siteId=id3** (multiple ids requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -173,7 +168,7 @@ Examples:
 			},
 			"start_time": &schema.Schema{
 				Description: `startTime query parameter. Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
-If *startTime* is not provided, API will default to current time.
+If **startTime** is not provided, API will default to current time.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -530,12 +525,6 @@ If *startTime* is not provided, API will default to current time.
 
 						"site_hierarchy_id": &schema.Schema{
 							Description: `Site Hierarchy Id`,
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-
-						"site_name": &schema.Schema{
-							Description: `Site Name`,
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
@@ -947,12 +936,6 @@ If *startTime* is not provided, API will default to current time.
 							Computed:    true,
 						},
 
-						"site_name": &schema.Schema{
-							Description: `Site Name`,
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-
 						"speed": &schema.Schema{
 							Description: `Speed`,
 							Type:        schema.TypeString,
@@ -1095,6 +1078,8 @@ func dataSourceInterfacesRead(ctx context.Context, d *schema.ResourceData, m int
 			queryParams1.InterfaceName = vInterfaceName.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Devices.GetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevices(&queryParams1)
 
 		if err != nil || response1 == nil {
@@ -1102,17 +1087,29 @@ func dataSourceInterfacesRead(ctx context.Context, d *schema.ResourceData, m int
 				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
 			}
 			diags = append(diags, diagErrorWithAlt(
-				"Failure when executing 2 GetsInterfacesAlongWithStatisticsDataFromAllNetworkDevices", err,
-				"Failure at GetsInterfacesAlongWithStatisticsDataFromAllNetworkDevices, unexpected response", ""))
+				"Failure when executing 2 GetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevices", err,
+				"Failure at GetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevices, unexpected response", ""))
 			return diags
 		}
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-		vItems1 := flattenDevicesGetsInterfacesAlongWithStatisticsDataFromAllNetworkDevicesItems(response1.Response)
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevices", err,
+				"Failure at GetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevices, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
+
+		vItems1 := flattenDevicesGetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevicesItems(response1.Response)
 		if err := d.Set("items", vItems1); err != nil {
 			diags = append(diags, diagError(
-				"Failure when setting GetsInterfacesAlongWithStatisticsDataFromAllNetworkDevices response",
+				"Failure when setting GetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevices response",
 				err))
 			return diags
 		}
@@ -1122,7 +1119,7 @@ func dataSourceInterfacesRead(ctx context.Context, d *schema.ResourceData, m int
 
 	}
 	if selectedMethod == 2 {
-		log.Printf("[DEBUG] Selected method: GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsData")
+		log.Printf("[DEBUG] Selected method: GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeData")
 		vvID := vID.(string)
 		queryParams2 := dnacentersdkgo.GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeDataQueryParams{}
 
@@ -1139,6 +1136,8 @@ func dataSourceInterfacesRead(ctx context.Context, d *schema.ResourceData, m int
 			queryParams2.Attribute = vAttribute.(string)
 		}
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Devices.GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeData(vvID, &queryParams2)
 
 		if err != nil || response2 == nil {
@@ -1146,17 +1145,29 @@ func dataSourceInterfacesRead(ctx context.Context, d *schema.ResourceData, m int
 				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
 			}
 			diags = append(diags, diagErrorWithAlt(
-				"Failure when executing 2 GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsData", err,
-				"Failure at GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsData, unexpected response", ""))
+				"Failure when executing 2 GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeData", err,
+				"Failure at GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeData, unexpected response", ""))
 			return diags
 		}
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
-		vItem2 := flattenDevicesGetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsDataItem(response2.Response)
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeData", err,
+				"Failure at GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeData, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
+
+		vItem2 := flattenDevicesGetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeDataItem(response2.Response)
 		if err := d.Set("item", vItem2); err != nil {
 			diags = append(diags, diagError(
-				"Failure when setting GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsData response",
+				"Failure when setting GetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeData response",
 				err))
 			return diags
 		}
@@ -1168,7 +1179,7 @@ func dataSourceInterfacesRead(ctx context.Context, d *schema.ResourceData, m int
 	return diags
 }
 
-func flattenDevicesGetsInterfacesAlongWithStatisticsDataFromAllNetworkDevicesItems(items *[]dnacentersdkgo.ResponseDevicesGetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevicesResponse) []map[string]interface{} {
+func flattenDevicesGetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevicesItems(items *[]dnacentersdkgo.ResponseDevicesGetsInterfacesAlongWithStatisticsAndPoeDataFromAllNetworkDevicesResponse) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}
@@ -1210,7 +1221,6 @@ func flattenDevicesGetsInterfacesAlongWithStatisticsDataFromAllNetworkDevicesIte
 		respItem["network_device_id"] = item.NetworkDeviceID
 		respItem["network_device_ip_address"] = item.NetworkDeviceIPAddress
 		respItem["network_device_mac_address"] = item.NetworkDeviceMacAddress
-		respItem["site_name"] = item.SiteName
 		respItem["site_hierarchy"] = item.SiteHierarchy
 		respItem["site_hierarchy_id"] = item.SiteHierarchyID
 		respItem["poe_admin_status"] = item.PoeAdminStatus
@@ -1245,7 +1255,7 @@ func flattenDevicesGetsInterfacesAlongWithStatisticsDataFromAllNetworkDevicesIte
 	return respItems
 }
 
-func flattenDevicesGetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsDataItem(item *dnacentersdkgo.ResponseDevicesGetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeDataResponse) []map[string]interface{} {
+func flattenDevicesGetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeDataItem(item *dnacentersdkgo.ResponseDevicesGetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWithTheStatisticsAndPoeDataResponse) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -1285,7 +1295,6 @@ func flattenDevicesGetTheInterfaceDataForTheGivenInterfaceIDinstanceUUIDAlongWit
 	respItem["network_device_id"] = item.NetworkDeviceID
 	respItem["network_device_ip_address"] = item.NetworkDeviceIPAddress
 	respItem["network_device_mac_address"] = item.NetworkDeviceMacAddress
-	respItem["site_name"] = item.SiteName
 	respItem["site_hierarchy"] = item.SiteHierarchy
 	respItem["site_hierarchy_id"] = item.SiteHierarchyID
 	respItem["poe_admin_status"] = item.PoeAdminStatus

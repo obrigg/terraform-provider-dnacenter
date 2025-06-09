@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,19 +16,19 @@ func dataSourceImagesSiteWiseProductNames() *schema.Resource {
 		Description: `It performs read operation on Software Image Management (SWIM).
 
 - Returns a list of network device product names and associated sites for a given image identifier. Refer
-*/dna/intent/api/v1/images* API for obtaining *imageId*.
+**/dna/intent/api/v1/images** API for obtaining **imageId**.
 `,
 
 		ReadContext: dataSourceImagesSiteWiseProductNamesRead,
 		Schema: map[string]*schema.Schema{
 			"assigned": &schema.Schema{
-				Description: `assigned query parameter. Filter with the assigned/unassigned, *ASSIGNED* option will filter network device products that are associated with the given image. The *NOT_ASSIGNED* option will filter network device products that have not yet been associated with the given image but apply to it. Available values: ASSIGNED, NOT_ASSIGNED
+				Description: `assigned query parameter. Filter with the assigned/unassigned, **ASSIGNED** option will filter network device products that are associated with the given image. The **NOT_ASSIGNED** option will filter network device products that have not yet been associated with the given image but apply to it. Available values: ASSIGNED, NOT_ASSIGNED
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"image_id": &schema.Schema{
-				Description: `imageId path parameter. Software image identifier. Refer */dna/intent/api/v1/images* API for obtaining *imageId*
+				Description: `imageId path parameter. Software image identifier. Refer **/dna/intent/api/v1/images** API for obtaining **imageId**
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -58,7 +58,7 @@ func dataSourceImagesSiteWiseProductNames() *schema.Resource {
 				Optional: true,
 			},
 			"recommended": &schema.Schema{
-				Description: `recommended query parameter. Filter with recommended source. If *CISCO* then the network device product assigned was recommended by Cisco and *USER* then the user has manually assigned. Available values: CISCO, USER
+				Description: `recommended query parameter. Filter with recommended source. If **CISCO** then the network device product assigned was recommended by Cisco and **USER** then the user has manually assigned. Available values: CISCO, USER
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -161,7 +161,21 @@ func dataSourceImagesSiteWiseProductNamesRead(ctx context.Context, d *schema.Res
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SoftwareImageManagementSwim.RetrievesNetworkDeviceProductNamesAssignedToASoftwareImage(vvImageID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesNetworkDeviceProductNamesAssignedToASoftwareImage", err,
+				"Failure at RetrievesNetworkDeviceProductNamesAssignedToASoftwareImage, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

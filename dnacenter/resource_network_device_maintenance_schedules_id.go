@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,16 +18,16 @@ func resourceNetworkDeviceMaintenanceSchedulesID() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read, update and delete operations on Devices.
 
-- API to update the maintenance schedule for the network devices. The *maintenanceSchedule* can be updated only if the
-*status* value is *UPCOMING* or *IN_PROGRESS*. User can exit *IN_PROGRESS* maintenance window by setting the *endTime*
-to -1. This will update the endTime to the current time and exit the maintenance window immediately. When exiting the
-maintenance window, only the endTime will be updated while other parameters remain read-only.
+- API to update the maintenance schedule for the network devices. The **maintenanceSchedule** can be updated only if the
+**status** value is **UPCOMING** or **IN_PROGRESS**. User can exit **IN_PROGRESS** maintenance window by setting the
+**endTime** to -1. This will update the endTime to the current time and exit the maintenance window immediately. When
+exiting the maintenance window, only the endTime will be updated while other parameters remain read-only.
 
-- API to delete maintenance schedule by id. Deletion is allowed if the maintenance window is in the *UPCOMING*,
-*COMPLETED*, or *FAILED* state. Deletion of maintenance schedule is not allowed if the maintenance window is currently
-*IN_PROGRESS*. To delete the maintenance schedule while it is *IN_PROGRESS*, first exit the current maintenance window
-using *PUT /dna/intent/api/v1/networkDeviceMaintenanceSchedules/{id}* API, and then proceed to delete the maintenance
-schedule.
+- API to delete maintenance schedule by id. Deletion is allowed if the maintenance window is in the **UPCOMING**,
+**COMPLETED**, or **FAILED** state. Deletion of maintenance schedule is not allowed if the maintenance window is
+currently **IN_PROGRESS**. To delete the maintenance schedule while it is **IN_PROGRESS**, first exit the current
+maintenance window using **PUT /dna/intent/api/v1/networkDeviceMaintenanceSchedules/{id}** API, and then proceed to
+delete the maintenance schedule.
 `,
 
 		CreateContext: resourceNetworkDeviceMaintenanceSchedulesIDCreate,
@@ -68,7 +68,7 @@ schedule.
 								Schema: map[string]*schema.Schema{
 
 									"end_id": &schema.Schema{
-										Description: `Activity id of end schedule of the maintenance window. To check the status of the end schedule, use GET /intent/api/v1/activities/{id}. endId remains same for every occurrence of recurrence instance.
+										Description: `Activity id of end schedule of the maintenance window. To check the status of the end schedule, use GET /dna/intent/api/v1/activities/{id}. endId remains same for every occurrence of recurrence instance.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -101,7 +101,7 @@ schedule.
 										},
 									},
 									"start_id": &schema.Schema{
-										Description: `Activity id of start schedule of the maintenance window. To check the status of the start schedule, use GET /intent/api/v1/activities/{id}. startId remains same for every occurrence of recurrence instance.
+										Description: `Activity id of start schedule of the maintenance window. To check the status of the start schedule, use GET /dna/intent/api/v1/activities/{id}. startId remains same for every occurrence of recurrence instance.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -392,6 +392,7 @@ func resourceNetworkDeviceMaintenanceSchedulesIDDelete(ctx context.Context, d *s
 
 	return diags
 }
+
 func expandRequestNetworkDeviceMaintenanceSchedulesIDUpdatesTheMaintenanceScheduleInformation(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestDevicesUpdatesTheMaintenanceScheduleInformation {
 	request := dnacentersdkgo.RequestDevicesUpdatesTheMaintenanceScheduleInformation{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".description")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".description")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".description")))) {

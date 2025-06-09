@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,13 +15,13 @@ func dataSourceDiagnosticTasksID() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Health and Performance.
 
-- This data source retrieves the diagnostic task identified by the specified *id*.
+- This data source retrieves the diagnostic task identified by the specified **id**.
 `,
 
 		ReadContext: dataSourceDiagnosticTasksIDRead,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
-				Description: `id path parameter. The *id* of the diagnostic task to be retrieved
+				Description: `id path parameter. The **id** of the diagnostic task to be retrieved
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -106,7 +106,21 @@ func dataSourceDiagnosticTasksIDRead(ctx context.Context, d *schema.ResourceData
 		log.Printf("[DEBUG] Selected method: RetrievesDiagnosticTaskByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.HealthAndPerformance.RetrievesDiagnosticTaskByID(vvID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesDiagnosticTaskByID", err,
+				"Failure at RetrievesDiagnosticTaskByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -272,29 +272,4 @@ func expandRequestSecurityThreatsDetailsThreatDetails(ctx context.Context, key s
 		request.IsNewThreat = interfaceToBoolPtr(v)
 	}
 	return &request
-}
-
-func flattenDevicesThreatDetailsItems(items *[]dnacentersdkgo.ResponseDevicesThreatDetailsResponse) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["mac_address"] = item.MacAddress
-		respItem["updated_time"] = item.UpdatedTime
-		respItem["vendor"] = item.Vendor
-		respItem["threat_type"] = item.ThreatType
-		respItem["threat_level"] = item.ThreatLevel
-		respItem["ap_name"] = item.ApName
-		respItem["detecting_apmac"] = item.DetectingApMac
-		respItem["site_id"] = item.SiteID
-		respItem["rssi"] = item.Rssi
-		respItem["ssid"] = item.SSID
-		respItem["containment"] = item.Containment
-		respItem["state"] = item.State
-		respItem["site_name_hierarchy"] = item.SiteNameHierarchy
-		respItems = append(respItems, respItem)
-	}
-	return respItems
 }

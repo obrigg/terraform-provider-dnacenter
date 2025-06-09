@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -197,7 +197,7 @@ func dataSourceWirelessSettingsRfProfiles() *schema.Resource {
 										Computed: true,
 									},
 
-									"fra_properties": &schema.Schema{
+									"fra_properties_c": &schema.Schema{
 										Type:     schema.TypeList,
 										Computed: true,
 										Elem: &schema.Resource{
@@ -534,7 +534,7 @@ func dataSourceWirelessSettingsRfProfiles() *schema.Resource {
 										Computed: true,
 									},
 
-									"fra_properties": &schema.Schema{
+									"fra_properties_a": &schema.Schema{
 										Type:     schema.TypeList,
 										Computed: true,
 										Elem: &schema.Resource{
@@ -990,7 +990,7 @@ func dataSourceWirelessSettingsRfProfiles() *schema.Resource {
 										Computed: true,
 									},
 
-									"fra_properties": &schema.Schema{
+									"fra_properties_c": &schema.Schema{
 										Type:     schema.TypeList,
 										Computed: true,
 										Elem: &schema.Resource{
@@ -1327,7 +1327,7 @@ func dataSourceWirelessSettingsRfProfiles() *schema.Resource {
 										Computed: true,
 									},
 
-									"fra_properties": &schema.Schema{
+									"fra_properties_a": &schema.Schema{
 										Type:     schema.TypeList,
 										Computed: true,
 										Elem: &schema.Resource{
@@ -1695,7 +1695,21 @@ func dataSourceWirelessSettingsRfProfilesRead(ctx context.Context, d *schema.Res
 			queryParams1.EnableRadioType6GHz = vEnableRadioType6GHz.(bool)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.GetRfProfiles(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetRfProfiles", err,
+				"Failure at GetRfProfiles, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -1725,7 +1739,21 @@ func dataSourceWirelessSettingsRfProfilesRead(ctx context.Context, d *schema.Res
 		log.Printf("[DEBUG] Selected method: GetRfProfileByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Wireless.GetRfProfileByID(vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetRfProfileByID", err,
+				"Failure at GetRfProfileByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {
@@ -1785,7 +1813,7 @@ func flattenWirelessGetRfProfilesItemsRadioTypeAProperties(item *dnacentersdkgo.
 	respItem["radio_channels"] = item.RadioChannels
 	respItem["data_rates"] = item.DataRates
 	respItem["mandatory_data_rates"] = item.MandatoryDataRates
-	respItem["power_threshold_v1"] = item.PowerThreshold
+	respItem["power_threshold_v1"] = item.PowerThresholdV1
 	respItem["rx_sop_threshold"] = item.RxSopThreshold
 	respItem["min_power_level"] = item.MinPowerLevel
 	respItem["max_power_level"] = item.MaxPowerLevel
@@ -1794,7 +1822,7 @@ func flattenWirelessGetRfProfilesItemsRadioTypeAProperties(item *dnacentersdkgo.
 	respItem["zero_wait_dfs_enable"] = boolPtrToString(item.ZeroWaitDfsEnable)
 	respItem["custom_rx_sop_threshold"] = item.CustomRxSopThreshold
 	respItem["max_radio_clients"] = item.MaxRadioClients
-	respItem["fra_properties"] = flattenWirelessGetRfProfilesItemsRadioTypeAPropertiesFraProperties(item.FraProperties)
+	respItem["fra_properties_a"] = flattenWirelessGetRfProfilesItemsRadioTypeAPropertiesFraPropertiesA(item.FraPropertiesA)
 	respItem["coverage_hole_detection_properties"] = flattenWirelessGetRfProfilesItemsRadioTypeAPropertiesCoverageHoleDetectionProperties(item.CoverageHoleDetectionProperties)
 	respItem["spatial_reuse_properties"] = flattenWirelessGetRfProfilesItemsRadioTypeAPropertiesSpatialReuseProperties(item.SpatialReuseProperties)
 
@@ -1804,7 +1832,7 @@ func flattenWirelessGetRfProfilesItemsRadioTypeAProperties(item *dnacentersdkgo.
 
 }
 
-func flattenWirelessGetRfProfilesItemsRadioTypeAPropertiesFraProperties(item *dnacentersdkgo.ResponseWirelessGetRfProfilesResponseRadioTypeAPropertiesFraProperties) []map[string]interface{} {
+func flattenWirelessGetRfProfilesItemsRadioTypeAPropertiesFraPropertiesA(item *dnacentersdkgo.ResponseWirelessGetRfProfilesResponseRadioTypeAPropertiesFraPropertiesA) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -1861,7 +1889,7 @@ func flattenWirelessGetRfProfilesItemsRadioTypeBProperties(item *dnacentersdkgo.
 	respItem["radio_channels"] = item.RadioChannels
 	respItem["data_rates"] = item.DataRates
 	respItem["mandatory_data_rates"] = item.MandatoryDataRates
-	respItem["power_threshold_v1"] = item.PowerThreshold
+	respItem["power_threshold_v1"] = item.PowerThresholdV1
 	respItem["rx_sop_threshold"] = item.RxSopThreshold
 	respItem["min_power_level"] = item.MinPowerLevel
 	respItem["max_power_level"] = item.MaxPowerLevel
@@ -1918,7 +1946,7 @@ func flattenWirelessGetRfProfilesItemsRadioType6GHzProperties(item *dnacentersdk
 	respItem["radio_channels"] = item.RadioChannels
 	respItem["data_rates"] = item.DataRates
 	respItem["mandatory_data_rates"] = item.MandatoryDataRates
-	respItem["power_threshold_v1"] = item.PowerThreshold
+	respItem["power_threshold_v1"] = item.PowerThresholdV1
 	respItem["rx_sop_threshold"] = item.RxSopThreshold
 	respItem["min_power_level"] = item.MinPowerLevel
 	respItem["max_power_level"] = item.MaxPowerLevel
@@ -1932,7 +1960,7 @@ func flattenWirelessGetRfProfilesItemsRadioType6GHzProperties(item *dnacentersdk
 	respItem["psc_enforcing_enabled"] = boolPtrToString(item.PscEnforcingEnabled)
 	respItem["discovery_frames6_g_hz"] = item.DiscoveryFrames6GHz
 	respItem["broadcast_probe_response_interval"] = item.BroadcastProbeResponseInterval
-	respItem["fra_properties"] = flattenWirelessGetRfProfilesItemsRadioType6GHzPropertiesFraProperties(item.FraProperties)
+	respItem["fra_properties_c"] = flattenWirelessGetRfProfilesItemsRadioType6GHzPropertiesFraPropertiesC(item.FraPropertiesC)
 	respItem["coverage_hole_detection_properties"] = flattenWirelessGetRfProfilesItemsRadioType6GHzPropertiesCoverageHoleDetectionProperties(item.CoverageHoleDetectionProperties)
 	respItem["spatial_reuse_properties"] = flattenWirelessGetRfProfilesItemsRadioType6GHzPropertiesSpatialReuseProperties(item.SpatialReuseProperties)
 
@@ -1991,7 +2019,7 @@ func flattenWirelessGetRfProfilesItemsRadioType6GHzPropertiesMultiBssidPropertie
 
 }
 
-func flattenWirelessGetRfProfilesItemsRadioType6GHzPropertiesFraProperties(item *dnacentersdkgo.ResponseWirelessGetRfProfilesResponseRadioType6GHzPropertiesFraProperties) []map[string]interface{} {
+func flattenWirelessGetRfProfilesItemsRadioType6GHzPropertiesFraPropertiesC(item *dnacentersdkgo.ResponseWirelessGetRfProfilesResponseRadioType6GHzPropertiesFraPropertiesC) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -2067,7 +2095,7 @@ func flattenWirelessGetRfProfileByIDItemRadioTypeAProperties(item *dnacentersdkg
 	respItem["radio_channels"] = item.RadioChannels
 	respItem["data_rates"] = item.DataRates
 	respItem["mandatory_data_rates"] = item.MandatoryDataRates
-	respItem["power_threshold_v1"] = item.PowerThreshold
+	respItem["power_threshold_v1"] = item.PowerThresholdV1
 	respItem["rx_sop_threshold"] = item.RxSopThreshold
 	respItem["min_power_level"] = item.MinPowerLevel
 	respItem["max_power_level"] = item.MaxPowerLevel
@@ -2076,7 +2104,7 @@ func flattenWirelessGetRfProfileByIDItemRadioTypeAProperties(item *dnacentersdkg
 	respItem["zero_wait_dfs_enable"] = boolPtrToString(item.ZeroWaitDfsEnable)
 	respItem["custom_rx_sop_threshold"] = item.CustomRxSopThreshold
 	respItem["max_radio_clients"] = item.MaxRadioClients
-	respItem["fra_properties"] = flattenWirelessGetRfProfileByIDItemRadioTypeAPropertiesFraProperties(item.FraProperties)
+	respItem["fra_properties_a"] = flattenWirelessGetRfProfileByIDItemRadioTypeAPropertiesFraPropertiesA(item.FraPropertiesA)
 	respItem["coverage_hole_detection_properties"] = flattenWirelessGetRfProfileByIDItemRadioTypeAPropertiesCoverageHoleDetectionProperties(item.CoverageHoleDetectionProperties)
 	respItem["spatial_reuse_properties"] = flattenWirelessGetRfProfileByIDItemRadioTypeAPropertiesSpatialReuseProperties(item.SpatialReuseProperties)
 
@@ -2086,7 +2114,7 @@ func flattenWirelessGetRfProfileByIDItemRadioTypeAProperties(item *dnacentersdkg
 
 }
 
-func flattenWirelessGetRfProfileByIDItemRadioTypeAPropertiesFraProperties(item *dnacentersdkgo.ResponseWirelessGetRfProfileByIDResponseRadioTypeAPropertiesFraProperties) []map[string]interface{} {
+func flattenWirelessGetRfProfileByIDItemRadioTypeAPropertiesFraPropertiesA(item *dnacentersdkgo.ResponseWirelessGetRfProfileByIDResponseRadioTypeAPropertiesFraPropertiesA) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -2143,7 +2171,7 @@ func flattenWirelessGetRfProfileByIDItemRadioTypeBProperties(item *dnacentersdkg
 	respItem["radio_channels"] = item.RadioChannels
 	respItem["data_rates"] = item.DataRates
 	respItem["mandatory_data_rates"] = item.MandatoryDataRates
-	respItem["power_threshold_v1"] = item.PowerThreshold
+	respItem["power_threshold_v1"] = item.PowerThresholdV1
 	respItem["rx_sop_threshold"] = item.RxSopThreshold
 	respItem["min_power_level"] = item.MinPowerLevel
 	respItem["max_power_level"] = item.MaxPowerLevel
@@ -2200,7 +2228,7 @@ func flattenWirelessGetRfProfileByIDItemRadioType6GHzProperties(item *dnacenters
 	respItem["radio_channels"] = item.RadioChannels
 	respItem["data_rates"] = item.DataRates
 	respItem["mandatory_data_rates"] = item.MandatoryDataRates
-	respItem["power_threshold_v1"] = item.PowerThreshold
+	respItem["power_threshold_v1"] = item.PowerThresholdV1
 	respItem["rx_sop_threshold"] = item.RxSopThreshold
 	respItem["min_power_level"] = item.MinPowerLevel
 	respItem["max_power_level"] = item.MaxPowerLevel
@@ -2214,7 +2242,7 @@ func flattenWirelessGetRfProfileByIDItemRadioType6GHzProperties(item *dnacenters
 	respItem["psc_enforcing_enabled"] = boolPtrToString(item.PscEnforcingEnabled)
 	respItem["discovery_frames6_g_hz"] = item.DiscoveryFrames6GHz
 	respItem["broadcast_probe_response_interval"] = item.BroadcastProbeResponseInterval
-	respItem["fra_properties"] = flattenWirelessGetRfProfileByIDItemRadioType6GHzPropertiesFraProperties(item.FraProperties)
+	respItem["fra_properties_c"] = flattenWirelessGetRfProfileByIDItemRadioType6GHzPropertiesFraPropertiesC(item.FraPropertiesC)
 	respItem["coverage_hole_detection_properties"] = flattenWirelessGetRfProfileByIDItemRadioType6GHzPropertiesCoverageHoleDetectionProperties(item.CoverageHoleDetectionProperties)
 	respItem["spatial_reuse_properties"] = flattenWirelessGetRfProfileByIDItemRadioType6GHzPropertiesSpatialReuseProperties(item.SpatialReuseProperties)
 
@@ -2273,7 +2301,7 @@ func flattenWirelessGetRfProfileByIDItemRadioType6GHzPropertiesMultiBssidPropert
 
 }
 
-func flattenWirelessGetRfProfileByIDItemRadioType6GHzPropertiesFraProperties(item *dnacentersdkgo.ResponseWirelessGetRfProfileByIDResponseRadioType6GHzPropertiesFraProperties) []map[string]interface{} {
+func flattenWirelessGetRfProfileByIDItemRadioType6GHzPropertiesFraPropertiesC(item *dnacentersdkgo.ResponseWirelessGetRfProfileByIDResponseRadioType6GHzPropertiesFraPropertiesC) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}

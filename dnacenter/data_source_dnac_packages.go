@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,7 +15,7 @@ func dataSourceDnacPackages() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Platform.
 
-- Provides information such as name, version of packages installed on the DNA center.
+- Provides information such as name, version of packages installed on the Catalyst center.
 `,
 
 		ReadContext: dataSourceDnacPackagesRead,
@@ -54,26 +54,40 @@ func dataSourceDnacPackagesRead(ctx context.Context, d *schema.ResourceData, m i
 
 	selectedMethod := 1
 	if selectedMethod == 1 {
-		log.Printf("[DEBUG] Selected method: CiscoDnaCenterPackagesSummary")
+		log.Printf("[DEBUG] Selected method: CiscoCatalystCenterPackagesSummary")
 
-		response1, restyResp1, err := client.Platform.CiscoDnaCenterPackagesSummary()
+		// has_unknown_response: None
+
+		response1, restyResp1, err := client.Platform.CiscoCatalystCenterPackagesSummary()
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
 				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
 			}
 			diags = append(diags, diagErrorWithAlt(
-				"Failure when executing 2 CiscoDnaCenterPackagesSummary", err,
-				"Failure at CiscoDnaCenterPackagesSummary, unexpected response", ""))
+				"Failure when executing 2 CiscoCatalystCenterPackagesSummary", err,
+				"Failure at CiscoCatalystCenterPackagesSummary, unexpected response", ""))
 			return diags
 		}
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-		vItems1 := flattenPlatformCiscoDnaCenterPackagesSummaryItems(response1.Response)
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 CiscoCatalystCenterPackagesSummary", err,
+				"Failure at CiscoCatalystCenterPackagesSummary, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
+
+		vItems1 := flattenPlatformCiscoCatalystCenterPackagesSummaryItems(response1.Response)
 		if err := d.Set("items", vItems1); err != nil {
 			diags = append(diags, diagError(
-				"Failure when setting CiscoDnaCenterPackagesSummary response",
+				"Failure when setting CiscoCatalystCenterPackagesSummary response",
 				err))
 			return diags
 		}
@@ -85,7 +99,7 @@ func dataSourceDnacPackagesRead(ctx context.Context, d *schema.ResourceData, m i
 	return diags
 }
 
-func flattenPlatformCiscoDnaCenterPackagesSummaryItems(items *[]dnacentersdkgo.ResponsePlatformCiscoDnaCenterPackagesSummaryResponse) []map[string]interface{} {
+func flattenPlatformCiscoCatalystCenterPackagesSummaryItems(items *[]dnacentersdkgo.ResponsePlatformCiscoCatalystCenterPackagesSummaryResponse) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}

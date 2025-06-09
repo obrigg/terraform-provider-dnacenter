@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,16 +15,60 @@ func dataSourceWirelessAccesspointConfigurationSummary() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Wireless.
 
-- Users can query the access point configuration information per device using the ethernet MAC address
+- Users can query access point configuration information for a specific device by using the Ethernet MAC address as a
+'key' filter. If no key is specified, all access point details will be retrieved based on the combination of filters
+provided.
 `,
 
 		ReadContext: dataSourceWirelessAccesspointConfigurationSummaryRead,
 		Schema: map[string]*schema.Schema{
+			"ap_mode": &schema.Schema{
+				Description: `apMode query parameter. AP Mode. Allowed values are Local, Bridge, Monitor, FlexConnect, Sniffer, Rogue Detector, SE-Connect, Flex+Bridge, Sensor.
+`,
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"ap_model": &schema.Schema{
+				Description: `apModel query parameter. AP Model
+`,
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"key": &schema.Schema{
 				Description: `key query parameter. The ethernet MAC address of Access point
 `,
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+			},
+			"limit": &schema.Schema{
+				Description: `limit query parameter. The number of records to show for this page. The default is 500 if not specified. The maximum allowed limit is 500.
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"mesh_role": &schema.Schema{
+				Description: `meshRole query parameter. Mesh Role. Allowed values are RAP or MAP
+`,
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"offset": &schema.Schema{
+				Description: `offset query parameter. The first record to show for this page; the first record is numbered 1.
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"provisioned": &schema.Schema{
+				Description: `provisioned query parameter. Indicate whether AP provisioned or not. Allowed values are True or False
+`,
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"wlc_ip_address": &schema.Schema{
+				Description: `wlcIpAddress query parameter. WLC IP Address
+`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"item": &schema.Schema{
@@ -32,27 +76,6 @@ func dataSourceWirelessAccesspointConfigurationSummary() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-
-						"creation_order_index": &schema.Schema{
-							Type:     schema.TypeFloat,
-							Computed: true,
-						},
-
-						"is_being_changed": &schema.Schema{
-							// Type:     schema.TypeBool,
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						"ordered_list_oeassoc_name": &schema.Schema{
-							Type:     schema.TypeString, //TEST,
-							Computed: true,
-						},
-
-						"ordered_list_oeindex": &schema.Schema{
-							Type:     schema.TypeFloat,
-							Computed: true,
-						},
 
 						"admin_status": &schema.Schema{
 							Type:     schema.TypeString,
@@ -74,31 +97,6 @@ func dataSourceWirelessAccesspointConfigurationSummary() *schema.Resource {
 							Computed: true,
 						},
 
-						"auth_entity_class": &schema.Schema{
-							Type:     schema.TypeString, //TEST,
-							Computed: true,
-						},
-
-						"auth_entity_id": &schema.Schema{
-							Type:     schema.TypeString, //TEST,
-							Computed: true,
-						},
-
-						"change_log_list": &schema.Schema{
-							Type:     schema.TypeString, //TEST,
-							Computed: true,
-						},
-
-						"deploy_pending": &schema.Schema{
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						"display_name": &schema.Schema{
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
 						"eth_mac": &schema.Schema{
 							Type:     schema.TypeString,
 							Computed: true,
@@ -106,75 +104,6 @@ func dataSourceWirelessAccesspointConfigurationSummary() *schema.Resource {
 
 						"failover_priority": &schema.Schema{
 							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						"instance_created_on": &schema.Schema{
-							Type:     schema.TypeString, //TEST,
-							Computed: true,
-						},
-
-						"instance_id": &schema.Schema{
-							Type:     schema.TypeFloat,
-							Computed: true,
-						},
-
-						"instance_origin": &schema.Schema{
-							Type:     schema.TypeString, //TEST,
-							Computed: true,
-						},
-
-						"instance_tenant_id": &schema.Schema{
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						"instance_updated_on": &schema.Schema{
-							Type:     schema.TypeString, //TEST,
-							Computed: true,
-						},
-
-						"instance_uuid": &schema.Schema{
-							Type:     schema.TypeString, //TEST,
-							Computed: true,
-						},
-
-						"instance_version": &schema.Schema{
-							Type:     schema.TypeFloat,
-							Computed: true,
-						},
-
-						"internal_key": &schema.Schema{
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-
-									"id": &schema.Schema{
-										Type:     schema.TypeFloat,
-										Computed: true,
-									},
-
-									"long_type": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-
-									"type": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-
-									"url": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-								},
-							},
-						},
-
-						"lazy_loaded_entities": &schema.Schema{
-							Type:     schema.TypeString, //TEST,
 							Computed: true,
 						},
 
@@ -198,12 +127,25 @@ func dataSourceWirelessAccesspointConfigurationSummary() *schema.Resource {
 							Computed: true,
 						},
 
+						"management_ip_address": &schema.Schema{
+							Description: `Management Ip Address
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
 						"mesh_dtos": &schema.Schema{
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+
+						"model": &schema.Schema{
+							Description: `AP Model`,
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"primary_controller_name": &schema.Schema{
@@ -216,101 +158,76 @@ func dataSourceWirelessAccesspointConfigurationSummary() *schema.Resource {
 							Computed: true,
 						},
 
+						"provisioning_status": &schema.Schema{
+							Description: `Provisioning Status`,
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+
 						"radio_dtos": &schema.Schema{
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
-									"creation_order_index": &schema.Schema{
-										Type:     schema.TypeFloat,
-										Computed: true,
-									},
-
-									"is_being_changed": &schema.Schema{
-										// Type:     schema.TypeBool,
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-
-									"ordered_list_oeassoc_name": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
-									},
-
-									"ordered_list_oeindex": &schema.Schema{
-										Type:     schema.TypeFloat,
-										Computed: true,
-									},
-
 									"admin_status": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Description: `Admin Status`,
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 
 									"antenna_angle": &schema.Schema{
-										Type:     schema.TypeFloat,
-										Computed: true,
+										Description: `Antenna Angle`,
+										Type:        schema.TypeInt,
+										Computed:    true,
 									},
 
 									"antenna_elev_angle": &schema.Schema{
-										Type:     schema.TypeFloat,
-										Computed: true,
+										Description: `Antenna Elev Angle`,
+										Type:        schema.TypeInt,
+										Computed:    true,
 									},
 
 									"antenna_gain": &schema.Schema{
-										Type:     schema.TypeInt,
-										Computed: true,
+										Description: `Antenna Gain`,
+										Type:        schema.TypeInt,
+										Computed:    true,
 									},
 
 									"antenna_pattern_name": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-
-									"auth_entity_class": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
-									},
-
-									"auth_entity_id": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
-									},
-
-									"change_log_list": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
+										Description: `Antenna Pattern Name`,
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 
 									"channel_assignment_mode": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Description: `Channel Assignment Mode`,
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 
 									"channel_number": &schema.Schema{
-										Type:     schema.TypeInt,
-										Computed: true,
+										Description: `Channel Number`,
+										Type:        schema.TypeInt,
+										Computed:    true,
 									},
 
 									"channel_width": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Description: `Channel Width`,
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 
 									"clean_air_si": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Description: `Clean Air SI`,
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 
-									"deploy_pending": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-
-									"display_name": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+									"dual_radio_mode": &schema.Schema{
+										Description: `Dual Radio Mode`,
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 
 									"if_type": &schema.Schema{
@@ -319,110 +236,54 @@ func dataSourceWirelessAccesspointConfigurationSummary() *schema.Resource {
 									},
 
 									"if_type_value": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-
-									"instance_created_on": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
-									},
-
-									"instance_id": &schema.Schema{
-										Type:     schema.TypeFloat,
-										Computed: true,
-									},
-
-									"instance_origin": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
-									},
-
-									"instance_tenant_id": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-
-									"instance_updated_on": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
-									},
-
-									"instance_uuid": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
-									},
-
-									"instance_version": &schema.Schema{
-										Type:     schema.TypeFloat,
-										Computed: true,
-									},
-
-									"internal_key": &schema.Schema{
-										Type:     schema.TypeList,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-
-												"id": &schema.Schema{
-													Type:     schema.TypeFloat,
-													Computed: true,
-												},
-
-												"long_type": &schema.Schema{
-													Type:     schema.TypeString,
-													Computed: true,
-												},
-
-												"type": &schema.Schema{
-													Type:     schema.TypeString,
-													Computed: true,
-												},
-
-												"url": &schema.Schema{
-													Type:     schema.TypeString,
-													Computed: true,
-												},
-											},
-										},
-									},
-
-									"lazy_loaded_entities": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
+										Description: `If Type Value`,
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 
 									"mac_address": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Description: `Mac Address`,
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 
 									"power_assignment_mode": &schema.Schema{
-										Type:     schema.TypeString,
-										Computed: true,
+										Description: `Power Assignment Mode`,
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 
 									"powerlevel": &schema.Schema{
-										Type:     schema.TypeInt,
-										Computed: true,
+										Description: `Powerlevel`,
+										Type:        schema.TypeInt,
+										Computed:    true,
 									},
 
 									"radio_band": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
+										Description: `Radio Band`,
+										Type:        schema.TypeString, //TEST,
+										Computed:    true,
 									},
 
 									"radio_role_assignment": &schema.Schema{
-										Type:     schema.TypeString, //TEST,
-										Computed: true,
+										Description: `Radio Role Assignment`,
+										Type:        schema.TypeString, //TEST,
+										Computed:    true,
 									},
 
 									"slot_id": &schema.Schema{
-										Type:     schema.TypeInt,
-										Computed: true,
+										Description: `Slot Id`,
+										Type:        schema.TypeInt,
+										Computed:    true,
 									},
 								},
 							},
+						},
+
+						"reachability_status": &schema.Schema{
+							Description: `Reachability Status`,
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"secondary_controller_name": &schema.Schema{
@@ -444,6 +305,12 @@ func dataSourceWirelessAccesspointConfigurationSummary() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+
+						"wlc_ip_address": &schema.Schema{
+							Description: `WLC IP Address`,
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -455,16 +322,60 @@ func dataSourceWirelessAccesspointConfigurationSummaryRead(ctx context.Context, 
 	client := m.(*dnacentersdkgo.Client)
 
 	var diags diag.Diagnostics
-	vKey := d.Get("key")
+	vKey, okKey := d.GetOk("key")
+	vWlcIPAddress, okWlcIPAddress := d.GetOk("wlc_ip_address")
+	vApMode, okApMode := d.GetOk("ap_mode")
+	vApModel, okApModel := d.GetOk("ap_model")
+	vMeshRole, okMeshRole := d.GetOk("mesh_role")
+	vProvisioned, okProvisioned := d.GetOk("provisioned")
+	vLimit, okLimit := d.GetOk("limit")
+	vOffset, okOffset := d.GetOk("offset")
 
 	selectedMethod := 1
 	if selectedMethod == 1 {
 		log.Printf("[DEBUG] Selected method: GetAccessPointConfiguration")
 		queryParams1 := dnacentersdkgo.GetAccessPointConfigurationQueryParams{}
 
-		queryParams1.Key = vKey.(string)
+		if okKey {
+			queryParams1.Key = vKey.(string)
+		}
+		if okWlcIPAddress {
+			queryParams1.WlcIPAddress = vWlcIPAddress.(string)
+		}
+		if okApMode {
+			queryParams1.ApMode = vApMode.(string)
+		}
+		if okApModel {
+			queryParams1.ApModel = vApModel.(string)
+		}
+		if okMeshRole {
+			queryParams1.MeshRole = vMeshRole.(string)
+		}
+		if okProvisioned {
+			queryParams1.Provisioned = vProvisioned.(string)
+		}
+		if okLimit {
+			queryParams1.Limit = vLimit.(float64)
+		}
+		if okOffset {
+			queryParams1.Offset = vOffset.(float64)
+		}
+
+		// has_unknown_response: None
 
 		response1, restyResp1, err := client.Wireless.GetAccessPointConfiguration(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetAccessPointConfiguration", err,
+				"Failure at GetAccessPointConfiguration, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -498,23 +409,6 @@ func flattenWirelessGetAccessPointConfigurationItem(item *dnacentersdkgo.Respons
 		return nil
 	}
 	respItem := make(map[string]interface{})
-	respItem["instance_uuid"] = flattenWirelessGetAccessPointConfigurationItemInstanceUUID(item.InstanceUUID)
-	respItem["instance_id"] = item.InstanceID
-	respItem["auth_entity_id"] = flattenWirelessGetAccessPointConfigurationItemAuthEntityID(item.AuthEntityID)
-	respItem["display_name"] = item.DisplayName
-	respItem["auth_entity_class"] = flattenWirelessGetAccessPointConfigurationItemAuthEntityClass(item.AuthEntityClass)
-	respItem["instance_tenant_id"] = item.InstanceTenantID
-	respItem["ordered_list_oeindex"] = item.OrderedListOEIndex
-	respItem["ordered_list_oeassoc_name"] = flattenWirelessGetAccessPointConfigurationItemOrderedListOEAssocName(item.OrderedListOEAssocName)
-	respItem["creation_order_index"] = item.CreationOrderIndex
-	respItem["is_being_changed"] = boolPtrToString(item.IsBeingChanged)
-	respItem["deploy_pending"] = item.DeployPending
-	respItem["instance_created_on"] = flattenWirelessGetAccessPointConfigurationItemInstanceCreatedOn(item.InstanceCreatedOn)
-	respItem["instance_updated_on"] = flattenWirelessGetAccessPointConfigurationItemInstanceUpdatedOn(item.InstanceUpdatedOn)
-	respItem["change_log_list"] = flattenWirelessGetAccessPointConfigurationItemChangeLogList(item.ChangeLogList)
-	respItem["instance_origin"] = flattenWirelessGetAccessPointConfigurationItemInstanceOrigin(item.InstanceOrigin)
-	respItem["lazy_loaded_entities"] = flattenWirelessGetAccessPointConfigurationItemLazyLoadedEntities(item.LazyLoadedEntities)
-	respItem["instance_version"] = item.InstanceVersion
 	respItem["admin_status"] = item.AdminStatus
 	respItem["ap_height"] = item.ApHeight
 	respItem["ap_mode"] = item.ApMode
@@ -532,101 +426,15 @@ func flattenWirelessGetAccessPointConfigurationItem(item *dnacentersdkgo.Respons
 	respItem["tertiary_controller_name"] = item.TertiaryControllerName
 	respItem["tertiary_ip_address"] = item.TertiaryIPAddress
 	respItem["mesh_dtos"] = flattenWirelessGetAccessPointConfigurationItemMeshDTOs(item.MeshDTOs)
+	respItem["model"] = item.Model
+	respItem["wlc_ip_address"] = item.WlcIPAddress
+	respItem["reachability_status"] = item.ReachabilityStatus
+	respItem["management_ip_address"] = item.ManagementIPAddress
+	respItem["provisioning_status"] = item.ProvisioningStatus
 	respItem["radio_dtos"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOs(item.RadioDTOs)
-	respItem["internal_key"] = flattenWirelessGetAccessPointConfigurationItemInternalKey(item.InternalKey)
 	return []map[string]interface{}{
 		respItem,
 	}
-}
-
-func flattenWirelessGetAccessPointConfigurationItemInstanceUUID(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationInstanceUUID) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemAuthEntityID(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationAuthEntityID) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemAuthEntityClass(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationAuthEntityClass) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemOrderedListOEAssocName(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationOrderedListOEAssocName) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemInstanceCreatedOn(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationInstanceCreatedOn) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemInstanceUpdatedOn(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationInstanceUpdatedOn) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemChangeLogList(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationChangeLogList) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemInstanceOrigin(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationInstanceOrigin) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemLazyLoadedEntities(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationLazyLoadedEntities) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
 }
 
 func flattenWirelessGetAccessPointConfigurationItemMeshDTOs(items *[]dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationMeshDTOs) []interface{} {
@@ -648,127 +456,30 @@ func flattenWirelessGetAccessPointConfigurationItemRadioDTOs(items *[]dnacenters
 	var respItems []map[string]interface{}
 	for _, item := range *items {
 		respItem := make(map[string]interface{})
-		respItem["instance_uuid"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsInstanceUUID(item.InstanceUUID)
-		respItem["instance_id"] = item.InstanceID
-		respItem["auth_entity_id"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsAuthEntityID(item.AuthEntityID)
-		respItem["display_name"] = item.DisplayName
-		respItem["auth_entity_class"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsAuthEntityClass(item.AuthEntityClass)
-		respItem["instance_tenant_id"] = item.InstanceTenantID
-		respItem["ordered_list_oeindex"] = item.OrderedListOEIndex
-		respItem["ordered_list_oeassoc_name"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsOrderedListOEAssocName(item.OrderedListOEAssocName)
-		respItem["creation_order_index"] = item.CreationOrderIndex
-		respItem["is_being_changed"] = boolPtrToString(item.IsBeingChanged)
-		respItem["deploy_pending"] = item.DeployPending
-		respItem["instance_created_on"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsInstanceCreatedOn(item.InstanceCreatedOn)
-		respItem["instance_updated_on"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsInstanceUpdatedOn(item.InstanceUpdatedOn)
-		respItem["change_log_list"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsChangeLogList(item.ChangeLogList)
-		respItem["instance_origin"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsInstanceOrigin(item.InstanceOrigin)
-		respItem["lazy_loaded_entities"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsLazyLoadedEntities(item.LazyLoadedEntities)
-		respItem["instance_version"] = item.InstanceVersion
+		respItem["if_type"] = item.IfType
+		respItem["if_type_value"] = item.IfTypeValue
+		respItem["slot_id"] = item.SlotID
+		respItem["mac_address"] = item.MacAddress
 		respItem["admin_status"] = item.AdminStatus
-		respItem["antenna_angle"] = item.AntennaAngle
-		respItem["antenna_elev_angle"] = item.AntennaElevAngle
-		respItem["antenna_gain"] = item.AntennaGain
-		respItem["antenna_pattern_name"] = item.AntennaPatternName
+		respItem["power_assignment_mode"] = item.PowerAssignmentMode
+		respItem["powerlevel"] = item.Powerlevel
 		respItem["channel_assignment_mode"] = item.ChannelAssignmentMode
 		respItem["channel_number"] = item.ChannelNumber
 		respItem["channel_width"] = item.ChannelWidth
-		respItem["clean_air_si"] = item.CleanAirSI
-		respItem["if_type"] = item.IfType
-		respItem["if_type_value"] = item.IfTypeValue
-		respItem["mac_address"] = item.MacAddress
-		respItem["power_assignment_mode"] = item.PowerAssignmentMode
-		respItem["powerlevel"] = item.Powerlevel
-		respItem["radio_band"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsRadioBand(item.RadioBand)
+		respItem["antenna_pattern_name"] = item.AntennaPatternName
+		respItem["antenna_angle"] = item.AntennaAngle
+		respItem["antenna_elev_angle"] = item.AntennaElevAngle
+		respItem["antenna_gain"] = item.AntennaGain
 		respItem["radio_role_assignment"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsRadioRoleAssignment(item.RadioRoleAssignment)
-		respItem["slot_id"] = item.SlotID
-		respItem["internal_key"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsInternalKey(item.InternalKey)
+		respItem["radio_band"] = flattenWirelessGetAccessPointConfigurationItemRadioDTOsRadioBand(item.RadioBand)
+		respItem["clean_air_si"] = item.CleanAirSI
+		respItem["dual_radio_mode"] = item.DualRadioMode
 		respItems = append(respItems, respItem)
 	}
 	return respItems
 }
 
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsInstanceUUID(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsInstanceUUID) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsAuthEntityID(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsAuthEntityID) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsAuthEntityClass(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsAuthEntityClass) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsOrderedListOEAssocName(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsOrderedListOEAssocName) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsInstanceCreatedOn(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsInstanceCreatedOn) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsInstanceUpdatedOn(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsInstanceUpdatedOn) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsChangeLogList(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsChangeLogList) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsInstanceOrigin(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsInstanceOrigin) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsLazyLoadedEntities(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsLazyLoadedEntities) interface{} {
+func flattenWirelessGetAccessPointConfigurationItemRadioDTOsRadioRoleAssignment(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsRadioRoleAssignment) interface{} {
 	if item == nil {
 		return nil
 	}
@@ -785,47 +496,5 @@ func flattenWirelessGetAccessPointConfigurationItemRadioDTOsRadioBand(item *dnac
 	respItem := *item
 
 	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsRadioRoleAssignment(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsRadioRoleAssignment) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemRadioDTOsInternalKey(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationRadioDTOsInternalKey) []map[string]interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := make(map[string]interface{})
-	respItem["type"] = item.Type
-	respItem["id"] = item.ID
-	respItem["long_type"] = item.LongType
-	respItem["url"] = item.URL
-
-	return []map[string]interface{}{
-		respItem,
-	}
-
-}
-
-func flattenWirelessGetAccessPointConfigurationItemInternalKey(item *dnacentersdkgo.ResponseWirelessGetAccessPointConfigurationInternalKey) []map[string]interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := make(map[string]interface{})
-	respItem["type"] = item.Type
-	respItem["id"] = item.ID
-	respItem["long_type"] = item.LongType
-	respItem["url"] = item.URL
-
-	return []map[string]interface{}{
-		respItem,
-	}
 
 }

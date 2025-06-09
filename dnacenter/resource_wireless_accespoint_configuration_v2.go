@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -12,7 +13,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -340,7 +341,7 @@ func resourceWirelessAccespointConfigurationV2() *schema.Resource {
 										Computed: true,
 									},
 									"antenna_gain": &schema.Schema{
-										Description: `Configure the antenna gain on the specified radio for an access point by setting a decimal value (in dBi). To configure "antennaGain", set "antennaPatternName" value to "other".
+										Description: `Configure the antenna gain on the specified radio for an access point by setting a decimal value (in dBi). To configure "antennaGain", set "antennaPatternName" value to "other". The External Antenna Gain value will be applied in 0.5 dBi increments on the controller. Therefore, the value entered will be multiplied by 2 to configure the absolute gain value. AntennaGain should be in range of 0-20.
 `,
 										Type:     schema.TypeInt,
 										Optional: true,
@@ -474,7 +475,7 @@ func resourceWirelessAccespointConfigurationV2() *schema.Resource {
 										Computed: true,
 									},
 									"radio_band": &schema.Schema{
-										Description: `Configure the band on the specified radio for an access point: for 2.4 GHz, set "RADIO24"; for 5 GHz, set "RADIO5". Any other string is invalid, including empty string
+										Description: `Configure the band on the specified radio for an access point: for 2.4 GHz, set "RADIO24"; for 5 GHz, set "RADIO5"; for 6 GHz, set "RADIO6". Any other string is invalid, including empty string.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -482,7 +483,7 @@ func resourceWirelessAccespointConfigurationV2() *schema.Resource {
 										Computed: true,
 									},
 									"radio_role_assignment": &schema.Schema{
-										Description: `Configure only one of the following roles on the specified radio for an access point as "AUTO", "SERVING", or "MONITOR". Any other string is invalid, including empty string
+										Description: `Configure only one of the following roles on the specified radio for an access point as "AUTO", "SERVING", or "MONITOR". Any other string is invalid, including empty string.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -604,7 +605,7 @@ func resourceWirelessAccespointConfigurationV2Create(ctx context.Context, d *sch
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

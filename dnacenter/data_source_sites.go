@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,9 +21,9 @@ func dataSourceSites() *schema.Resource {
 		ReadContext: dataSourceSitesRead,
 		Schema: map[string]*schema.Schema{
 			"limit": &schema.Schema{
-				Description: `limit query parameter. The number of records to show for this page.
+				Description: `limit query parameter. The number of records to show for this page;The minimum is 1, and the maximum is 500.
 `,
-				Type:     schema.TypeInt,
+				Type:     schema.TypeFloat,
 				Optional: true,
 			},
 			"name": &schema.Schema{
@@ -41,7 +41,7 @@ func dataSourceSites() *schema.Resource {
 			"offset": &schema.Schema{
 				Description: `offset query parameter. The first record to show for this page; the first record is numbered 1.
 `,
-				Type:     schema.TypeInt,
+				Type:     schema.TypeFloat,
 				Optional: true,
 			},
 			"type": &schema.Schema{
@@ -147,6 +147,13 @@ func dataSourceSites() *schema.Resource {
 							Computed: true,
 						},
 
+						"site_hierarchy_id": &schema.Schema{
+							Description: `Site Hierarchical Id. Read only. Can be used to add the access groups using the API POST:/dna/system/api/v1/accessGroups, this value should be used to populate the srcResourceId field of the request payload.
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
 						"type": &schema.Schema{
 							Description: `Type`,
 							Type:        schema.TypeString,
@@ -202,13 +209,27 @@ func dataSourceSitesRead(ctx context.Context, d *schema.ResourceData, m interfac
 			queryParams1.UnitsOfMeasure = vUnitsOfMeasure.(string)
 		}
 		if okOffset {
-			queryParams1.Offset = vOffset.(int)
+			queryParams1.Offset = vOffset.(float64)
 		}
 		if okLimit {
-			queryParams1.Limit = vLimit.(int)
+			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SiteDesign.GetSites(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetSites", err,
+				"Failure at GetSites, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -259,6 +280,7 @@ func flattenSiteDesignGetSitesItems(items *[]dnacentersdkgo.ResponseSiteDesignGe
 		respItem["type"] = item.Type
 		respItem["id"] = item.ID
 		respItem["parent_id"] = item.ParentID
+		respItem["site_hierarchy_id"] = item.SiteHierarchyID
 		respItems = append(respItems, respItem)
 	}
 	return respItems

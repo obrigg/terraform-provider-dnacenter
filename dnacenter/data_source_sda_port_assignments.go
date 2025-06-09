@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -39,7 +39,13 @@ func dataSourceSdaPortAssignments() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. Maximum number of records to return.
+				Description: `limit query parameter. Maximum number of records to return. The maximum number of objects supported in a single request is 500.
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"native_vlan_id": &schema.Schema{
+				Description: `nativeVlanId query parameter. Native VLAN of the port assignment, this option is only applicable to TRUNKING_DEVICE connectedDeviceType.(VLAN must be between 1 and 4094. In cases value not set when connectedDeviceType is TRUNKING_DEVICE, default value will be '1').
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -68,6 +74,13 @@ func dataSourceSdaPortAssignments() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+
+						"allowed_vlan_ranges": &schema.Schema{
+							Description: `Allowed VLAN of the port assignment, this option is only applicable to TRUNKING_DEVICE connectedDeviceType. (VLAN must be between 1 and 4094 (Ex 100,200,300-400) or 'all'. In cases value not set when connectedDeviceType is TRUNKING_DEVICE, default value will be 'all').
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 
 						"authenticate_template_name": &schema.Schema{
 							Description: `Authenticate template name of the port assignment.
@@ -118,6 +131,13 @@ func dataSourceSdaPortAssignments() *schema.Resource {
 							Computed: true,
 						},
 
+						"native_vlan_id": &schema.Schema{
+							Description: `Native VLAN of the port assignment, this option is only applicable to TRUNKING_DEVICE connectedDeviceType. (VLAN must be between 1 and 4094. In cases value not set when connectedDeviceType is TRUNKING_DEVICE, default value will be 1).
+`,
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+
 						"network_device_id": &schema.Schema{
 							Description: `Network device ID of the port assignment.
 `,
@@ -154,6 +174,7 @@ func dataSourceSdaPortAssignmentsRead(ctx context.Context, d *schema.ResourceDat
 	vInterfaceName, okInterfaceName := d.GetOk("interface_name")
 	vDataVLANName, okDataVLANName := d.GetOk("data_vlan_name")
 	vVoiceVLANName, okVoiceVLANName := d.GetOk("voice_vlan_name")
+	vNativeVLANID, okNativeVLANID := d.GetOk("native_vlan_id")
 	vOffset, okOffset := d.GetOk("offset")
 	vLimit, okLimit := d.GetOk("limit")
 
@@ -177,6 +198,9 @@ func dataSourceSdaPortAssignmentsRead(ctx context.Context, d *schema.ResourceDat
 		if okVoiceVLANName {
 			queryParams1.VoiceVLANName = vVoiceVLANName.(string)
 		}
+		if okNativeVLANID {
+			queryParams1.NativeVLANID = vNativeVLANID.(float64)
+		}
 		if okOffset {
 			queryParams1.Offset = vOffset.(float64)
 		}
@@ -184,7 +208,21 @@ func dataSourceSdaPortAssignmentsRead(ctx context.Context, d *schema.ResourceDat
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sda.GetPortAssignments(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetPortAssignments", err,
+				"Failure at GetPortAssignments, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -230,6 +268,8 @@ func flattenSdaGetPortAssignmentsItems(items *[]dnacentersdkgo.ResponseSdaGetPor
 		respItem["authenticate_template_name"] = item.AuthenticateTemplateName
 		respItem["security_group_name"] = item.SecurityGroupName
 		respItem["interface_description"] = item.InterfaceDescription
+		respItem["native_vlan_id"] = item.NativeVLANID
+		respItem["allowed_vlan_ranges"] = item.AllowedVLANRanges
 		respItems = append(respItems, respItem)
 	}
 	return respItems

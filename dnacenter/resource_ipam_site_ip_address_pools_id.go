@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,9 +24,9 @@ global pool(s).  Subpools cannot be released when assigned addresses in use.
 
 - Updates an IP address subpool, which reserves address space from a global pool (or global pools) for a particular
 site.
-Restrictions on updating an IP address subpool: The *poolType* cannot be changed. The *siteId* cannot be changed. The
-*ipV4AddressSpace* may not be removed. The *globalPoolId*, *subnet*, and *prefixLength* cannot be changed once it's
-already been set. However you may edit a subpool to add an IP address space if it does not already have one.
+Restrictions on updating an IP address subpool: The **poolType** cannot be changed. The **siteId** cannot be changed.
+The **ipV4AddressSpace** may not be removed. The **globalPoolId**, **subnet**, and **prefixLength** cannot be changed
+once it's already been set. However you may edit a subpool to add an IP address space if it does not already have one.
 `,
 
 		CreateContext: resourceIPamSiteIPAddressPoolsIDCreate,
@@ -231,7 +231,7 @@ already been set. However you may edit a subpool to add an IP address space if i
 							Computed: true,
 						},
 						"site_id": &schema.Schema{
-							Description: `The *id* of the site that this subpool belongs to. This must be the *id* of a non-Global site.
+							Description: `The **id** of the site that this subpool belongs to. This must be the **id** of a non-Global site.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -253,7 +253,7 @@ already been set. However you may edit a subpool to add an IP address space if i
 					Schema: map[string]*schema.Schema{
 
 						"id": &schema.Schema{
-							Description: `id path parameter. The *id* of the IP address subpool to update.
+							Description: `id path parameter. The **id** of the IP address subpool to update.
 `,
 							Type:     schema.TypeString,
 							Required: true,
@@ -407,7 +407,7 @@ already been set. However you may edit a subpool to add an IP address space if i
 							Computed: true,
 						},
 						"site_id": &schema.Schema{
-							Description: `The *id* of the site that this subpool belongs to. This must be the *id* of a non-Global site.
+							Description: `The **id** of the site that this subpool belongs to. This must be the **id** of a non-Global site.
 `,
 							Type:     schema.TypeString,
 							Optional: true,
@@ -593,6 +593,7 @@ func resourceIPamSiteIPAddressPoolsIDDelete(ctx context.Context, d *schema.Resou
 
 	return diags
 }
+
 func expandRequestIPamSiteIPAddressPoolsIDUpdatesAnIPAddressSubpool(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsUpdatesAnIPAddressSubpool {
 	request := dnacentersdkgo.RequestNetworkSettingsUpdatesAnIPAddressSubpool{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ip_v4_address_space")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ip_v4_address_space")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ip_v4_address_space")))) {

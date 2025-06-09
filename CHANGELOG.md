@@ -1,3 +1,50 @@
+## 1.4.0-beta (June 9, 2025)
+IMPROVEMENTS:
+* The provider has been updated with Catalyst Center API version `3.1.3.0`
+*	**New Data Source:** `data_source_assurance_get_sensor_test_results`.
+*	**New Data Source:** `data_source_templates_template_id_network_profiles_for_sites`.
+* **New Resource:** `resource_analytics_profiling_rules`.
+* **New Resource:** `resource_dna_network_devices_query_count`.
+* **New Resource:** `resource_fabrics_fabric_id_switch_wireless_setting_reload`.
+* **New Resource:** `resource_field_notices_trigger_scan`.
+* **New Resource:** `resource_floors_floor_id_access_point_positions_bulk_change`.
+* **New Resource:** `resource_floors_floor_id_planned_access_point_positions_assign_access_point_positions`.
+* **New Resource:** `resource_floors_floor_id_planned_access_point_positions_bulk`.
+* **New Resource:** `resource_floors_floor_id_planned_access_point_positions_bulk_change`.
+* **New Resource:** `resource_floors_floor_id_planned_access_point_positions_id`.
+* **New Resource:** `resource_icap_settings_configuration_models`.
+* **New Resource:** `resource_icap_settings_configuration_models_id_delete_deploy`.
+* **New Resource:** `resource_icap_settings_configuration_models_preview_activity_id`.
+* **New Resource:** `resource_icap_settings_configuration_models_preview_activity_id_deploy`.
+* **New Resource:** `resource_icap_settings_deploy`.
+* **New Resource:** `resource_icap_settings_deploy_id_delete_deploy`.
+* **New Resource:** `resource_images_cco_sync`.
+* **New Resource:** `resource_images_id`.
+* **New Resource:** `resource_images_id_sites_site_id_tag_golden`.
+* **New Resource:** `resource_images_id_sites_site_id_untag_golden`.
+* **New Resource:** `resource_intent_network_devices_query`.
+* **New Resource:** `resource_intent_network_devices_query_count`.
+* **New Resource:** `resource_license_deregister`.
+* **New Resource:** `resource_license_register`.
+* **New Resource:** `resource_license_renew`.
+* **New Resource:** `resource_network_bugs_trials_create`.
+* **New Resource:** `resource_network_bugs_trigger_scan`.
+* **New Resource:** `resource_network_device_config_files_id_download_masked`.
+* **New Resource:** `resource_network_device_config_files_id_download_unmasked`.
+* **New Resource:** `resource_network_devices_delete_without_cleanup`.
+* **New Resource:** `resource_sda_multicast_v1_update`.
+* **New Resource:** `resource_sda_pending_fabric_events_apply`.
+* **New Resource:** `resource_security_advisories_trigger_scan`.
+* **New Resource:** `resource_sites_site_id_wireless_settings_ssids_id_update`.
+* **New Resource:** `resource_tags_interfaces_members_associations_bulk`.
+* **New Resource:** `resource_tags_network_devices_members_associations_bulk`.
+* **New Resource:** `resource_templates_template_id_network_profiles_for_sites_bulk_create`.
+* **New Resource:** `resource_templates_template_id_network_profiles_for_sites_bulk_delete`.
+* **New Resource:** `resource_templates_template_id_network_profiles_for_sites_profile_id_delete`.
+* **New Resource:** `resource_templates_template_id_versions_commit`.
+* **New Resource:** `resource_wireless_settings_network_device_id_assign_anchor_managed_ap_locations`.
+REMOVED:
+* Alias resources and data sources were removed ("_v1" ending files).
 
 ## 1.3.1-beta (February 27, 2025)
 BUGFIX:
@@ -799,7 +846,7 @@ BUGFIXES:
   - `dnacenter_golden_tag_image_details`
 * `dnacenter_site` documentation issues fixed.
 ## 1.1.0-beta (April 12, 2023)
-`dnacenter-go-sdk` version changes from `github.com/cisco-en-programmability/dnacenter-go-sdk/v4/sdk` to `github.com/cisco-en-programmability/dnacenter-go-sdk/v5/sdk`.(Cisco Catalyst Center's v2.3.5.3 API)
+`dnacenter-go-sdk` version changes from `dnacenter-go-sdk/sdk`.(Cisco Catalyst Center's v2.3.5.3 API)
 FEATURES:
 * **New Data Source:** `data_source_accesspoint_configuration_details_by_task_id`
 * **New Data Source:** `data_source_authentication_policy_servers`
@@ -974,7 +1021,7 @@ REMOVED:
 ## 1.0.0-beta (June 17, 2022)
 
 NOTES:
-`dnacenter-go-sdk` version changes from `github.com/cisco-en-programmability/dnacenter-go-sdk/v3/sdk` to `github.com/cisco-en-programmability/dnacenter-go-sdk/v4/sdk`.(Cisco Catalyst Center's v2.3.3.0 API)
+`dnacenter-go-sdk` version changes from `dnacenter-go-sdk/sdk`.(Cisco Catalyst Center's v2.3.3.0 API)
 
 FEATURES:
 * **New Data Source:** `data_source_buildings_planned_access_points`
@@ -1032,7 +1079,7 @@ BREAKING CHANGES:
 ## 0.3.0 (June 16, 2022)
 
 NOTES:
-Stable version with `github.com/cisco-en-programmability/dnacenter-go-sdk/v3/sdk` (Cisco Catalyst Center 2.2.3.3 API)
+Stable version with `dnacenter-go-sdk/sdk` (Cisco Catalyst Center 2.2.3.3 API)
 
 ## 0.3.0-beta (April 04, 2022)
 

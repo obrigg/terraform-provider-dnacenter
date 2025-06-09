@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,8 +18,8 @@ func resourceSitesTimeZoneSettings() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read and update operations on Network Settings.
 
-- Set time zone settings for a site; *null* values indicate that the setting will be inherited from the parent site;
-empty objects (*{}*) indicate that the settings is unset.
+- Set time zone settings for a site; **null** values indicate that the setting will be inherited from the parent site;
+empty objects (**{}**) indicate that the settings is unset.
 `,
 
 		CreateContext: resourceSitesTimeZoneSettingsCreate,
@@ -230,6 +230,7 @@ func resourceSitesTimeZoneSettingsDelete(ctx context.Context, d *schema.Resource
 		"Failure at SitesTimeZoneSettingsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestSitesTimeZoneSettingsSetTimeZoneForASite(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsSetTimeZoneForASite {
 	request := dnacentersdkgo.RequestNetworkSettingsSetTimeZoneForASite{}
 	request.TimeZone = expandRequestSitesTimeZoneSettingsSetTimeZoneForASiteTimeZone(ctx, key, d)

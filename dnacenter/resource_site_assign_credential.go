@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,7 +17,7 @@ import (
 // resourceAction
 func resourceSiteAssignCredential() *schema.Resource {
 	return &schema.Resource{
-		Description: `It performs create operation on NetworkSettings.
+		Description: `It performs create operation on Sites.
 
 - Assign Device Credential to a site.
 `,
@@ -189,7 +189,7 @@ func resourceSiteAssignCredentialCreate(ctx context.Context, d *schema.ResourceD
 	if request1 != nil {
 		log.Printf("[DEBUG] request sent => %v", responseInterfaceToString(*request1))
 	}
-	vItem1 := flattenNetworkSettingsAssignDeviceCredentialToSiteItem(response1)
+	vItem1 := flattenSitesAssignDeviceCredentialToSiteItem(response1)
 	if err := d.Set("item", vItem1); err != nil {
 		diags = append(diags, diagError(
 			"Failure when setting AssignDeviceCredentialToSite response",
@@ -236,7 +236,7 @@ func expandRequestSiteAssignCredentialAssignDeviceCredentialToSite(ctx context.C
 	return &request
 }
 
-func flattenNetworkSettingsAssignDeviceCredentialToSiteItem(item *dnacentersdkgo.ResponseNetworkSettingsAssignDeviceCredentialToSite) []map[string]interface{} {
+func flattenSitesAssignDeviceCredentialToSiteItem(item *dnacentersdkgo.ResponseNetworkSettingsAssignDeviceCredentialToSite) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}

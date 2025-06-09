@@ -3,11 +3,12 @@ package dnacenter
 import (
 	"context"
 	"errors"
-	"log"
 	"reflect"
 	"time"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	"log"
+
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,8 +18,8 @@ func resourceSitesDhcpSettings() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read and update operations on Network Settings.
 
-- Set DHCP settings for a site; *null* values indicate that the setting will be inherited from the parent site; empty
-objects (*{}*) indicate that the settings is unset.
+- Set DHCP settings for a site; **null** values indicate that the setting will be inherited from the parent site; empty
+objects (**{}**) indicate that the settings is unset.
 `,
 
 		CreateContext: resourceSitesDhcpSettingsCreate,
@@ -234,6 +235,7 @@ func resourceSitesDhcpSettingsDelete(ctx context.Context, d *schema.ResourceData
 		"Failure at SitesDhcpSettingsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestSitesDhcpSettingsSetDhcpSettingsForASite(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsSetDhcpSettingsForASite {
 	request := dnacentersdkgo.RequestNetworkSettingsSetDhcpSettingsForASite{}
 	request.Dhcp = expandRequestSitesDhcpSettingsSetDhcpSettingsForASiteDhcp(ctx, key, d)

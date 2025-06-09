@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -290,6 +290,7 @@ func resourceApplicationSetsDelete(ctx context.Context, d *schema.ResourceData, 
 
 	return diags
 }
+
 func expandRequestApplicationSetsCreateApplicationSet(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestApplicationPolicyCreateApplicationSet {
 	request := dnacentersdkgo.RequestApplicationPolicyCreateApplicationSet{}
 	if v := expandRequestApplicationSetsCreateApplicationSetItemArray(ctx, key+".payload", d); v != nil {
@@ -342,10 +343,10 @@ func searchApplicationPolicyGetApplicationSets(m interface{}, queryParams dnacen
 	var ite *dnacentersdkgo.ResponseApplicationPolicyGetApplicationSets
 	if vID != "" {
 		queryParams.Offset = 1
-		queryParams.Name = ""
-		nResponse, _, err := client.ApplicationPolicy.GetApplicationSets(&queryParams)
+		nResponse, _, err := client.ApplicationPolicy.GetApplicationSets(nil)
 		maxPageSize := len(*nResponse.Response)
 		for len(*nResponse.Response) > 0 {
+			time.Sleep(15 * time.Second)
 			for _, item := range *nResponse.Response {
 				if vID == item.ID {
 					foundItem = &item
@@ -355,9 +356,6 @@ func searchApplicationPolicyGetApplicationSets(m interface{}, queryParams dnacen
 			queryParams.Limit = float64(maxPageSize)
 			queryParams.Offset += float64(maxPageSize)
 			nResponse, _, err = client.ApplicationPolicy.GetApplicationSets(&queryParams)
-			if nResponse == nil || nResponse.Response == nil {
-				break
-			}
 		}
 		return nil, err
 	} else if queryParams.Name != "" {
@@ -378,5 +376,4 @@ func searchApplicationPolicyGetApplicationSets(m interface{}, queryParams dnacen
 		return foundItem, err
 	}
 	return foundItem, err
-
 }

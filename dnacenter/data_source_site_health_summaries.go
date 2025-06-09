@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,25 +16,25 @@ func dataSourceSiteHealthSummaries() *schema.Resource {
 		Description: `It performs read operation on Sites.
 
 - Get a paginated list of site health summaries. Use the available query parameters to identify a subset of sites you
-want health summaries for. This data source provides the latest health data from a given *endTime* If data is not ready
-for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to use to
-retrieve a complete data set. This behavior may occur if the provided endTime=currentTime, since we are not a real time
-system. When *endTime* is not provided, the API returns the latest data. This data source also provides issue data. The
-*startTime* query param can be used to specify the beginning point of time range to retrieve the active issue counts in.
-When this param is not provided, the default *startTime* will be 24 hours before endTime. Valid values for *sortBy*
-param in this API are limited to the attributes provided in the *site* view. Default sortBy is 'siteHierarchy' in order
-'asc' (ascending). For detailed information about the usage of the API, please refer to the Open API specification
-document https://github.com/cisco-en-programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-
-siteHealthSummaries-1.0.3-resolved.yaml
+want health summaries for. This data source provides the latest health data from a given **endTime** If data is not
+ready for the provided endTime, the request will fail, and the error message will indicate the recommended endTime to
+use to retrieve a complete data set. This behavior may occur if the provided endTime=currentTime, since we are not a
+real time system. When **endTime** is not provided, the API returns the latest data. This data source also provides
+issue data. The **startTime** query param can be used to specify the beginning point of time range to retrieve the
+active issue counts in. When this param is not provided, the default **startTime** will be 24 hours before endTime.
+Valid values for **sortBy** param in this API are limited to the attributes provided in the **site** view. Default
+sortBy is 'siteHierarchy' in order 'asc' (ascending). For detailed information about the usage of the API, please refer
+to the Open API specification document https://github.com/cisco-en-programmability/catalyst-center-api-
+specs/blob/main/Assurance/CE_Cat_Center_Org-siteHealthSummaries-1.0.3-resolved.yaml
 
 - Get a health summary for a specific site by providing the unique site id in the url path. This data source provides
-the latest health data from a given *endTime* If data is not ready for the provided endTime, the request will fail, and
-the error message will indicate the recommended endTime to use to retrieve a complete data set. This behavior may occur
-if the provided endTime=currentTime, since we are not a real time system. When *endTime* is not provided, the API
-returns the latest data. This data source also provides issue data. The *startTime* query param can be used to specify
-the beginning point of time range to retrieve the active issue counts in. When this param is not provided, the default
-*startTime* will be 24 hours before endTime. For detailed information about the usage of the API, please refer to the
-Open API specification document https://github.com/cisco-en-programmability/catalyst-center-api-
+the latest health data from a given **endTime** If data is not ready for the provided endTime, the request will fail,
+and the error message will indicate the recommended endTime to use to retrieve a complete data set. This behavior may
+occur if the provided endTime=currentTime, since we are not a real time system. When **endTime** is not provided, the
+API returns the latest data. This data source also provides issue data. The **startTime** query param can be used to
+specify the beginning point of time range to retrieve the active issue counts in. When this param is not provided, the
+default **startTime** will be 24 hours before endTime. For detailed information about the usage of the API, please refer
+to the Open API specification document https://github.com/cisco-en-programmability/catalyst-center-api-
 specs/blob/main/Assurance/CE_Cat_Center_Org-siteHealthSummaries-1.0.3-resolved.yaml
 `,
 
@@ -82,31 +82,31 @@ attribute=siteHierarchy&attribute=clientCount (multiple attributes requested)
 				Optional: true,
 			},
 			"site_hierarchy": &schema.Schema{
-				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. *Global/AreaName/BuildingName/FloorName*)
-This field supports wildcard asterisk (***) character search support. E.g. **/San*, */San, /San**
+				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. **Global/AreaName/BuildingName/FloorName**)
+This field supports wildcard asterisk (*****) character search support. E.g. ***/San*, */San, /San***
 Examples:
-*?siteHierarchy=Global/AreaName/BuildingName/FloorName* (single siteHierarchy requested)
-*?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2* (multiple siteHierarchies requested)
+**?siteHierarchy=Global/AreaName/BuildingName/FloorName** (single siteHierarchy requested)
+**?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2** (multiple siteHierarchies requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_hierarchy_id": &schema.Schema{
-				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. *globalUuid/areaUuid/buildingUuid/floorUuid*)
-This field supports wildcard asterisk (***) character search support. E.g. **uuid*, *uuid, uuid**
+				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. **globalUuid/areaUuid/buildingUuid/floorUuid**)
+This field supports wildcard asterisk (*****) character search support. E.g. ***uuid*, *uuid, uuid***
 Examples:
-*?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid *(single siteHierarchyId requested)
-*?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2* (multiple siteHierarchyIds requested)
+**?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid **(single siteHierarchyId requested)
+**?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2** (multiple siteHierarchyIds requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_type": &schema.Schema{
 				Description: `siteType query parameter. The type of the site. A site can be an area, building, or floor.
-Default when not provided will be *[floor,building,area]*
+Default when not provided will be **[floor,building,area]**
 Examples:
-*?siteType=area* (single siteType requested)
-*?siteType=area&siteType=building&siteType=floor* (multiple siteTypes requested)
+**?siteType=area** (single siteType requested)
+**?siteType=area&siteType=building&siteType=floor** (multiple siteTypes requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -119,7 +119,7 @@ Examples:
 			},
 			"start_time": &schema.Schema{
 				Description: `startTime query parameter. Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
-If *startTime* is not provided, API will default to current time.
+If **startTime** is not provided, API will default to current time.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -814,7 +814,21 @@ func dataSourceSiteHealthSummariesRead(ctx context.Context, d *schema.ResourceDa
 			headerParams1.XCaLLERID = vXCaLLERID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sites.ReadListOfSiteHealthSummaries(&headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReadListOfSiteHealthSummaries", err,
+				"Failure at ReadListOfSiteHealthSummaries, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -863,7 +877,21 @@ func dataSourceSiteHealthSummariesRead(ctx context.Context, d *schema.ResourceDa
 			headerParams2.XCaLLERID = vXCaLLERID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Sites.ReadSiteHealthSummaryDataBySiteID(vvID, &headerParams2, &queryParams2)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReadSiteHealthSummaryDataBySiteID", err,
+				"Failure at ReadSiteHealthSummaryDataBySiteID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

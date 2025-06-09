@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,7 +15,11 @@ func dataSourceDeviceInterface() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Devices.
 
-- Returns all available interfaces. This endpoint can return a maximum of 500 interfaces
+- Returns all available interfaces. This endpoint can return a maximum of 500 interfaces. The API returns a paginated
+response based on 'limit' and 'offset' parameters, allowing up to 500 records per page. 'limit' specifies the number of
+records, and 'offset' sets the starting point using 1-based indexing. Use '/dna/intent/api/v1/interface/count' to get
+the total record count. For data sets over 500 records, make multiple calls, adjusting 'limit' and 'offset' to retrieve
+all records incrementally.
 
 - Returns the interface for the given interface ID
 `,
@@ -41,9 +45,10 @@ func dataSourceDeviceInterface() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter.`,
-				Type:        schema.TypeInt,
-				Optional:    true,
+				Description: `limit query parameter. The number of records to show for this page. Min: 1, Max: 500
+`,
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"offset": &schema.Schema{
 				Description: `offset query parameter.`,
@@ -711,7 +716,21 @@ func dataSourceDeviceInterfaceRead(ctx context.Context, d *schema.ResourceData, 
 			queryParams1.LastOutputTime = vLastOutputTime.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Devices.GetAllInterfaces(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetAllInterfaces", err,
+				"Failure at GetAllInterfaces, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -741,7 +760,21 @@ func dataSourceDeviceInterfaceRead(ctx context.Context, d *schema.ResourceData, 
 		log.Printf("[DEBUG] Selected method: GetInterfaceByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Devices.GetInterfaceByID(vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetInterfaceByID", err,
+				"Failure at GetInterfaceByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

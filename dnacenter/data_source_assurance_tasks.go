@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,10 +16,10 @@ func dataSourceAssuranceTasks() *schema.Resource {
 		Description: `It performs read operation on Task.
 
 - returns all existing tasks in a paginated list
-default sorting of list is *startTime*, *asc*
-valid field to sort by are [*startTime*,*endTime*,*updateTime*,*status*] For detailed information about the usage of the
-API, please refer to the Open API specification document https://github.com/cisco-en-programmability/catalyst-center-
-api-specs/blob/main/Assurance/CE_Cat_Center_Org-AssuranceTasks-1.0.0-resolved.yaml
+default sorting of list is **startTime**, **asc**
+valid field to sort by are [**startTime**,**endTime**,**updateTime**,**status**] For detailed information about the
+usage of the API, please refer to the Open API specification document https://github.com/cisco-en-
+programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-AssuranceTasks-1.0.0-resolved.yaml
 `,
 
 		ReadContext: dataSourceAssuranceTasksRead,
@@ -174,7 +174,21 @@ func dataSourceAssuranceTasksRead(ctx context.Context, d *schema.ResourceData, m
 		}
 		headerParams1.XCaLLERID = vXCaLLERID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Task.RetrieveAListOfAssuranceTasks(&headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveAListOfAssuranceTasks", err,
+				"Failure at RetrieveAListOfAssuranceTasks, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

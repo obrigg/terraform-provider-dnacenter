@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -87,6 +87,7 @@ func resourceSdaFabricSites() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+
 									"authentication_profile_name": &schema.Schema{
 										Description: `Authentication profile used for this fabric.
 `,
@@ -370,6 +371,7 @@ func resourceSdaFabricSitesDelete(ctx context.Context, d *schema.ResourceData, m
 
 	return diags
 }
+
 func expandRequestSdaFabricSitesAddFabricSite(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddFabricSite {
 	request := dnacentersdkgo.RequestSdaAddFabricSite{}
 	if v := expandRequestSdaFabricSitesAddFabricSiteItemArray(ctx, key+".payload", d); v != nil {

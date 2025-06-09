@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,6 +18,7 @@ func dataSourceCustomIssueDefinitions() *schema.Resource {
 - Retrieve the existing syslog-based custom issue definitions. The supported filters are id, name, profileId,
 definition enable status, priority, severity, facility and mnemonic. The issue definition configurations may vary across
 profiles, hence specifying the profile Id in the query parameter is important and the default profile is global.
+
 
   The assurance profile definitions can be obtain via the API endpoint: /api/v1/siteprofile?namespace=assurance. For
 detailed information about the usage of the API, please refer to the Open API specification document
@@ -38,7 +39,7 @@ center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-AssuranceUserDefinedIssue
 				Optional: true,
 			},
 			"id": &schema.Schema{
-				Description: `id query parameter. The custom issue definition identifier and unique identifier across the profile.Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested) id=6bef213c-19ca-4170-8375-b694e251101c&id=19ca-4170-8375-b694e251101c-6bef213c (multiple Id request in the query param)
+				Description: `id path parameter. Get the custom issue definition for the given custom issue definition Id.
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -394,7 +395,7 @@ func dataSourceCustomIssueDefinitionsRead(ctx context.Context, d *schema.Resourc
 	method2 := []bool{okID, okXCaLLERID}
 	log.Printf("[DEBUG] Selecting method. Method 2 %v", method2)
 
-	selectedMethod := 1
+	selectedMethod := pickMethod([][]bool{method1, method2})
 	if selectedMethod == 1 {
 		log.Printf("[DEBUG] Selected method: GetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters")
 		queryParams1 := dnacentersdkgo.GetAllTheCustomIssueDefinitionsBasedOnTheGivenFiltersQueryParams{}
@@ -436,7 +437,21 @@ func dataSourceCustomIssueDefinitionsRead(ctx context.Context, d *schema.Resourc
 			queryParams1.Order = vOrder.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Issues.GetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters", err,
+				"Failure at GetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -472,7 +487,21 @@ func dataSourceCustomIssueDefinitionsRead(ctx context.Context, d *schema.Resourc
 			headerParams2.XCaLLERID = vXCaLLERID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Issues.GetTheCustomIssueDefinitionForTheGivenCustomIssueDefinitionID(vvID, &headerParams2)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetTheCustomIssueDefinitionForTheGivenCustomIssueDefinitionID", err,
+				"Failure at GetTheCustomIssueDefinitionForTheGivenCustomIssueDefinitionID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,7 +21,7 @@ func dataSourceIPamGlobalIPAddressPoolsGlobalIPAddressPoolIDSubpoolsCount() *sch
 		ReadContext: dataSourceIPamGlobalIPAddressPoolsGlobalIPAddressPoolIDSubpoolsCountRead,
 		Schema: map[string]*schema.Schema{
 			"global_ip_address_pool_id": &schema.Schema{
-				Description: `globalIpAddressPoolId path parameter. The *id* of the global IP address pool for which to count subpools.
+				Description: `globalIpAddressPoolId path parameter. The **id** of the global IP address pool for which to count subpools.
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -57,7 +57,21 @@ func dataSourceIPamGlobalIPAddressPoolsGlobalIPAddressPoolIDSubpoolsCountRead(ct
 		log.Printf("[DEBUG] Selected method: CountsSubpoolsOfAGlobalIPAddressPool")
 		vvGlobalIPAddressPoolID := vGlobalIPAddressPoolID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.NetworkSettings.CountsSubpoolsOfAGlobalIPAddressPool(vvGlobalIPAddressPoolID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 CountsSubpoolsOfAGlobalIPAddressPool", err,
+				"Failure at CountsSubpoolsOfAGlobalIPAddressPool, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

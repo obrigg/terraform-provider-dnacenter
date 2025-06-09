@@ -10,7 +10,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -173,7 +173,7 @@ func resourceAssignDeviceToSiteCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	vItem1 := flattenSitesAssignDevicesToSiteItem(response1)
+	vItem1 := flattenSiteDesignAssignDevicesToSiteItem(response1)
 	if err := d.Set("item", vItem1); err != nil {
 		diags = append(diags, diagError(
 			"Failure when setting AssignDevicesToSite response",
@@ -233,7 +233,7 @@ func expandRequestAssignDeviceToSiteAssignDevicesToSiteDevice(ctx context.Contex
 	return &request
 }
 
-func flattenSitesAssignDevicesToSiteItem(item *dnacentersdkgo.ResponseSitesAssignDevicesToSite) []map[string]interface{} {
+func flattenSiteDesignAssignDevicesToSiteItem(item *dnacentersdkgo.ResponseSitesAssignDevicesToSite) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}

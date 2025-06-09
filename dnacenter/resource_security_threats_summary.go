@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -196,33 +196,4 @@ func expandRequestSecurityThreatsSummaryThreatSummary(ctx context.Context, key s
 		request.ThreatType = interfaceToSliceString(v)
 	}
 	return &request
-}
-
-func flattenDevicesThreatSummaryItems(items *[]dnacentersdkgo.ResponseDevicesThreatSummaryResponse) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["timestamp"] = item.Timestamp
-		respItem["threat_data"] = flattenDevicesThreatSummaryItemsThreatData(item.ThreatData)
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenDevicesThreatSummaryItemsThreatData(items *[]dnacentersdkgo.ResponseDevicesThreatSummaryResponseThreatData) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["threat_type"] = item.ThreatType
-		respItem["threat_level"] = item.ThreatLevel
-		respItem["threat_count"] = item.ThreatCount
-		respItems = append(respItems, respItem)
-	}
-	return respItems
 }

@@ -3,11 +3,12 @@ package dnacenter
 import (
 	"context"
 	"errors"
-	"log"
 	"reflect"
 	"time"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	"log"
+
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,8 +18,8 @@ func resourceSitesAAASettings() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read and update operations on Network Settings.
 
-- Set AAA settings for a site; *null* values indicate that the settings will be inherited from the parent site; empty
-objects (*{}*) indicate that the settings is unset.
+- Set AAA settings for a site; **null** values indicate that the settings will be inherited from the parent site; empty
+objects (**{}**) indicate that the settings is unset.
 `,
 
 		CreateContext: resourceSitesAAASettingsCreate,
@@ -390,6 +391,7 @@ func resourceSitesAAASettingsDelete(ctx context.Context, d *schema.ResourceData,
 		"Failure at SitesAAASettingsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestSitesAAASettingsSetAAASettingsForASite(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsSetAAASettingsForASite {
 	request := dnacentersdkgo.RequestNetworkSettingsSetAAASettingsForASite{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".aaa_network")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".aaa_network")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".aaa_network")))) {

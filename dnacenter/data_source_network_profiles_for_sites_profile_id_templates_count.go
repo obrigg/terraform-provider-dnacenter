@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,7 +21,7 @@ func dataSourceNetworkProfilesForSitesProfileIDTemplatesCount() *schema.Resource
 		ReadContext: dataSourceNetworkProfilesForSitesProfileIDTemplatesCountRead,
 		Schema: map[string]*schema.Schema{
 			"profile_id": &schema.Schema{
-				Description: `profileId path parameter. The *id* of the network profile, retrievable from *GET /intent/api/v1/networkProfilesForSites*
+				Description: `profileId path parameter. The **id** of the network profile, retrievable from **GET /intent/api/v1/networkProfilesForSites**
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -57,7 +57,21 @@ func dataSourceNetworkProfilesForSitesProfileIDTemplatesCountRead(ctx context.Co
 		log.Printf("[DEBUG] Selected method: RetrieveCountOfCliTemplatesAttachedToANetworkProfile")
 		vvProfileID := vProfileID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.NetworkSettings.RetrieveCountOfCliTemplatesAttachedToANetworkProfile(vvProfileID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveCountOfCliTemplatesAttachedToANetworkProfile", err,
+				"Failure at RetrieveCountOfCliTemplatesAttachedToANetworkProfile, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

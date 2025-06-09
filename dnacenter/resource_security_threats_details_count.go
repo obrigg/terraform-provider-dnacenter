@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -203,16 +203,4 @@ func expandRequestSecurityThreatsDetailsCountThreatDetailCount(ctx context.Conte
 		request.IsNewThreat = interfaceToBoolPtr(v)
 	}
 	return &request
-}
-
-func flattenDevicesThreatDetailCountItem(item *dnacentersdkgo.ResponseDevicesThreatDetailCount) []map[string]interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := make(map[string]interface{})
-	respItem["response"] = item.Response
-	respItem["version"] = item.Version
-	return []map[string]interface{}{
-		respItem,
-	}
 }

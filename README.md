@@ -27,7 +27,7 @@ The following table shows the supported versions.
 | 2.3.3.0                  | 1.0.19-beta                            |
 | 2.3.5.3                  | 1.1.33-beta                            |
 | 2.3.7.6                  | 1.2.0-beta                             |
-| 2.3.7.9                  | 1.3.1-beta                             |
+| 2.3.7.9                  | 1.4.0-beta                             |
 
 If your SDK, Terraform provider is older please consider updating it first.
 
@@ -167,7 +167,7 @@ All notable changes to this project will be documented in the [CHANGELOG](./CHAN
 
 The development team may make additional changes as the library evolves with the Cisco Catalyst Center.
 
-**NOTE**: Consider reviewing the Changelog to review the new features of the 1.0.19-beta version.
+**NOTE**: Consider reviewing the Changelog to review the new features of the 1.4.0-beta version.
 
 ## License
 

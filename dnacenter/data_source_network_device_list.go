@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,7 +20,10 @@ You can use the .* in any value to conduct a wildcard search. For example, to fi
 in the IP address range 192.25.18.n, issue the following request: GET /dna/intent/api/v1/network-
 device?hostname=myhost.*&managementIpAddress=192.25.18..*
 If id parameter is provided with comma separated ids, it will return the list of network-devices for the given ids and
-ignores the other request parameters. You can also specify offset & limit to get the required list.
+ignores the other request parameters. The API returns a paginated response based on 'limit' and 'offset' parameters,
+allowing up to 500 records per page. 'limit' specifies the number of records, and 'offset' sets the starting point using
+1-based indexing. Use '/dna/intent/api/v1/network-device/count' to get the total record count. For data sets over 500
+records, make multiple calls, adjusting 'limit' and 'offset' to retrieve all records incrementally.
 `,
 
 		ReadContext: dataSourceNetworkDeviceListRead,
@@ -117,7 +120,7 @@ ignores the other request parameters. You can also specify offset & limit to get
 				},
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. 1 <= limit <= 500 [max. no. of devices to be returned in the result]
+				Description: `limit query parameter. The number of records to show for this page. Min: 1, Max: 500
 `,
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -692,12 +695,12 @@ func dataSourceNetworkDeviceListRead(ctx context.Context, d *schema.ResourceData
 	vUpTime, okUpTime := d.GetOk("up_time")
 	vAssociatedWlcIP, okAssociatedWlcIP := d.GetOk("associated_wlc_ip")
 	vLicensename, okLicensename := d.GetOk("license_name")
-	vLicensetype, okLicensetype := d.GetOk("license_type")
+	vLicensetypeR, okLicensetypeR := d.GetOk("license_type")
 	vLicensestatus, okLicensestatus := d.GetOk("license_status")
 	vModulename, okModulename := d.GetOk("module_name")
-	vModuleequpimenttype, okModuleequpimenttype := d.GetOk("module_equpimenttype")
+	vModuleequpimenttypeR, okModuleequpimenttypeR := d.GetOk("module_equpimenttype")
 	vModuleservicestate, okModuleservicestate := d.GetOk("module_servicestate")
-	vModulevendorequipmenttype, okModulevendorequipmenttype := d.GetOk("module_vendorequipmenttype")
+	vModulevendorequipmenttypeR, okModulevendorequipmenttypeR := d.GetOk("module_vendorequipmenttype")
 	vModulepartnumber, okModulepartnumber := d.GetOk("module_partnumber")
 	vModuleoperationstatecode, okModuleoperationstatecode := d.GetOk("module_operationstatecode")
 	vID, okID := d.GetOk("id")
@@ -776,8 +779,8 @@ func dataSourceNetworkDeviceListRead(ctx context.Context, d *schema.ResourceData
 		if okLicensename {
 			queryParams1.Licensename = interfaceToSliceString(vLicensename)
 		}
-		if okLicensetype {
-			queryParams1.Licensetype = interfaceToSliceString(vLicensetype)
+		if okLicensetypeR {
+			queryParams1.LicensetypeR = interfaceToSliceString(vLicensetypeR)
 		}
 		if okLicensestatus {
 			queryParams1.Licensestatus = interfaceToSliceString(vLicensestatus)
@@ -785,14 +788,14 @@ func dataSourceNetworkDeviceListRead(ctx context.Context, d *schema.ResourceData
 		if okModulename {
 			queryParams1.Modulename = interfaceToSliceString(vModulename)
 		}
-		if okModuleequpimenttype {
-			queryParams1.Moduleequpimenttype = interfaceToSliceString(vModuleequpimenttype)
+		if okModuleequpimenttypeR {
+			queryParams1.ModuleequpimenttypeR = interfaceToSliceString(vModuleequpimenttypeR)
 		}
 		if okModuleservicestate {
 			queryParams1.Moduleservicestate = interfaceToSliceString(vModuleservicestate)
 		}
-		if okModulevendorequipmenttype {
-			queryParams1.Modulevendorequipmenttype = interfaceToSliceString(vModulevendorequipmenttype)
+		if okModulevendorequipmenttypeR {
+			queryParams1.ModulevendorequipmenttypeR = interfaceToSliceString(vModulevendorequipmenttypeR)
 		}
 		if okModulepartnumber {
 			queryParams1.Modulepartnumber = interfaceToSliceString(vModulepartnumber)
@@ -813,7 +816,21 @@ func dataSourceNetworkDeviceListRead(ctx context.Context, d *schema.ResourceData
 			queryParams1.Limit = vLimit.(int)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Devices.GetDeviceList(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetDeviceList", err,
+				"Failure at GetDeviceList, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

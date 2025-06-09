@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -12,7 +13,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -69,6 +70,100 @@ func resourceWirelessControllersProvision() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
+						},
+						"ap_authorization_list_name": &schema.Schema{
+							Description: `AP Authorization List name. 'Obtain the AP Authorization List names by using the API call GET: /intent/api/v1/wirelessSettings/apAuthorizationLists. During re-provision, obtain the AP Authorization List configured for the given provisioned network device Id using the API call GET: /intent/api/v1/wireless/apAuthorizationLists/{networkDeviceId}'
+`,
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+						"authorize_mesh_and_non_mesh_access_points": &schema.Schema{
+							Description: `True if AP Authorization List should  authorize against All Mesh/Non-Mesh APs, else false if AP Authorization List should only authorize against Mesh APs (Applicable only when Mesh is enabled on sites)
+`,
+							// Type:        schema.TypeBool,
+							Type:         schema.TypeString,
+							ValidateFunc: validateStringHasValueFunc([]string{"", "true", "false"}),
+							Optional:     true,
+							ForceNew:     true,
+							Computed:     true,
+						},
+						"feature_templates_overriden_attributes": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"edit_feature_templates": &schema.Schema{
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+
+												"additional_identifiers": &schema.Schema{
+													Type:     schema.TypeList,
+													Optional: true,
+													ForceNew: true,
+													Computed: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+
+															"site_uuid": &schema.Schema{
+																Description: `Site UUID. This must be provided if **featureTemplateId** belongs to **Flex Configuration** feature template.
+`,
+																Type:     schema.TypeString,
+																Optional: true,
+																ForceNew: true,
+																Computed: true,
+															},
+															"wlan_profile_name": &schema.Schema{
+																Description: `WLAN Profile Name. This must be passed if **featureTemplateId** belongs to **Advanced SSID Configuration** Feature Template.
+`,
+																Type:     schema.TypeString,
+																Optional: true,
+																ForceNew: true,
+																Computed: true,
+															},
+														},
+													},
+												},
+												"attributes": &schema.Schema{
+													Description: `This dynamic map should contain attribute name and overridden value of respective Feature Template whose **featureTemplateId**. List of attributes applicable to given **featureTemplateId** can be retrieved from its GET API call /dna/intent/api/v1/featureTemplates/wireless/<featureTemplateName>/featureTemplateId
+`,
+													Type:     schema.TypeString, //TEST,
+													Optional: true,
+													ForceNew: true,
+													Computed: true,
+												},
+												"excluded_attributes": &schema.Schema{
+													Description: `List of attributes which will NOT be provisioned.
+`,
+													Type:     schema.TypeList,
+													Optional: true,
+													ForceNew: true,
+													Computed: true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"feature_template_id": &schema.Schema{
+													Description: `Feature Template ID
+`,
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Computed: true,
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 						"interfaces": &schema.Schema{
 							Type:     schema.TypeList,
@@ -230,7 +325,7 @@ func resourceWirelessControllersProvisionCreate(ctx context.Context, d *schema.R
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()
@@ -279,6 +374,15 @@ func expandRequestWirelessControllersProvisionWirelessControllerProvision(ctx co
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".rolling_ap_upgrade")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".rolling_ap_upgrade")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".rolling_ap_upgrade")))) {
 		request.RollingApUpgrade = expandRequestWirelessControllersProvisionWirelessControllerProvisionRollingApUpgrade(ctx, key+".rolling_ap_upgrade.0", d)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ap_authorization_list_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ap_authorization_list_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ap_authorization_list_name")))) {
+		request.ApAuthorizationListName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".authorize_mesh_and_non_mesh_access_points")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".authorize_mesh_and_non_mesh_access_points")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".authorize_mesh_and_non_mesh_access_points")))) {
+		request.AuthorizeMeshAndNonMeshAccessPoints = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".feature_templates_overriden_attributes")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".feature_templates_overriden_attributes")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".feature_templates_overriden_attributes")))) {
+		request.FeatureTemplatesOverridenAttributes = expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributes(ctx, key+".feature_templates_overriden_attributes.0", d)
 	}
 	return &request
 }
@@ -333,6 +437,68 @@ func expandRequestWirelessControllersProvisionWirelessControllerProvisionRolling
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ap_reboot_percentage")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ap_reboot_percentage")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ap_reboot_percentage")))) {
 		request.ApRebootPercentage = interfaceToIntPtr(v)
+	}
+	return &request
+}
+
+func expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributes(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributes {
+	request := dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributes{}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".edit_feature_templates")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".edit_feature_templates")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".edit_feature_templates")))) {
+		request.EditFeatureTemplates = expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesArray(ctx, key+".edit_feature_templates", d)
+	}
+	return &request
+}
+
+func expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesArray(ctx context.Context, key string, d *schema.ResourceData) *[]dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplates {
+	request := []dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplates{}
+	key = fixKeyAccess(key)
+	o := d.Get(key)
+	if o == nil {
+		return nil
+	}
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return nil
+	}
+	for item_no := range objs {
+		i := expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplates(ctx, fmt.Sprintf("%s.%d", key, item_no), d)
+		if i != nil {
+			request = append(request, *i)
+		}
+	}
+	return &request
+}
+
+func expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplates(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplates {
+	request := dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplates{}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".feature_template_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".feature_template_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".feature_template_id")))) {
+		request.FeatureTemplateID = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".attributes")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".attributes")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".attributes")))) {
+		request.Attributes = expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesAttributes(ctx, key+".attributes.0", d)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".additional_identifiers")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".additional_identifiers")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".additional_identifiers")))) {
+		request.AdditionalIDentifiers = expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesAdditionalIDentifiers(ctx, key+".additional_identifiers.0", d)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".excluded_attributes")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".excluded_attributes")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".excluded_attributes")))) {
+		request.ExcludedAttributes = interfaceToSliceString(v)
+	}
+	return &request
+}
+
+func expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesAttributes(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesAttributes {
+	var request dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesAttributes
+	request = d.Get(fixKeyAccess(key))
+	return &request
+}
+
+func expandRequestWirelessControllersProvisionWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesAdditionalIDentifiers(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesAdditionalIDentifiers {
+	request := dnacentersdkgo.RequestWirelessWirelessControllerProvisionFeatureTemplatesOverridenAttributesEditFeatureTemplatesAdditionalIDentifiers{}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".wlan_profile_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".wlan_profile_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".wlan_profile_name")))) {
+		request.WLANProfileName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".site_uuid")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".site_uuid")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".site_uuid")))) {
+		request.SiteUUID = interfaceToString(v)
 	}
 	return &request
 }

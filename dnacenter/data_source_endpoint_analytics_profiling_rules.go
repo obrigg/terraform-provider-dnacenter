@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -535,7 +535,21 @@ func dataSourceEndpointAnalyticsProfilingRulesRead(ctx context.Context, d *schem
 			queryParams1.Order = vOrder.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.AIEndpointAnalytics.GetListOfProfilingRules(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetListOfProfilingRules", err,
+				"Failure at GetListOfProfilingRules, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -565,7 +579,21 @@ func dataSourceEndpointAnalyticsProfilingRulesRead(ctx context.Context, d *schem
 		log.Printf("[DEBUG] Selected method: GetDetailsOfASingleProfilingRule")
 		vvRuleID := vRuleID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.AIEndpointAnalytics.GetDetailsOfASingleProfilingRule(vvRuleID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetDetailsOfASingleProfilingRule", err,
+				"Failure at GetDetailsOfASingleProfilingRule, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

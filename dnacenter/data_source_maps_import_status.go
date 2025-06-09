@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -201,7 +201,21 @@ func dataSourceMapsImportStatusRead(ctx context.Context, d *schema.ResourceData,
 		log.Printf("[DEBUG] Selected method: ImportMapArchiveImportStatus")
 		vvImportContextUUID := vImportContextUUID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sites.ImportMapArchiveImportStatus(vvImportContextUUID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ImportMapArchiveImportStatus", err,
+				"Failure at ImportMapArchiveImportStatus, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -248,7 +262,7 @@ func flattenSitesImportMapArchiveImportStatusItemAuditLog(item *dnacentersdkgo.R
 		return nil
 	}
 	respItem := make(map[string]interface{})
-	respItem["children"] = item.Children
+	respItem["children"] = flattenSitesImportMapArchiveImportStatusItemAuditLogChildren(item.Children)
 	respItem["entities_count"] = flattenSitesImportMapArchiveImportStatusItemAuditLogEntitiesCount(item.EntitiesCount)
 	respItem["entity_name"] = item.EntityName
 	respItem["entity_type"] = item.EntityType
@@ -264,6 +278,18 @@ func flattenSitesImportMapArchiveImportStatusItemAuditLog(item *dnacentersdkgo.R
 		respItem,
 	}
 
+}
+
+func flattenSitesImportMapArchiveImportStatusItemAuditLogChildren(items *[]dnacentersdkgo.ResponseSitesImportMapArchiveImportStatusAuditLogChildren) []interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []interface{}
+	for _, item := range *items {
+		respItem := item
+		respItems = append(respItems, responseInterfaceToString(respItem))
+	}
+	return respItems
 }
 
 func flattenSitesImportMapArchiveImportStatusItemAuditLogEntitiesCount(items *[]dnacentersdkgo.ResponseSitesImportMapArchiveImportStatusAuditLogEntitiesCount) []map[string]interface{} {

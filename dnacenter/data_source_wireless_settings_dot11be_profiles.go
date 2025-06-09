@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -59,14 +59,22 @@ func dataSourceWirelessSettingsDot11BeProfiles() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter.`,
-				Type:        schema.TypeFloat,
-				Optional:    true,
+				Description: `limit query parameter. The number of records to show for this page. Default is 500 if not specified. Maximum allowed limit is 500.
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 			"offset": &schema.Schema{
-				Description: `offset query parameter.`,
-				Type:        schema.TypeFloat,
-				Optional:    true,
+				Description: `offset query parameter. The first record to show for this page, the first record is numbered 1
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"profile_name": &schema.Schema{
+				Description: `profileName query parameter. Profile Name
+`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"item": &schema.Schema{
@@ -263,7 +271,21 @@ func dataSourceWirelessSettingsDot11BeProfilesRead(ctx context.Context, d *schem
 			queryParams1.IsOfDmaMultiRu = vIsOfDmaMultiRu.(bool)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.Get80211BeProfiles(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 Get80211BeProfiles", err,
+				"Failure at Get80211BeProfiles, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -293,7 +315,21 @@ func dataSourceWirelessSettingsDot11BeProfilesRead(ctx context.Context, d *schem
 		log.Printf("[DEBUG] Selected method: Get80211BeProfileByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Wireless.Get80211BeProfileByID(vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 Get80211BeProfileByID", err,
+				"Failure at Get80211BeProfileByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

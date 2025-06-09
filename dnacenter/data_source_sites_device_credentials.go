@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,21 +15,21 @@ func dataSourceSitesDeviceCredentials() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Network Settings.
 
-- Gets device credential settings for a site; *null* values indicate that the setting will be inherited from the parent
-site; empty objects (*{}*) indicate that the credential is unset, and that no credential of that type will be used for
-the site.
+- Gets device credential settings for a site; **null** values indicate that the setting will be inherited from the
+parent site; empty objects (**{}**) indicate that the credential is unset, and that no credential of that type will be
+used for the site.
 `,
 
 		ReadContext: dataSourceSitesDeviceCredentialsRead,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
-				Description: `id path parameter. Site Id, retrievable from the *id* attribute in */dna/intent/api/v1/sites*
+				Description: `id path parameter. Site Id, retrievable from the **id** attribute in **/dna/intent/api/v1/sites**
 `,
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"inherited": &schema.Schema{
-				Description: `_inherited query parameter. Include settings explicitly set for this site and settings inherited from sites higher in the site hierarchy; when *false*, *null* values indicate that the site inherits that setting from the parent site or a site higher in the site hierarchy.
+				Description: `_inherited query parameter. Include settings explicitly set for this site and settings inherited from sites higher in the site hierarchy; when **false**, **null** values indicate that the site inherits that setting from the parent site or a site higher in the site hierarchy.
 `,
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -48,7 +48,7 @@ the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -76,7 +76,7 @@ the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -104,7 +104,7 @@ the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -132,7 +132,7 @@ the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -160,7 +160,7 @@ the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -188,7 +188,7 @@ the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -232,7 +232,21 @@ func dataSourceSitesDeviceCredentialsRead(ctx context.Context, d *schema.Resourc
 			queryParams1.Inherited = vInherited.(bool)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.NetworkSettings.GetDeviceCredentialSettingsForASite(vvID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetDeviceCredentialSettingsForASite", err,
+				"Failure at GetDeviceCredentialSettingsForASite, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

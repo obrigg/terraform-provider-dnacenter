@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -11,7 +12,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -22,7 +23,7 @@ func resourceWirelessControllersWirelessMobilityGroupsMobilityReset() *schema.Re
 	return &schema.Resource{
 		Description: `It performs create operation on Wireless.
 
-- This data source action is used to reset wireless mobility which in turn sets mobility group name as 'default'
+- This data source action is used to reset wireless mobility which in turn sets mobility group name as 'default'.
 `,
 
 		CreateContext: resourceWirelessControllersWirelessMobilityGroupsMobilityResetCreate,
@@ -63,7 +64,7 @@ func resourceWirelessControllersWirelessMobilityGroupsMobilityReset() *schema.Re
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network_device_id": &schema.Schema{
-							Description: `Network device Id of Cisco wireless controller.Obtain the network device ID value by using the API call GET - /dna/intent/api/v1/network-device/ip-address/${ipAddress}.
+							Description: `Network device Id of Cisco wireless controller. Obtain the network device ID value by using the API call GET - /dna/intent/api/v1/network-device/ip-address/${ipAddress}.
 `,
 							Type:     schema.TypeString,
 							Optional: true,
@@ -127,7 +128,7 @@ func resourceWirelessControllersWirelessMobilityGroupsMobilityResetCreate(ctx co
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

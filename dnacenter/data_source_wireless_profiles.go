@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -29,9 +29,10 @@ func dataSourceWirelessProfiles() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter.`,
-				Type:        schema.TypeFloat,
-				Optional:    true,
+				Description: `limit query parameter. The number of records to show for this page. Default is 500 if not specified. Maximum allowed limit is 500
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 			"offset": &schema.Schema{
 				Description: `offset query parameter. The first record to show for this page; the first record is numbered 1
@@ -84,6 +85,32 @@ func dataSourceWirelessProfiles() *schema.Resource {
 
 									"ssids": &schema.Schema{
 										Description: `ssids part of apZone
+`,
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+
+						"feature_templates": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"id": &schema.Schema{
+										Description: `Feature Template UUID
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"ssids": &schema.Schema{
+										Description: `List of SSIDs
 `,
 										Type:     schema.TypeList,
 										Computed: true,
@@ -251,6 +278,32 @@ func dataSourceWirelessProfiles() *schema.Resource {
 							},
 						},
 
+						"feature_templates": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"id": &schema.Schema{
+										Description: `Feature Template UUID
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"ssids": &schema.Schema{
+										Description: `List of SSIDs
+`,
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+
 						"id": &schema.Schema{
 							Description: `Wireless Profile Id
 `,
@@ -390,7 +443,21 @@ func dataSourceWirelessProfilesRead(ctx context.Context, d *schema.ResourceData,
 			queryParams1.WirelessProfileName = vWirelessProfileName.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.GetWirelessProfiles(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetWirelessProfiles", err,
+				"Failure at GetWirelessProfiles, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -420,7 +487,21 @@ func dataSourceWirelessProfilesRead(ctx context.Context, d *schema.ResourceData,
 		log.Printf("[DEBUG] Selected method: GetWirelessProfileByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Wireless.GetWirelessProfileByID(vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetWirelessProfileByID", err,
+				"Failure at GetWirelessProfileByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {
@@ -461,6 +542,7 @@ func flattenWirelessGetWirelessProfilesItems(items *[]dnacentersdkgo.ResponseWir
 		respItem["id"] = item.ID
 		respItem["additional_interfaces"] = item.AdditionalInterfaces
 		respItem["ap_zones"] = flattenWirelessGetWirelessProfilesItemsApZones(item.ApZones)
+		respItem["feature_templates"] = flattenWirelessGetWirelessProfilesItemsFeatureTemplates(item.FeatureTemplates)
 		respItems = append(respItems, respItem)
 	}
 	return respItems
@@ -516,6 +598,20 @@ func flattenWirelessGetWirelessProfilesItemsApZones(items *[]dnacentersdkgo.Resp
 	return respItems
 }
 
+func flattenWirelessGetWirelessProfilesItemsFeatureTemplates(items *[]dnacentersdkgo.ResponseWirelessGetWirelessProfilesResponseFeatureTemplates) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["id"] = item.ID
+		respItem["ssids"] = item.SSIDs
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
 func flattenWirelessGetWirelessProfileByIDItem(item *dnacentersdkgo.ResponseWirelessGetWirelessProfileByIDResponse) []map[string]interface{} {
 	if item == nil {
 		return nil
@@ -526,6 +622,7 @@ func flattenWirelessGetWirelessProfileByIDItem(item *dnacentersdkgo.ResponseWire
 	respItem["id"] = item.ID
 	respItem["additional_interfaces"] = item.AdditionalInterfaces
 	respItem["ap_zones"] = flattenWirelessGetWirelessProfileByIDItemApZones(item.ApZones)
+	respItem["feature_templates"] = flattenWirelessGetWirelessProfileByIDItemFeatureTemplates(item.FeatureTemplates)
 	return []map[string]interface{}{
 		respItem,
 	}
@@ -575,6 +672,20 @@ func flattenWirelessGetWirelessProfileByIDItemApZones(items *[]dnacentersdkgo.Re
 		respItem := make(map[string]interface{})
 		respItem["ap_zone_name"] = item.ApZoneName
 		respItem["rf_profile_name"] = item.RfProfileName
+		respItem["ssids"] = item.SSIDs
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenWirelessGetWirelessProfileByIDItemFeatureTemplates(items *[]dnacentersdkgo.ResponseWirelessGetWirelessProfileByIDResponseFeatureTemplates) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["id"] = item.ID
 		respItem["ssids"] = item.SSIDs
 		respItems = append(respItems, respItem)
 	}

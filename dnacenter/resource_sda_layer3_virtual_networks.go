@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -89,6 +89,7 @@ func resourceSdaLayer3VirtualNetworks() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+
 									"anchored_site_id": &schema.Schema{
 										Description: `Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.
 `,
@@ -372,6 +373,7 @@ func resourceSdaLayer3VirtualNetworksDelete(ctx context.Context, d *schema.Resou
 
 	return diags
 }
+
 func expandRequestSdaLayer3VirtualNetworksAddLayer3VirtualNetworks(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddLayer3VirtualNetworks {
 	request := dnacentersdkgo.RequestSdaAddLayer3VirtualNetworks{}
 	if v := expandRequestSdaLayer3VirtualNetworksAddLayer3VirtualNetworksItemArray(ctx, key+".payload", d); v != nil {

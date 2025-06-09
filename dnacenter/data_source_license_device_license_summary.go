@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,7 +21,7 @@ func dataSourceLicenseDeviceLicenseSummary() *schema.Resource {
 		ReadContext: dataSourceLicenseDeviceLicenseSummaryRead,
 		Schema: map[string]*schema.Schema{
 			"device_type": &schema.Schema{
-				Description: `device_type query parameter. Type of device. The valid values are Routers, Switches and Hubs, Wireless Controller
+				Description: `device_type query parameter. Type of device
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -33,15 +33,16 @@ func dataSourceLicenseDeviceLicenseSummary() *schema.Resource {
 				Optional: true,
 			},
 			"dna_level": &schema.Schema{
-				Description: `dna_level query parameter. Device Cisco DNA license level. The valid values are Advantage, Essentials
+				Description: `dna_level query parameter. Device Cisco DNA license level
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter.`,
-				Type:        schema.TypeFloat,
-				Required:    true,
+				Description: `limit query parameter. Specifies the maximum number of device license summaries to return per page. Must be an integer between 1 and 500, inclusive.
+`,
+				Type:     schema.TypeFloat,
+				Required: true,
 			},
 			"order": &schema.Schema{
 				Description: `order query parameter. Sorting order
@@ -56,7 +57,7 @@ func dataSourceLicenseDeviceLicenseSummary() *schema.Resource {
 				Required: true,
 			},
 			"registration_status": &schema.Schema{
-				Description: `registration_status query parameter. Smart license registration status of device. The valid values are Unknown, NA, Unregistered, Registered, Registration_expired, Reservation_in_progress, Registered_slr, Registered_plr, Registered_satellite
+				Description: `registration_status query parameter. Smart license registration status of device
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -389,7 +390,21 @@ func dataSourceLicenseDeviceLicenseSummaryRead(ctx context.Context, d *schema.Re
 			queryParams1.DeviceUUID = vDeviceUUID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Licenses.DeviceLicenseSummary(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 DeviceLicenseSummary", err,
+				"Failure at DeviceLicenseSummary, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

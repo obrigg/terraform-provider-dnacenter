@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -19,8 +19,8 @@ func resourceIPamGlobalIPAddressPoolsID() *schema.Resource {
 		Description: `It manages read, update and delete operations on Network Settings.
 
 - Updates a global IP address pool.
-Restrictions on updating a global IP address pool: The *poolType* cannot be changed. The *subnet* and *prefixLength*
-within *addressSpace* cannot be changed.
+Restrictions on updating a global IP address pool: The **poolType** cannot be changed. The **subnet** and
+**prefixLength** within **addressSpace** cannot be changed.
 
 - Deletes a global IP address pool.  A global IP address pool can only be deleted if there are no subpools reserving
 address space from it.
@@ -194,7 +194,7 @@ address space from it.
 							},
 						},
 						"id": &schema.Schema{
-							Description: `id path parameter. The *id* of the global IP address pool to update.
+							Description: `id path parameter. The **id** of the global IP address pool to update.
 `,
 							Type:     schema.TypeString,
 							Required: true,
@@ -394,6 +394,7 @@ func resourceIPamGlobalIPAddressPoolsIDDelete(ctx context.Context, d *schema.Res
 
 	return diags
 }
+
 func expandRequestIPamGlobalIPAddressPoolsIDUpdatesAGlobalIPAddressPool(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsUpdatesAGlobalIPAddressPool {
 	request := dnacentersdkgo.RequestNetworkSettingsUpdatesAGlobalIPAddressPool{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".address_space")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".address_space")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".address_space")))) {

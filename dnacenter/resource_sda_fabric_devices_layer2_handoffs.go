@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -98,6 +98,7 @@ func resourceSdaFabricDevicesLayer2Handoffs() *schema.Resource {
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+
 									"external_vlan_id": &schema.Schema{
 										Description: `External VLAN number into which the fabric must be extended. Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094).
 `,
@@ -337,6 +338,7 @@ func resourceSdaFabricDevicesLayer2HandoffsDelete(ctx context.Context, d *schema
 
 	return diags
 }
+
 func expandRequestSdaFabricDevicesLayer2HandoffsAddFabricDevicesLayer2Handoffs(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddFabricDevicesLayer2Handoffs {
 	request := dnacentersdkgo.RequestSdaAddFabricDevicesLayer2Handoffs{}
 	if v := expandRequestSdaFabricDevicesLayer2HandoffsAddFabricDevicesLayer2HandoffsItemArray(ctx, key+".payload", d); v != nil {

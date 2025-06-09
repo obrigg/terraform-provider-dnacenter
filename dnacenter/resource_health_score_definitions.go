@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -224,6 +224,7 @@ func resourceHealthScoreDefinitionsDelete(ctx context.Context, d *schema.Resourc
 		"Failure at HealthScoreDefinitionsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestHealthScoreDefinitionsUpdateHealthScoreDefinitionForTheGivenID(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestDevicesUpdateHealthScoreDefinitionForTheGivenID {
 	request := dnacentersdkgo.RequestDevicesUpdateHealthScoreDefinitionForTheGivenID{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".include_for_overall_health")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".include_for_overall_health")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".include_for_overall_health")))) {

@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -46,14 +46,14 @@ func dataSourceWirelessControllersMeshApNeighbours() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 
 						"ap_name": &schema.Schema{
-							Description: `Name of the Wireless Access point
+							Description: `Name of the wireless access point
 `,
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 
 						"ethernet_mac_address": &schema.Schema{
-							Description: `AP Ethernet MacAddress mac
+							Description: `Access point ethernet MAC address
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -67,26 +67,35 @@ func dataSourceWirelessControllersMeshApNeighbours() *schema.Resource {
 						},
 
 						"mesh_role": &schema.Schema{
-							Description: `Mesh Role`,
-							Type:        schema.TypeString,
-							Computed:    true,
+							Description: `Mesh access point role like MAP, RAP
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"neighbour_ap_name": &schema.Schema{
+							Description: `Neighbour access point Name. If the neighbour access point is managed by Catalyst Center, its name will be displayed. Otherwise, it will not be shown.
+`,
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 
 						"neighbour_mac_address": &schema.Schema{
-							Description: `AP Base Radio MacAddress mac.
+							Description: `Access point base radio MAC address.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 
 						"neighbour_type": &schema.Schema{
-							Description: `Neighbour Type`,
-							Type:        schema.TypeString,
-							Computed:    true,
+							Description: `Mesh access point neighbour type like Parent, Tentative Parent, Neigh, Blocklisted, Child.
+`,
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 
 						"wlc_ip_address": &schema.Schema{
-							Description: `Device wireless Management IP
+							Description: `Device wireless management IP
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -121,7 +130,21 @@ func dataSourceWirelessControllersMeshApNeighboursRead(ctx context.Context, d *s
 			queryParams1.EthernetMacAddress = vEthernetMacAddress.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.GetMeshApNeighbours(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetMeshApNeighbours", err,
+				"Failure at GetMeshApNeighbours, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -162,6 +185,7 @@ func flattenWirelessGetMeshApNeighboursItem(item *dnacentersdkgo.ResponseWireles
 	respItem["wlc_ip_address"] = item.WlcIPAddress
 	respItem["neighbour_type"] = item.NeighbourType
 	respItem["mesh_role"] = item.MeshRole
+	respItem["neighbour_ap_name"] = item.NeighbourApName
 	return []map[string]interface{}{
 		respItem,
 	}

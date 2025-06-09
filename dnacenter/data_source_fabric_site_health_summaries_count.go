@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,10 +16,10 @@ func dataSourceFabricSiteHealthSummariesCount() *schema.Resource {
 		Description: `It performs read operation on SDA.
 
 - Get a count of Fabric sites. Use available query parameters to get the count of a subset of fabric sites.
-This data source provides the latest health data until the given *endTime*. If data is not ready for the provided
-endTime, the request will fail with error code *400 Bad Request*, and the error message will indicate the recommended
+This data source provides the latest health data until the given **endTime**. If data is not ready for the provided
+endTime, the request will fail with error code **400 Bad Request**, and the error message will indicate the recommended
 endTime to use to retrieve a complete data set. This behavior may occur if the provided endTime=currentTime, since we
-are not a real time system. When *endTime* is not provided, the API returns the latest data.
+are not a real time system. When **endTime** is not provided, the API returns the latest data.
 For detailed information about the usage of the API, please refer to the Open API specification document
 https://github.com/cisco-en-programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-
 fabricSiteHealthSummaries-1.0.1-resolved.yaml
@@ -35,6 +35,18 @@ fabricSiteHealthSummaries-1.0.1-resolved.yaml
 			},
 			"id": &schema.Schema{
 				Description: `id query parameter. The list of entity Uuids. (Ex."6bef213c-19ca-4170-8375-b694e251101c") Examples: id=6bef213c-19ca-4170-8375-b694e251101c (single entity uuid requested) id=6bef213c-19ca-4170-8375-b694e251101c&id=32219612-819e-4b5e-a96b-cf22aca13dd9&id=2541e9a7-b80d-4955-8aa2-79b233318ba0 (multiple entity uuid with '&' separator)
+`,
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"site_hierarchy": &schema.Schema{
+				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. **Global/AreaName/BuildingName/FloorName**)          This field supports wildcard asterisk (*****) character search support. E.g. ***/San*, */San, /San***          Examples:          **?siteHierarchy=Global/AreaName/BuildingName/FloorName** (single siteHierarchy requested)          **?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2** (multiple siteHierarchies requested)
+`,
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"site_hierarchy_id": &schema.Schema{
+				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. **globalUuid/areaUuid/buildingUuid/floorUuid**)          This field supports wildcard asterisk (*****) character search support. E.g. ***uuid*, *uuid, uuid***          Examples:          **?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid **(single siteHierarchyId requested)          **?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2** (multiple siteHierarchyIds requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -77,6 +89,8 @@ func dataSourceFabricSiteHealthSummariesCountRead(ctx context.Context, d *schema
 	vStartTime, okStartTime := d.GetOk("start_time")
 	vEndTime, okEndTime := d.GetOk("end_time")
 	vID, okID := d.GetOk("id")
+	vSiteHierarchy, okSiteHierarchy := d.GetOk("site_hierarchy")
+	vSiteHierarchyID, okSiteHierarchyID := d.GetOk("site_hierarchy_id")
 	vXCaLLERID := d.Get("xca_lle_rid")
 
 	selectedMethod := 1
@@ -95,9 +109,29 @@ func dataSourceFabricSiteHealthSummariesCountRead(ctx context.Context, d *schema
 		if okID {
 			queryParams1.ID = vID.(string)
 		}
+		if okSiteHierarchy {
+			queryParams1.SiteHierarchy = vSiteHierarchy.(string)
+		}
+		if okSiteHierarchyID {
+			queryParams1.SiteHierarchyID = vSiteHierarchyID.(string)
+		}
 		headerParams1.XCaLLERID = vXCaLLERID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sda.ReadFabricSiteCount(&headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReadFabricSiteCount", err,
+				"Failure at ReadFabricSiteCount, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

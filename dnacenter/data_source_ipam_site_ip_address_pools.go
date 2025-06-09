@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,7 +21,7 @@ func dataSourceIPamSiteIPAddressPools() *schema.Resource {
 		ReadContext: dataSourceIPamSiteIPAddressPoolsRead,
 		Schema: map[string]*schema.Schema{
 			"limit": &schema.Schema{
-				Description: `limit query parameter. The number of records to show for this page;The minimum is 1, and the maximum is 500.
+				Description: `limit query parameter. The number of records to show for this page; the minimum is 1, and the maximum is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -39,7 +39,7 @@ func dataSourceIPamSiteIPAddressPools() *schema.Resource {
 				Optional: true,
 			},
 			"site_id": &schema.Schema{
-				Description: `siteId query parameter. The *id* of the site for which to retrieve IP address subpools. Only subpools whose *siteId* exactly matches will be fetched, parent or child site matches will not be included.
+				Description: `siteId query parameter. The **id** of the site for which to retrieve IP address subpools. Only subpools whose **siteId** exactly matches will be fetched, parent or child site matches will not be included.
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -265,7 +265,7 @@ func dataSourceIPamSiteIPAddressPools() *schema.Resource {
 						},
 
 						"site_id": &schema.Schema{
-							Description: `The *id* of the site that this subpool belongs to. This must be the *id* of a non-Global site.
+							Description: `The **id** of the site that this subpool belongs to. This must be the **id** of a non-Global site.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -315,7 +315,21 @@ func dataSourceIPamSiteIPAddressPoolsRead(ctx context.Context, d *schema.Resourc
 			queryParams1.SiteID = vSiteID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.NetworkSettings.RetrievesIPAddressSubpools(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesIPAddressSubpools", err,
+				"Failure at RetrievesIPAddressSubpools, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

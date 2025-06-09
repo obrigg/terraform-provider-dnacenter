@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -60,7 +60,7 @@ func resourceSdaAuthenticationProfiles() *schema.Resource {
 							Computed: true,
 						},
 						"fabric_id": &schema.Schema{
-							Description: `ID of the fabric this authentication profile is assigned to.
+							Description: `ID of the fabric this authentication profile is assigned to. (This property is not applicable to global authentication profiles and will not be present in such cases.)
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -73,6 +73,13 @@ func resourceSdaAuthenticationProfiles() *schema.Resource {
 						},
 						"is_bpdu_guard_enabled": &schema.Schema{
 							Description: `Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to "Closed Authentication".
+`,
+							// Type:        schema.TypeBool,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"is_voice_vlan_enabled": &schema.Schema{
+							Description: `Enable/disable Voice Vlan.
 `,
 							// Type:        schema.TypeBool,
 							Type:     schema.TypeString,
@@ -201,6 +208,15 @@ func resourceSdaAuthenticationProfiles() *schema.Resource {
 									},
 									"is_bpdu_guard_enabled": &schema.Schema{
 										Description: `Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to "Closed Authentication" (defaults to true).
+`,
+										// Type:        schema.TypeBool,
+										Type:         schema.TypeString,
+										ValidateFunc: validateStringHasValueFunc([]string{"", "true", "false"}),
+										Optional:     true,
+										Computed:     true,
+									},
+									"is_voice_vlan_enabled": &schema.Schema{
+										Description: `Enable/disable Voice Vlan.
 `,
 										// Type:        schema.TypeBool,
 										Type:         schema.TypeString,
@@ -420,6 +436,7 @@ func resourceSdaAuthenticationProfilesDelete(ctx context.Context, d *schema.Reso
 		"Failure at SdaAuthenticationProfilesDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestSdaAuthenticationProfilesUpdateAuthenticationProfile(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaUpdateAuthenticationProfile {
 	request := dnacentersdkgo.RequestSdaUpdateAuthenticationProfile{}
 	if v := expandRequestSdaAuthenticationProfilesUpdateAuthenticationProfileItemArray(ctx, key+".payload", d); v != nil {
@@ -479,6 +496,9 @@ func expandRequestSdaAuthenticationProfilesUpdateAuthenticationProfileItem(ctx c
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_bpdu_guard_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_bpdu_guard_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_bpdu_guard_enabled")))) {
 		request.IsBpduGuardEnabled = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_voice_vlan_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_voice_vlan_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_voice_vlan_enabled")))) {
+		request.IsVoiceVLANEnabled = interfaceToBoolPtr(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".pre_auth_acl")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".pre_auth_acl")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".pre_auth_acl")))) {
 		request.PreAuthACL = expandRequestSdaAuthenticationProfilesUpdateAuthenticationProfileItemPreAuthACL(ctx, key+".pre_auth_acl.0", d)

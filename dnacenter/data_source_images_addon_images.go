@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,14 +15,14 @@ func dataSourceImagesAddonImages() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Software Image Management (SWIM).
 
-- Retrieves the list of applicable add-on images if available for the given software image. *id* can be obtained from
+- Retrieves the list of applicable add-on images if available for the given software image. **id** can be obtained from
 the response of API [ /dna/intent/api/v1/images?hasAddonImages=true ].
 `,
 
 		ReadContext: dataSourceImagesAddonImagesRead,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
-				Description: `id path parameter. Software image identifier. Check */dna/intent/api/v1/images?hasAddonImages=true* API to get the same.
+				Description: `id path parameter. Software image identifier. Check **/dna/intent/api/v1/images?hasAddonImages=true** API to get the same.
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -35,7 +35,7 @@ the response of API [ /dna/intent/api/v1/images?hasAddonImages=true ].
 					Schema: map[string]*schema.Schema{
 
 						"cisco_latest": &schema.Schema{
-							Description: `*true* if the image is latest/suggested from Cisco.com
+							Description: `**true** if the image is latest/suggested from Cisco.com
 `,
 							// Type:        schema.TypeBool,
 							Type:     schema.TypeString,
@@ -86,7 +86,7 @@ the response of API [ /dna/intent/api/v1/images?hasAddonImages=true ].
 						},
 
 						"has_addon_images": &schema.Schema{
-							Description: `Software images that have an applicable list of add-on images. The value of *true* will return software images with add-on images, while the value of *false* will return software images without add-on images
+							Description: `Software images that have an applicable list of add-on images. The value of **true** will return software images with add-on images, while the value of **false** will return software images without add-on images
 `,
 							// Type:        schema.TypeBool,
 							Type:     schema.TypeString,
@@ -123,7 +123,7 @@ the response of API [ /dna/intent/api/v1/images?hasAddonImages=true ].
 						},
 
 						"is_addon_image": &schema.Schema{
-							Description: `The value of *true* will indicate the image as an add-on image, while the value of *false* will indicate software image
+							Description: `The value of **true** will indicate the image as an add-on image, while the value of **false** will indicate software image
 `,
 							// Type:        schema.TypeBool,
 							Type:     schema.TypeString,
@@ -131,7 +131,7 @@ the response of API [ /dna/intent/api/v1/images?hasAddonImages=true ].
 						},
 
 						"is_golden_tagged": &schema.Schema{
-							Description: `The value of *true* will indicate the image marked as golden, while the value of *false* will indicate the image not marked as golden
+							Description: `The value of **true** will indicate the image marked as golden, while the value of **false** will indicate the image not marked as golden
 `,
 							// Type:        schema.TypeBool,
 							Type:     schema.TypeString,
@@ -173,14 +173,14 @@ the response of API [ /dna/intent/api/v1/images?hasAddonImages=true ].
 									},
 
 									"supervisor_product_name": &schema.Schema{
-										Description: `Name of the Supervisor Engine Module, supported by the *productName*.                  Example: The *Cisco Catalyst 9404R Switch* chassis is capable of supporting  different supervisor engine modules: the *Cisco Catalyst 9400 Supervisor Engine-1*, the *Cisco Catalyst 9400 Supervisor Engine-1XL*, the *Cisco Catalyst 9400 Supervisor Engine-1XL-Y*, etc.
+										Description: `Name of the Supervisor Engine Module, supported by the **productName**.                  Example: The **Cisco Catalyst 9404R Switch** chassis is capable of supporting  different supervisor engine modules: the **Cisco Catalyst 9400 Supervisor Engine-1**, the **Cisco Catalyst 9400 Supervisor Engine-1XL**, the **Cisco Catalyst 9400 Supervisor Engine-1XL-Y**, etc.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
 									},
 
 									"supervisor_product_name_ordinal": &schema.Schema{
-										Description: `Supervisor Engine Module Ordinal, supported by the *productNameOrdinal*. Example: The *286315691* chassis ordinal is capable of supporting different supervisor engine module ordinals: *286316172*, *286316710*, *286320394* etc.
+										Description: `Supervisor Engine Module Ordinal, supported by the **productNameOrdinal**. Example: The **286315691** chassis ordinal is capable of supporting different supervisor engine module ordinals: **286316172**, **286316710**, **286320394** etc.
 `,
 										Type:     schema.TypeFloat,
 										Computed: true,
@@ -220,7 +220,21 @@ func dataSourceImagesAddonImagesRead(ctx context.Context, d *schema.ResourceData
 		log.Printf("[DEBUG] Selected method: RetrieveApplicableAddOnImagesForTheGivenSoftwareImage")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SoftwareImageManagementSwim.RetrieveApplicableAddOnImagesForTheGivenSoftwareImage(vvID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveApplicableAddOnImagesForTheGivenSoftwareImage", err,
+				"Failure at RetrieveApplicableAddOnImagesForTheGivenSoftwareImage, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

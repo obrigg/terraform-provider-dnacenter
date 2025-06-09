@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,10 +16,10 @@ func dataSourceSystemIssueDefinitions() *schema.Resource {
 		Description: `It performs read operation on Issues.
 
 - Get all system issue defintions. The supported filters are id, name, profileId and definition enable status. An issue
-trigger definition can be different across the profile and device type. So, *profileId* and *deviceType* in the query
-param is important and default is global profile and all device type. For detailed information about the usage of the
-API, please refer to the Open API specification document https://github.com/cisco-en-programmability/catalyst-center-
-api-specs/blob/main/Assurance/CE_Cat_Center_Org-issueAndHealthDefinitions-1.0.0-resolved.yaml
+trigger definition can be different across the profile and device type. So, **profileId** and **deviceType** in the
+query param is important and default is global profile and all device type. For detailed information about the usage of
+the API, please refer to the Open API specification document https://github.com/cisco-en-programmability/catalyst-
+center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-issueAndHealthDefinitions-1.0.0-resolved.yaml
 
 - Get system issue defintion for the given id. Definition includes all properties from IssueTriggerDefinition schema by
 default. For detailed information about the usage of the API, please refer to the Open API specification document
@@ -82,16 +82,16 @@ name=BGP_Down&name=BGP_Flap (multiple issue names separated by & operator)
 			},
 			"priority": &schema.Schema{
 				Description: `priority query parameter. Issue priority, possible values are P1, P2, P3, P4.
-*P1*: A critical issue that needs immediate attention and can have a wide impact on network operations.
-*P2*: A major issue that can potentially impact multiple devices or clients.
-*P3*: A minor issue that has a localized or minimal impact.
-*P4*: A warning issue that may not be an immediate problem but addressing it can optimize the network performance.
+**P1**: A critical issue that needs immediate attention and can have a wide impact on network operations.
+**P2**: A major issue that can potentially impact multiple devices or clients.
+**P3**: A minor issue that has a localized or minimal impact.
+**P4**: A warning issue that may not be an immediate problem but addressing it can optimize the network performance.
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"profile_id": &schema.Schema{
-				Description: `profileId query parameter. The profile identier to fetch the profile associated issue defintions. The default is *global*. Please refer Network design profiles documentation for more details.
+				Description: `profileId query parameter. The profile identier to fetch the profile associated issue defintions. The default is **global**. Please refer Network design profiles documentation for more details.
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -368,7 +368,21 @@ func dataSourceSystemIssueDefinitionsRead(ctx context.Context, d *schema.Resourc
 			headerParams1.XCaLLERID = vXCaLLERID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Issues.ReturnsAllIssueTriggerDefinitionsForGivenFilters(&headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReturnsAllIssueTriggerDefinitionsForGivenFilters", err,
+				"Failure at ReturnsAllIssueTriggerDefinitionsForGivenFilters, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -404,7 +418,21 @@ func dataSourceSystemIssueDefinitionsRead(ctx context.Context, d *schema.Resourc
 			headerParams2.XCaLLERID = vXCaLLERID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Issues.GetIssueTriggerDefinitionForGivenID(vvID, &headerParams2)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetIssueTriggerDefinitionForGivenID", err,
+				"Failure at GetIssueTriggerDefinitionForGivenID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

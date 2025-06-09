@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,13 +15,13 @@ func dataSourceNetworkDeviceConfigFilesID() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Configuration Archive.
 
-- Retrieves the details of a specific network device configuration file using the *id*.
+- Retrieves the details of a specific network device configuration file using the **id**.
 `,
 
 		ReadContext: dataSourceNetworkDeviceConfigFilesIDRead,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
-				Description: `id path parameter. The value of *id* can be obtained from the response of API */dna/intent/api/v1/networkDeviceConfigFiles*
+				Description: `id path parameter. The value of **id** can be obtained from the response of API **/dna/intent/api/v1/networkDeviceConfigFiles**
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -92,7 +92,21 @@ func dataSourceNetworkDeviceConfigFilesIDRead(ctx context.Context, d *schema.Res
 		log.Printf("[DEBUG] Selected method: GetConfigurationFileDetailsByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.ConfigurationArchive.GetConfigurationFileDetailsByID(vvID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetConfigurationFileDetailsByID", err,
+				"Failure at GetConfigurationFileDetailsByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

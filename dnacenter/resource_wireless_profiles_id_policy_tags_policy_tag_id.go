@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,15 +18,15 @@ func resourceWirelessProfilesIDPolicyTagsPolicyTagID() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read, update and delete operations on Wireless.
 
-- This endpoint allows for the deletion of a specific *Policy Tag* associated with a given *Wireless Profile*. This
-resource requires the *id* of the *Wireless Profile* and the *policyTagId* of the *Policy Tag* to be provided as path
-parameters.
+- This endpoint allows for the deletion of a specific **Policy Tag** associated with a given **Wireless Profile**. This
+resource requires the **id** of the **Wireless Profile** and the **policyTagId** of the **Policy Tag** to be provided as
+path parameters.
 
-- This endpoint allows updating the details of a specific *Policy Tag* associated with a given *Wireless Profile*. The
-*id* of the *Wireless Profile* and the *policyTagId* of the Policy Tag must be provided as path parameters, and the
-request body should contain the updated details of the *Policy Tag*. The *policyTagName* cannot be modified through this
-endpoint. Note: When updating a Policy Tag, if the same set of AP Zones (apZones) is used for the same site or its
-parent site, the existing Policy Tag will be overridden by the new one.
+- This endpoint allows updating the details of a specific **Policy Tag** associated with a given **Wireless Profile**.
+The **id** of the **Wireless Profile** and the **policyTagId** of the Policy Tag must be provided as path parameters,
+and the request body should contain the updated details of the **Policy Tag**. The **policyTagName** cannot be modified
+through this endpoint. Note: When updating a Policy Tag, if the same set of AP Zones (apZones) is used for the same site
+or its parent site, the existing Policy Tag will be overridden by the new one.
 `,
 
 		CreateContext: resourceWirelessProfilesIDPolicyTagsPolicyTagIDCreate,
@@ -309,6 +309,7 @@ func resourceWirelessProfilesIDPolicyTagsPolicyTagIDDelete(ctx context.Context, 
 
 	return diags
 }
+
 func expandRequestWirelessProfilesIDPolicyTagsPolicyTagIDUpdateASpecificPolicyTagForAWirelessProfile(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessUpdateASpecificPolicyTagForAWirelessProfile {
 	request := dnacentersdkgo.RequestWirelessUpdateASpecificPolicyTagForAWirelessProfile{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".site_ids")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".site_ids")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".site_ids")))) {

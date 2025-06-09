@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -137,7 +137,7 @@ func dataSourceWirelessRfProfile() *schema.Resource {
 									},
 
 									"power_threshold_v1": &schema.Schema{
-										Description: `Power Threshold  ( (Default: -70)
+										Description: `Power Threshold V1 ( (Default: -70)
 `,
 										Type:     schema.TypeFloat,
 										Computed: true,
@@ -202,7 +202,7 @@ func dataSourceWirelessRfProfile() *schema.Resource {
 									},
 
 									"power_threshold_v1": &schema.Schema{
-										Description: `Power Threshold   (Default: -70)
+										Description: `Power Threshold V1  (Default: -70)
 `,
 										Type:     schema.TypeFloat,
 										Computed: true,
@@ -267,7 +267,7 @@ func dataSourceWirelessRfProfile() *schema.Resource {
 									},
 
 									"power_threshold_v1": &schema.Schema{
-										Description: `Power Threshold   (Default: -70)
+										Description: `Power Threshold V1  (Default: -70)
 `,
 										Type:     schema.TypeFloat,
 										Computed: true,
@@ -311,7 +311,21 @@ func dataSourceWirelessRfProfileRead(ctx context.Context, d *schema.ResourceData
 			queryParams1.RfProfileName = vRfProfileName.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.RetrieveRfProfiles(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveRfProfiles", err,
+				"Failure at RetrieveRfProfiles, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -370,7 +384,7 @@ func flattenWirelessRetrieveRfProfilesItemRadioTypeAProperties(item *dnacentersd
 	respItem["radio_channels"] = item.RadioChannels
 	respItem["data_rates"] = item.DataRates
 	respItem["mandatory_data_rates"] = item.MandatoryDataRates
-	respItem["power_threshold_v1"] = item.PowerThreshold
+	respItem["power_threshold_v1"] = item.PowerThresholdV1
 	respItem["rx_sop_threshold"] = item.RxSopThreshold
 	respItem["min_power_level"] = item.MinPowerLevel
 	respItem["max_power_level"] = item.MaxPowerLevel
@@ -390,7 +404,7 @@ func flattenWirelessRetrieveRfProfilesItemRadioTypeBProperties(item *dnacentersd
 	respItem["radio_channels"] = item.RadioChannels
 	respItem["data_rates"] = item.DataRates
 	respItem["mandatory_data_rates"] = item.MandatoryDataRates
-	respItem["power_threshold_v1"] = item.PowerThreshold
+	respItem["power_threshold_v1"] = item.PowerThresholdV1
 	respItem["rx_sop_threshold"] = item.RxSopThreshold
 	respItem["min_power_level"] = item.MinPowerLevel
 	respItem["max_power_level"] = item.MaxPowerLevel
@@ -413,7 +427,7 @@ func flattenWirelessRetrieveRfProfilesItemRadioTypeCProperties(item *dnacentersd
 	respItem["rx_sop_threshold"] = item.RxSopThreshold
 	respItem["min_power_level"] = item.MinPowerLevel
 	respItem["max_power_level"] = item.MaxPowerLevel
-	respItem["power_threshold_v1"] = item.PowerThreshold
+	respItem["power_threshold_v1"] = item.PowerThresholdV1
 
 	return []map[string]interface{}{
 		respItem,

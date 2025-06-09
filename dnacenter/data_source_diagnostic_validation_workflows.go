@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,7 +16,7 @@ func dataSourceDiagnosticValidationWorkflows() *schema.Resource {
 		Description: `It performs read operation on Health and Performance.
 
 - Retrieves the workflows that have been successfully submitted and are currently available. This is sorted by
-*submitTime*
+**submitTime**
 
 - Retrieves workflow details for a workflow id
 `,
@@ -36,7 +36,7 @@ func dataSourceDiagnosticValidationWorkflows() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. The number of records to show for this page.
+				Description: `limit query parameter. Specifies the maximum number of workflows to return per page. Must be an integer between 1 and 500, inclusive.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -48,7 +48,7 @@ func dataSourceDiagnosticValidationWorkflows() *schema.Resource {
 				Optional: true,
 			},
 			"run_status": &schema.Schema{
-				Description: `runStatus query parameter. Execution status of the workflow. If the workflow is successfully submitted, runStatus is *PENDING*. If the workflow execution has started, runStatus is *IN_PROGRESS*. If the workflow executed is completed with all validations executed, runStatus is *COMPLETED*. If the workflow execution fails while running validations, runStatus is *FAILED*.
+				Description: `runStatus query parameter. Execution status of the workflow. If the workflow is successfully submitted, runStatus is **PENDING**. If the workflow execution has started, runStatus is **IN_PROGRESS**. If the workflow executed is completed with all validations executed, runStatus is **COMPLETED**. If the workflow execution fails while running validations, runStatus is **FAILED**.
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -95,7 +95,7 @@ func dataSourceDiagnosticValidationWorkflows() *schema.Resource {
 						},
 
 						"run_status": &schema.Schema{
-							Description: `Execution status of the workflow. If the workflow is successfully submitted, runStatus will return *PENDING*. If the workflow execution has started, runStatus will return *IN_PROGRESS*. If the workflow executed is completed with all validations executed, runStatus will return *COMPLETED*. If the workflow execution fails while running validations, runStatus will return *FAILED*.
+							Description: `Execution status of the workflow. If the workflow is successfully submitted, runStatus will return **PENDING**. If the workflow execution has started, runStatus will return **IN_PROGRESS**. If the workflow executed is completed with all validations executed, runStatus will return **COMPLETED**. If the workflow execution fails while running validations, runStatus will return **FAILED**.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -183,7 +183,7 @@ func dataSourceDiagnosticValidationWorkflows() *schema.Resource {
 									},
 
 									"validation_status": &schema.Schema{
-										Description: `Overall result of the validation set execution. If any of the contained validation execution status is *CRITICAL*, this is marked as *CRITICAL*. Else, if any of the contained validation execution status is *WARNING*, this is marked as *WARNING*. Else, this is marked as *INFORMATION*. This is empty when the workflow is in progress.
+										Description: `Overall result of the validation set execution. If any of the contained validation execution status is **CRITICAL**, this is marked as **CRITICAL**. Else, if any of the contained validation execution status is **WARNING**, this is marked as **WARNING**. Else, this is marked as **INFORMATION**. This is empty when the workflow is in progress.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -200,7 +200,7 @@ func dataSourceDiagnosticValidationWorkflows() *schema.Resource {
 						},
 
 						"validation_status": &schema.Schema{
-							Description: `Overall result of the execution of all the validations. If any of the contained validation execution status is *CRITICAL*, this is marked as *CRITICAL*. Else, if any of the contained validation execution status is *WARNING*, this is marked as *WARNING*. Else, this is marked as *INFORMATION*.
+							Description: `Overall result of the execution of all the validations. If any of the contained validation execution status is **CRITICAL**, this is marked as **CRITICAL**. Else, if any of the contained validation execution status is **WARNING**, this is marked as **WARNING**. Else, this is marked as **INFORMATION**.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -244,7 +244,7 @@ func dataSourceDiagnosticValidationWorkflows() *schema.Resource {
 						},
 
 						"run_status": &schema.Schema{
-							Description: `Execution status of the workflow. If the workflow is successfully submitted, runStatus will return *PENDING*. If the workflow execution has started, runStatus will return *IN_PROGRESS*. If the workflow executed is completed with all validations executed, runStatus will return *COMPLETED*. If the workflow execution fails while running validations, runStatus will return *FAILED*.
+							Description: `Execution status of the workflow. If the workflow is successfully submitted, runStatus will return **PENDING**. If the workflow execution has started, runStatus will return **IN_PROGRESS**. If the workflow executed is completed with all validations executed, runStatus will return **COMPLETED**. If the workflow execution fails while running validations, runStatus will return **FAILED**.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -324,7 +324,21 @@ func dataSourceDiagnosticValidationWorkflowsRead(ctx context.Context, d *schema.
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.HealthAndPerformance.RetrievesTheListOfValidationWorkflows(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesTheListOfValidationWorkflows", err,
+				"Failure at RetrievesTheListOfValidationWorkflows, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -354,7 +368,21 @@ func dataSourceDiagnosticValidationWorkflowsRead(ctx context.Context, d *schema.
 		log.Printf("[DEBUG] Selected method: RetrievesValidationWorkflowDetails")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.HealthAndPerformance.RetrievesValidationWorkflowDetails(vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesValidationWorkflowDetails", err,
+				"Failure at RetrievesValidationWorkflowDetails, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

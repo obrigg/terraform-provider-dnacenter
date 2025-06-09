@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -19,9 +19,9 @@ func resourceNetworkDeviceMaintenanceSchedules() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages create and read operations on Devices.
 
-- API to create maintenance schedule for network devices. The state of network device can be queried using API *GET
-/dna/intent/api/v1/networkDevices*. The *managementState* attribute of the network device will be updated to
-*UNDER_MAINTENANCE* when the maintenance window starts.
+- API to create maintenance schedule for network devices. The state of network device can be queried using API **GET
+/dna/intent/api/v1/networkDevices**. The **managementState** attribute of the network device will be updated to
+**UNDER_MAINTENANCE** when the maintenance window starts.
 `,
 
 		CreateContext: resourceNetworkDeviceMaintenanceSchedulesCreate,
@@ -376,6 +376,7 @@ func resourceNetworkDeviceMaintenanceSchedulesDelete(ctx context.Context, d *sch
 	//       Returning empty diags to delete it on Terraform
 	return diags
 }
+
 func expandRequestNetworkDeviceMaintenanceSchedulesCreateMaintenanceScheduleForNetworkDevices(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestDevicesCreateMaintenanceScheduleForNetworkDevices {
 	request := dnacentersdkgo.RequestDevicesCreateMaintenanceScheduleForNetworkDevices{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".description")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".description")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".description")))) {

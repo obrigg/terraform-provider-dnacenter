@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,13 +16,13 @@ func dataSourceSiteWiseImagesSummary() *schema.Resource {
 		Description: `It performs read operation on Software Image Management (SWIM).
 
 - Returns aggregate counts of network device product names, golden and non-golden tagged products, imported images,
-golden images tagged, and advisor for a specific site provide, the default value of *siteId* is set to global.
+golden images tagged, and advisor for a specific site provide, the default value of **siteId** is set to global.
 `,
 
 		ReadContext: dataSourceSiteWiseImagesSummaryRead,
 		Schema: map[string]*schema.Schema{
 			"site_id": &schema.Schema{
-				Description: `siteId query parameter. Site identifier to get the aggreagte counts products under the site. The default value is global site id. See [https://developer.cisco.com/docs/dna-center](#!get-site) for *siteId*
+				Description: `siteId query parameter. Site identifier to get the aggreagte counts products under the site. The default value is global site id. See [https://developer.cisco.com/docs/dna-center](#!get-site) for **siteId**
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -111,7 +111,21 @@ func dataSourceSiteWiseImagesSummaryRead(ctx context.Context, d *schema.Resource
 			queryParams1.SiteID = vSiteID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SoftwareImageManagementSwim.ReturnsTheImageSummaryForTheGivenSite(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReturnsTheImageSummaryForTheGivenSite", err,
+				"Failure at ReturnsTheImageSummaryForTheGivenSite, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

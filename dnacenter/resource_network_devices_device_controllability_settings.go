@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,22 +20,25 @@ func resourceNetworkDevicesDeviceControllabilitySettings() *schema.Resource {
 
 - Device Controllability is a system-level process on Catalyst Center that enforces state synchronization for some
 device-layer features. Its purpose is to aid in the deployment of required network settings that Catalyst Center needs
-to manage devices. Changes are made on network devices  during discovery, when adding a device to Inventory, or when
-assigning a device to a site. If changes  are made to any settings that are under the scope of this process, these
-changes are applied to the  network devices during the Provision and Update Telemetry Settings operations, even if
-Device  Controllability is disabled. The following device settings will be enabled as part of  Device Controllability
-when devices are discovered.
+to manage devices. Changes are made on network devices during discovery, when adding a device to Inventory, or when
+assigning a device to a site. If changes are made to any settings that are under the scope of this process, these
+changes are applied to the network devices during the Provision and Update Telemetry Settings operations, even if Device
+Controllability is disabled. The following device settings will be enabled as part of Device Controllability when
+devices are discovered.
+
 
   SNMP Credentials.
   NETCONF Credentials.
 
-Subsequent to discovery, devices will be added to Inventory. The following device settings will be  enabled when devices
+Subsequent to discovery, devices will be added to Inventory. The following device settings will be enabled when devices
 are added to inventory.
+
 
   Cisco TrustSec (CTS) Credentials.
 
-The following device settings will be enabled when devices are assigned to a site. Some of these  settings can be
-defined at a site level under Design > Network Settings > Telemetry & Wireless.
+The following device settings will be enabled when devices are assigned to a site. Some of these settings can be defined
+at a site level under Design > Network Settings > Telemetry & Wireless.
+
 
   Wired Endpoint Data Collection Enablement.
   Controller Certificates.
@@ -48,10 +51,11 @@ defined at a site level under Design > Network Settings > Telemetry & Wireless.
   DTLS Ciphersuite.
   AP Impersonation.
 
-If Device Controllability is disabled, Catalyst Center does not configure any of the preceding  credentials or settings
-on devices during discovery, at runtime, or during site assignment. However,  the telemetry settings and related
-configuration are pushed when the device is provisioned or when the  update Telemetry Settings action is performed.
-Catalyst Center identifies and automatically corrects the following telemetry configuration issues on  the device.
+If Device Controllability is disabled, Catalyst Center does not configure any of the preceding credentials or settings
+on devices during discovery, at runtime, or during site assignment. However, the telemetry settings and related
+configuration are pushed when the device is provisioned or when the update Telemetry Settings action is performed.
+Catalyst Center identifies and automatically corrects the following telemetry configuration issues on the device.
+
 
   SWIM certificate issue.
   IOS WLC NA certificate issue.
@@ -241,6 +245,7 @@ func resourceNetworkDevicesDeviceControllabilitySettingsDelete(ctx context.Conte
 		"Failure at NetworkDevicesDeviceControllabilitySettingsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestNetworkDevicesDeviceControllabilitySettingsUpdateDeviceControllabilitySettings(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSiteDesignUpdateDeviceControllabilitySettings {
 	request := dnacentersdkgo.RequestSiteDesignUpdateDeviceControllabilitySettings{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".autocorrect_telemetry_config")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".autocorrect_telemetry_config")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".autocorrect_telemetry_config")))) {

@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -111,11 +111,25 @@ func dataSourceThreatSummaryRead(ctx context.Context, d *schema.ResourceData, m 
 
 	request1 := expandRequestThreatSummaryThreatSummary(ctx, "", d)
 
+	// has_unknown_response: None
+
 	response1, restyResp1, err := client.Devices.ThreatSummary(request1)
 
 	if request1 != nil {
 		log.Printf("[DEBUG] request sent => %v", responseInterfaceToString(*request1))
 	}
+
+	if err != nil || response1 == nil {
+		if restyResp1 != nil {
+			log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+		}
+		diags = append(diags, diagErrorWithAlt(
+			"Failure when executing 2 ThreatSummary", err,
+			"Failure at ThreatSummary, unexpected response", ""))
+		return diags
+	}
+
+	log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 	if err != nil || response1 == nil {
 		if restyResp1 != nil {
@@ -139,6 +153,8 @@ func dataSourceThreatSummaryRead(ctx context.Context, d *schema.ResourceData, m 
 
 	d.SetId(getUnixTimeString())
 	return diags
+
+	return diags
 }
 
 func expandRequestThreatSummaryThreatSummary(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestDevicesThreatSummary {
@@ -159,4 +175,33 @@ func expandRequestThreatSummaryThreatSummary(ctx context.Context, key string, d 
 		request.ThreatType = interfaceToSliceString(v)
 	}
 	return &request
+}
+
+func flattenDevicesThreatSummaryItems(items *[]dnacentersdkgo.ResponseDevicesThreatSummaryResponse) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["timestamp"] = item.Timestamp
+		respItem["threat_data"] = flattenDevicesThreatSummaryItemsThreatData(item.ThreatData)
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenDevicesThreatSummaryItemsThreatData(items *[]dnacentersdkgo.ResponseDevicesThreatSummaryResponseThreatData) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["threat_type"] = item.ThreatType
+		respItem["threat_level"] = item.ThreatLevel
+		respItem["threat_count"] = item.ThreatCount
+		respItems = append(respItems, respItem)
+	}
+	return respItems
 }

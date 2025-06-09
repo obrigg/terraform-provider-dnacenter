@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,20 +15,20 @@ func dataSourceSitesTelemetrySettings() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Network Settings.
 
-- Retrieves telemetry settings for the given site. *null* values indicate that the setting will be inherited from the
+- Retrieves telemetry settings for the given site. **null** values indicate that the setting will be inherited from the
 parent site.
 `,
 
 		ReadContext: dataSourceSitesTelemetrySettingsRead,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
-				Description: `id path parameter. Site Id, retrievable from the *id* attribute in */dna/intent/api/v1/sites*
+				Description: `id path parameter. Site Id, retrievable from the **id** attribute in **/dna/intent/api/v1/sites**
 `,
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"inherited": &schema.Schema{
-				Description: `_inherited query parameter. Include settings explicitly set for this site and settings inherited from sites higher in the site hierarchy; when *false*, *null* values indicate that the site inherits that setting from the parent site or a site higher in the site hierarchy.
+				Description: `_inherited query parameter. Include settings explicitly set for this site and settings inherited from sites higher in the site hierarchy; when **false**, **null** values indicate that the site inherits that setting from the parent site or a site higher in the site hierarchy.
 `,
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -182,7 +182,7 @@ parent site.
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
-									"enable_wired_data_collectio": &schema.Schema{
+									"enable_wired_data_collection": &schema.Schema{
 										Description: `Track the presence, location, and movement of wired endpoints in the network. Traffic received from endpoints is used to extract and store their identity information (MAC address and IP address). Other features, such as IEEE 802.1X, web authentication, Cisco Security Groups (formerly TrustSec), SD-Access, and Assurance, depend on this identity information to operate properly. Wired Endpoint Data Collection enables Device Tracking policies on devices assigned to the Access role in Inventory.
 `,
 										// Type:        schema.TypeBool,
@@ -257,7 +257,21 @@ func dataSourceSitesTelemetrySettingsRead(ctx context.Context, d *schema.Resourc
 			queryParams1.Inherited = vInherited.(bool)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.NetworkSettings.RetrieveTelemetrySettingsForASite(vvID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveTelemetrySettingsForASite", err,
+				"Failure at RetrieveTelemetrySettingsForASite, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -306,7 +320,7 @@ func flattenNetworkSettingsRetrieveTelemetrySettingsForASiteItemWiredDataCollect
 		return nil
 	}
 	respItem := make(map[string]interface{})
-	respItem["enable_wired_data_collectio"] = boolPtrToString(item.EnableWiredDataCollectio)
+	respItem["enable_wired_data_collection"] = boolPtrToString(item.EnableWiredDataCollection)
 	respItem["inherited_site_id"] = item.InheritedSiteID
 	respItem["inherited_site_name"] = item.InheritedSiteName
 

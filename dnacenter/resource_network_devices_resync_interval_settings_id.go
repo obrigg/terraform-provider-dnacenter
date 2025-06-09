@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -19,8 +19,8 @@ func resourceNetworkDevicesResyncIntervalSettingsID() *schema.Resource {
 		Description: `It manages read and update operations on Devices.
 
 - Update the resync interval (in minutes) for the given network device id.
-To disable periodic resync, set interval as *0*.
-To use global settings, set interval as *null*.
+To disable periodic resync, set interval as **0**.
+To use global settings, set interval as **null**.
 `,
 
 		CreateContext: resourceNetworkDevicesResyncIntervalSettingsIDCreate,
@@ -65,7 +65,7 @@ To use global settings, set interval as *null*.
 							Required: true,
 						},
 						"interval": &schema.Schema{
-							Description: `Resync interval in minutes. To disable periodic resync, set interval as *0*. To use global settings, set interval as *null*.
+							Description: `Resync interval in minutes. To disable periodic resync, set interval as **0**. To use global settings, set interval as **null**.
 `,
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -198,6 +198,7 @@ func resourceNetworkDevicesResyncIntervalSettingsIDDelete(ctx context.Context, d
 		"Failure at NetworkDevicesResyncIntervalSettingsIDDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestNetworkDevicesResyncIntervalSettingsIDUpdateResyncIntervalForTheNetworkDevice(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestDevicesUpdateResyncIntervalForTheNetworkDevice {
 	request := dnacentersdkgo.RequestDevicesUpdateResyncIntervalForTheNetworkDevice{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".interval")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".interval")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".interval")))) {

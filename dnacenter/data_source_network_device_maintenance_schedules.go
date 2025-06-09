@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,9 +17,13 @@ func dataSourceNetworkDeviceMaintenanceSchedules() *schema.Resource {
 
 - This data source retrieves a list of scheduled maintenance windows for network devices based on filter parameters.
 Each maintenance window is composed of a start schedule and end schedule, both of which have unique
-identifiers(*startId* and *endId*). These identifiers can be used to fetch the status of the start schedule and end
-schedule using the *GET /dna/intent/api/v1/activities/{id}* API. Completed maintenance schedules are automatically
-removed from the system after two weeks.
+identifiers(**startId** and **endId**). These identifiers can be used to fetch the status of the start schedule and end
+schedule using the **GET /dna/intent/api/v1/activities/{id}** API. Completed maintenance schedules are automatically
+removed from the system after two weeks. The API returns a paginated response based on 'limit' and 'offset' parameters,
+allowing up to 500 records per page. 'limit' specifies the number of records, and 'offset' sets the starting point using
+1-based indexing. Use '/dna/intent/api/v1/networkDeviceMaintenanceSchedules/count' API to get the total record count.
+For data sets over 500 records, make multiple calls, adjusting 'limit' and 'offset' to retrieve all records
+incrementally.
 `,
 
 		ReadContext: dataSourceNetworkDeviceMaintenanceSchedulesRead,
@@ -199,7 +203,21 @@ func dataSourceNetworkDeviceMaintenanceSchedulesRead(ctx context.Context, d *sch
 			queryParams1.Order = vOrder.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Devices.RetrieveScheduledMaintenanceWindowsForNetworkDevices(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveScheduledMaintenanceWindowsForNetworkDevices", err,
+				"Failure at RetrieveScheduledMaintenanceWindowsForNetworkDevices, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

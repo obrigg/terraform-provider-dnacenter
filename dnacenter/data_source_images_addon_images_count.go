@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,14 +15,14 @@ func dataSourceImagesAddonImagesCount() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Software Image Management (SWIM).
 
-- Count of add-on images available for the given software image identifier, *id* can be obtained from the response of
+- Count of add-on images available for the given software image identifier, **id** can be obtained from the response of
 API [ /dna/intent/api/v1/images?hasAddonImages=true ].
 `,
 
 		ReadContext: dataSourceImagesAddonImagesCountRead,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
-				Description: `id path parameter. Software image identifier. Check API */dna/intent/api/v1/images* for id from response.
+				Description: `id path parameter. Software image identifier. Check API **/dna/intent/api/v1/images** for id from response.
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -58,7 +58,21 @@ func dataSourceImagesAddonImagesCountRead(ctx context.Context, d *schema.Resourc
 		log.Printf("[DEBUG] Selected method: ReturnsCountOfAddOnImages")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SoftwareImageManagementSwim.ReturnsCountOfAddOnImages(vvID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReturnsCountOfAddOnImages", err,
+				"Failure at ReturnsCountOfAddOnImages, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
