@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -53,14 +53,16 @@ func dataSourceTask() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter.`,
-				Type:        schema.TypeInt,
-				Optional:    true,
+				Description: `limit query parameter. The number of records to show for this page;The minimum is 1, and the maximum is 500.
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 			"offset": &schema.Schema{
-				Description: `offset query parameter.`,
-				Type:        schema.TypeInt,
-				Optional:    true,
+				Description: `offset query parameter. The first record to show for this page; the first record is numbered 1.
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 			"order": &schema.Schema{
 				Description: `order query parameter. Sort order asc or dsc
@@ -169,8 +171,9 @@ func dataSourceTask() *schema.Resource {
 						},
 
 						"operation_id_list": &schema.Schema{
-							Type:     schema.TypeList,
-							Computed: true,
+							Description: `Operation Id List`,
+							Type:        schema.TypeList,
+							Computed:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -272,8 +275,9 @@ func dataSourceTask() *schema.Resource {
 						},
 
 						"operation_id_list": &schema.Schema{
-							Type:     schema.TypeList,
-							Computed: true,
+							Description: `Operation Id List`,
+							Type:        schema.TypeList,
+							Computed:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -381,10 +385,10 @@ func dataSourceTaskRead(ctx context.Context, d *schema.ResourceData, m interface
 			queryParams1.ParentID = vParentID.(string)
 		}
 		if okOffset {
-			queryParams1.Offset = vOffset.(int)
+			queryParams1.Offset = vOffset.(float64)
 		}
 		if okLimit {
-			queryParams1.Limit = vLimit.(int)
+			queryParams1.Limit = vLimit.(float64)
 		}
 		if okSortBy {
 			queryParams1.SortBy = vSortBy.(string)
@@ -393,7 +397,21 @@ func dataSourceTaskRead(ctx context.Context, d *schema.ResourceData, m interface
 			queryParams1.Order = vOrder.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Task.GetTasksOperationalTasks(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetTasksOperationalTasks", err,
+				"Failure at GetTasksOperationalTasks, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -423,7 +441,21 @@ func dataSourceTaskRead(ctx context.Context, d *schema.ResourceData, m interface
 		log.Printf("[DEBUG] Selected method: GetTaskByID")
 		vvTaskID := vTaskID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Task.GetTaskByID(vvTaskID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetTaskByID", err,
+				"Failure at GetTaskByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

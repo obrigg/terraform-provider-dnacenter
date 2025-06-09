@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -80,16 +80,22 @@ func resourceWirelessSettingsApProfiles() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 
 												"scheduler_date": &schema.Schema{
-													Description: `Start and End date of the duration setting, applicable for MONTHLY schedulers.
+													Description: `Start and End date of the duration setting, applicable for MONTHLY schedulers. Values will range from 1 to 31.
 `,
-													Type:     schema.TypeString,
+													Type:     schema.TypeList,
 													Computed: true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 												"scheduler_day": &schema.Schema{
-													Description: `Applies every week on the selected days
+													Description: `Applies every week on the selected days. Ex: ["sunday","saturday","tuesday","wednesday","thursday","friday","monday"]
 `,
-													Type:     schema.TypeString,
+													Type:     schema.TypeList,
 													Computed: true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 												"scheduler_end_time": &schema.Schema{
 													Description: `End time of the duration setting.
@@ -164,7 +170,7 @@ func resourceWirelessSettingsApProfiles() *schema.Resource {
 										Computed: true,
 									},
 									"dot1x_password": &schema.Schema{
-										Description: `Password for 802.1X authentication. AP dot1x password length should not exceed 120.
+										Description: `Password for 802.1X authentication. Length must be 8-120 characters.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -386,18 +392,24 @@ func resourceWirelessSettingsApProfiles() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 
 												"scheduler_date": &schema.Schema{
-													Description: `Start and End date of the duration setting, applicable for MONTHLY schedulers.
+													Description: `Start and End date of the duration setting, applicable for MONTHLY schedulers. Values must be between 1 and 31.
 `,
-													Type:     schema.TypeString,
+													Type:     schema.TypeList,
 													Optional: true,
 													Computed: true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 												"scheduler_day": &schema.Schema{
-													Description: `Applies every week on the selected days
+													Description: `Applies every week on the selected days.  Ex: ["sunday","saturday","tuesday","wednesday","thursday","friday","monday"]
 `,
-													Type:     schema.TypeString,
+													Type:     schema.TypeList,
 													Optional: true,
 													Computed: true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 												"scheduler_end_time": &schema.Schema{
 													Description: `End time of the duration setting.
@@ -477,7 +489,7 @@ func resourceWirelessSettingsApProfiles() *schema.Resource {
 										Computed:     true,
 									},
 									"dot1x_password": &schema.Schema{
-										Description: `Password for 802.1X authentication. AP dot1x password length should not exceed 120.
+										Description: `Password for 802.1X authentication. Length must be 8-120 characters.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -913,6 +925,7 @@ func resourceWirelessSettingsApProfilesDelete(ctx context.Context, d *schema.Res
 	//       Returning empty diags to delete it on Terraform
 	return diags
 }
+
 func expandRequestWirelessSettingsApProfilesCreateApProfile(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessCreateApProfile {
 	request := dnacentersdkgo.RequestWirelessCreateApProfile{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ap_profile_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ap_profile_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ap_profile_name")))) {
@@ -1079,10 +1092,10 @@ func expandRequestWirelessSettingsApProfilesCreateApProfileCalendarPowerProfiles
 		request.SchedulerEndTime = interfaceToString(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".scheduler_day")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".scheduler_day")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".scheduler_day")))) {
-		request.SchedulerDay = interfaceToString(v)
+		request.SchedulerDay = interfaceToSliceString(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".scheduler_date")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".scheduler_date")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".scheduler_date")))) {
-		request.SchedulerDate = interfaceToString(v)
+		request.SchedulerDate = interfaceToSliceString(v)
 	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil

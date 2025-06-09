@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"strings"
 
 	"errors"
 
@@ -11,7 +12,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -218,7 +219,7 @@ func resourceSwimImageFileCreate(ctx context.Context, d *schema.ResourceData, m 
 					return diags
 				}
 				var errorMsg string
-				if restyResp3 == nil {
+				if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 					errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 				} else {
 					errorMsg = restyResp3.String()

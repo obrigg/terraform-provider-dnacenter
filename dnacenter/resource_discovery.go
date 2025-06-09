@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,7 +18,7 @@ func resourceDiscovery() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages create, read, update and delete operations on Discovery.
 
-- Stops all the discoveries and removes them
+- Stops all the discoveries and removes them.
 
 - Stops or starts an existing discovery
 
@@ -643,7 +643,7 @@ ERROR: Different types for param enablePasswordList schema.TypeList schema.TypeS
 `,
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  "",
+							Computed: true,
 						},
 						"ip_address_list": &schema.Schema{
 							Description: `IP Address of devices to be discovered. Ex: '172.30.0.1' for SINGLE, CDP and LLDP; '72.30.0.1-172.30.0.4' for RANGE; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for MULTI RANGE; '172.30.0.1/20' for CIDR
@@ -684,7 +684,7 @@ ERROR: Different types for param ipFilterList schema.TypeList schema.TypeString`
 `,
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  "",
+							Computed: true,
 						},
 						"netconf_port": &schema.Schema{
 							Description: `Netconf Port. It will need valid SSH credentials to work
@@ -1198,6 +1198,7 @@ func resourceDiscoveryDelete(ctx context.Context, d *schema.ResourceData, m inte
 
 	return diags
 }
+
 func expandRequestDiscoveryStartDiscovery(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestDiscoveryStartDiscovery {
 	request := dnacentersdkgo.RequestDiscoveryStartDiscovery{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".cdp_level")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".cdp_level")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".cdp_level")))) {

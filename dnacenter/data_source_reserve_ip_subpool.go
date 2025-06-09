@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -294,7 +294,7 @@ func dataSourceReserveIPSubpoolRead(ctx context.Context, d *schema.ResourceData,
 			queryParams1.Limit = vLimit.(float64)
 		}
 		if okIgnoreInheritedGroups {
-			queryParams1.IgnoreInheritedGroups = vIgnoreInheritedGroups.(string)
+			queryParams1.IgnoreInheritedGroups = vIgnoreInheritedGroups.(bool)
 		}
 		if okPoolUsage {
 			queryParams1.PoolUsage = vPoolUsage.(string)
@@ -303,7 +303,21 @@ func dataSourceReserveIPSubpoolRead(ctx context.Context, d *schema.ResourceData,
 			queryParams1.GroupName = vGroupName.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.NetworkSettings.GetReserveIPSubpool(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetReserveIPSubpool", err,
+				"Failure at GetReserveIPSubpool, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

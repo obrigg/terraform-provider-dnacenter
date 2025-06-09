@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -91,7 +91,7 @@ func resourceProjectsProjectID() *schema.Resource {
 							Computed: true,
 						},
 						"project_id": &schema.Schema{
-							Description: `projectId path parameter. The id of the project to update, retrieveable from *GET /dna/intent/api/v1/projects*
+							Description: `projectId path parameter. The id of the project to update, retrieveable from **GET /dna/intent/api/v1/projects**
 `,
 							Type:     schema.TypeString,
 							Required: true,
@@ -276,6 +276,7 @@ func resourceProjectsProjectIDDelete(ctx context.Context, d *schema.ResourceData
 
 	return diags
 }
+
 func expandRequestProjectsProjectIDUpdateTemplateProject(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestConfigurationTemplatesUpdateTemplateProject {
 	request := dnacentersdkgo.RequestConfigurationTemplatesUpdateTemplateProject{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".name")))) {

@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -19,8 +19,10 @@ func resourceAssuranceIssuesIgnore() *schema.Resource {
 		Description: `It performs create operation on Issues.
 
 - Ignores the given list of issues. The response contains the list of issues which were successfully ignored as well as
-the issues which are failed to ignore. For detailed information about the usage of the API, please refer to the Open API
-specification document https://github.com/cisco-en-programmability/catalyst-center-api-
+the issues which are failed to ignore. After this API returns success response, it may take few seconds for the issue
+status to be updated if the system is heavily loaded. Please use **GET /dna/data/api/v1/assuranceIssues/{id}** API to
+fetch the details of a particular issue and verify **updatedTime**. For detailed information about the usage of the API,
+please refer to the Open API specification document https://github.com/cisco-en-programmability/catalyst-center-api-
 specs/blob/main/Assurance/CE_Cat_Center_Org-IssuesLifecycle-1.0.0-resolved.yaml
 `,
 
@@ -71,6 +73,13 @@ specs/blob/main/Assurance/CE_Cat_Center_Org-IssuesLifecycle-1.0.0-resolved.yaml
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
+						},
+						"ignore_hours": &schema.Schema{
+							Description: `Ignore Hours`,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
 						},
 						"issue_ids": &schema.Schema{
 							Description: `Issue Ids`,
@@ -152,6 +161,9 @@ func expandRequestAssuranceIssuesIgnoreIgnoreTheGivenListOfIssues(ctx context.Co
 	request := dnacentersdkgo.RequestIssuesIgnoreTheGivenListOfIssues{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".issue_ids")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".issue_ids")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".issue_ids")))) {
 		request.IssueIDs = interfaceToSliceString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ignore_hours")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ignore_hours")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ignore_hours")))) {
+		request.IgnoreHours = interfaceToIntPtr(v)
 	}
 	return &request
 }

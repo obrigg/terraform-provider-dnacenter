@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -22,7 +22,7 @@ func resourceAssuranceIssuesTrendAnalytics() *schema.Resource {
 - Gets the trend analytics data related to issues based on given filters and group by field. This data can be used to
 find issue counts in different intervals over a period of time. For detailed information about the usage of the API,
 please refer to the Open API specification document https://github.com/cisco-en-programmability/catalyst-center-api-
-specs/blob/main/Assurance/CE_Cat_Center_Org-IssuesList-1.0.0-resolved.yaml
+specs/blob/main/Assurance/CE_Cat_Center_Org-IssuesList-1.0.1-resolved.yaml
 `,
 
 		CreateContext: resourceAssuranceIssuesTrendAnalyticsCreate,

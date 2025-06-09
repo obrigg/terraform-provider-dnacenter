@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -1010,6 +1010,7 @@ func resourceApplicationsV2Delete(ctx context.Context, d *schema.ResourceData, m
 
 	return diags
 }
+
 func expandRequestApplicationsV2CreateApplicationsV2(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestApplicationPolicyCreateApplicationsV2 {
 	request := dnacentersdkgo.RequestApplicationPolicyCreateApplicationsV2{}
 	if v := expandRequestApplicationsV2CreateApplicationsV2ItemArray(ctx, key+".payload", d); v != nil {

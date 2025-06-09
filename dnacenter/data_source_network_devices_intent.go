@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +15,12 @@ func dataSourceNetworkDevicesIntent() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Devices.
 
-- API to fetch the list of network devices using basic filters. Use the */dna/intent/api/v1/networkDevices/query* API
-for advanced filtering. Refer features for more details.
+- API to fetch the list of network devices using basic filters. Use the **/dna/intent/api/v1/networkDevices/query** API
+for advanced filtering. Refer features for more details. The API returns a paginated response based on 'limit' and
+'offset' parameters, allowing up to 500 records per page. 'limit' specifies the number of records, and 'offset' sets the
+starting point using 1-based indexing. Use /dna/intent/api/v1/networkDevices/count API to get the total record count.
+For data sets over 500 records, make multiple calls, adjusting 'limit' and 'offset' to retrieve all records
+incrementally.
 `,
 
 		ReadContext: dataSourceNetworkDevicesIntentRead,
@@ -477,7 +481,21 @@ func dataSourceNetworkDevicesIntentRead(ctx context.Context, d *schema.ResourceD
 			queryParams1.Order = vOrder.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Devices.RetrieveNetworkDevices(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveNetworkDevices", err,
+				"Failure at RetrieveNetworkDevices, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

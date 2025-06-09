@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -27,9 +27,9 @@ func dataSourceProjectsDetailsV2() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. Limits number of results
+				Description: `limit query parameter. The number of records to show for this page;The minimum is 1, and the maximum is 500.
 `,
-				Type:     schema.TypeInt,
+				Type:     schema.TypeFloat,
 				Optional: true,
 			},
 			"name": &schema.Schema{
@@ -161,13 +161,27 @@ func dataSourceProjectsDetailsV2Read(ctx context.Context, d *schema.ResourceData
 			queryParams1.Offset = vOffset.(int)
 		}
 		if okLimit {
-			queryParams1.Limit = vLimit.(int)
+			queryParams1.Limit = vLimit.(float64)
 		}
 		if okSortOrder {
 			queryParams1.SortOrder = vSortOrder.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.ConfigurationTemplates.GetProjectsDetailsV2(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetProjectsDetailsV2", err,
+				"Failure at GetProjectsDetailsV2, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -196,26 +210,25 @@ func dataSourceProjectsDetailsV2Read(ctx context.Context, d *schema.ResourceData
 	return diags
 }
 
-func flattenConfigurationTemplatesGetProjectsDetailsV2Item(items *dnacentersdkgo.ResponseConfigurationTemplatesGetProjectsDetailsV2) []map[string]interface{} {
-	if items == nil {
+func flattenConfigurationTemplatesGetProjectsDetailsV2Item(item *dnacentersdkgo.ResponseConfigurationTemplatesGetProjectsDetailsV2) []map[string]interface{} {
+	if item == nil {
 		return nil
 	}
 	respItem := make(map[string]interface{})
-	respItem["create_time"] = items.CreateTime
-	respItem["description"] = items.Description
-	respItem["id"] = items.ID
-	respItem["is_deletable"] = boolPtrToString(items.IsDeletable)
-	respItem["last_update_time"] = items.LastUpdateTime
-	respItem["name"] = items.Name
-	respItem["tags"] = flattenConfigurationTemplatesGetProjectsDetailsItemTags(items.Tags)
-	respItem["templates"] = flattenConfigurationTemplatesGetProjectsDetailsItemTemplates(items.Templates)
-
+	respItem["create_time"] = item.CreateTime
+	respItem["description"] = item.Description
+	respItem["id"] = item.ID
+	respItem["is_deletable"] = boolPtrToString(item.IsDeletable)
+	respItem["last_update_time"] = item.LastUpdateTime
+	respItem["name"] = item.Name
+	respItem["tags"] = flattenConfigurationTemplatesGetProjectsDetailsV2ItemTags(item.Tags)
+	respItem["templates"] = flattenConfigurationTemplatesGetProjectsDetailsV2ItemTemplates(item.Templates)
 	return []map[string]interface{}{
 		respItem,
 	}
 }
 
-func flattenConfigurationTemplatesGetProjectsDetailsItemTags(items *[]dnacentersdkgo.ResponseConfigurationTemplatesGetProjectsDetailsV2Tags) []map[string]interface{} {
+func flattenConfigurationTemplatesGetProjectsDetailsV2ItemTags(items *[]dnacentersdkgo.ResponseConfigurationTemplatesGetProjectsDetailsV2Tags) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}
@@ -229,7 +242,7 @@ func flattenConfigurationTemplatesGetProjectsDetailsItemTags(items *[]dnacenters
 	return respItems
 }
 
-func flattenConfigurationTemplatesGetProjectsDetailsItemTemplates(item *dnacentersdkgo.ResponseConfigurationTemplatesGetProjectsDetailsV2Templates) interface{} {
+func flattenConfigurationTemplatesGetProjectsDetailsV2ItemTemplates(item *dnacentersdkgo.ResponseConfigurationTemplatesGetProjectsDetailsV2Templates) interface{} {
 	if item == nil {
 		return nil
 	}

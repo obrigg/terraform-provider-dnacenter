@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -54,9 +54,30 @@ func dataSourceFlexibleReportContentRead(ctx context.Context, d *schema.Resource
 		log.Printf("[DEBUG] Selected method: DownloadFlexibleReport")
 		vvReportID := vReportID.(string)
 		vvExecutionID := vExecutionID.(string)
+
+		// has_unknown_response: True
+
 		response1, err := client.Reports.DownloadFlexibleReport(vvReportID, vvExecutionID)
 
-		if err = d.Set("item", response1.String()); err != nil {
+		if err != nil || response1 == nil {
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 DownloadFlexibleReport", err,
+				"Failure at DownloadFlexibleReport, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %s", response1.String())
+
+		if err != nil || response1 == nil {
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 DownloadFlexibleReport", err,
+				"Failure at DownloadFlexibleReport, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %s", response1.String())
+
+		if err := d.Set("item", response1.String()); err != nil {
 			diags = append(diags, diagError(
 				"Failure when setting DownloadFlexibleReport response",
 				err))

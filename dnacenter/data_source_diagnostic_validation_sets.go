@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -29,7 +29,7 @@ func dataSourceDiagnosticValidationSets() *schema.Resource {
 				Optional: true,
 			},
 			"view": &schema.Schema{
-				Description: `view query parameter. When the query parameter *view=DETAIL* is passed, all validation sets and associated validations will be returned. When the query parameter *view=DEFAULT* is passed, only validation sets metadata will be returned.
+				Description: `view query parameter. When the query parameter **view=DETAIL** is passed, all validation sets and associated validations will be returned. When the query parameter **view=DEFAULT** is passed, only validation sets metadata will be returned.
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -239,7 +239,21 @@ func dataSourceDiagnosticValidationSetsRead(ctx context.Context, d *schema.Resou
 			queryParams1.View = vView.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.HealthAndPerformance.RetrievesAllTheValidationSets(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesAllTheValidationSets", err,
+				"Failure at RetrievesAllTheValidationSets, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -269,7 +283,21 @@ func dataSourceDiagnosticValidationSetsRead(ctx context.Context, d *schema.Resou
 		log.Printf("[DEBUG] Selected method: RetrievesValidationDetailsForAValidationSet")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.HealthAndPerformance.RetrievesValidationDetailsForAValidationSet(vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesValidationDetailsForAValidationSet", err,
+				"Failure at RetrievesValidationDetailsForAValidationSet, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

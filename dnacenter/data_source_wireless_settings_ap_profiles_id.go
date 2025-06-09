@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -76,17 +76,23 @@ func dataSourceWirelessSettingsApProfilesID() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 
 												"scheduler_date": &schema.Schema{
-													Description: `Start and End date of the duration setting, applicable for MONTHLY schedulers.
+													Description: `Start and End date of the duration setting, applicable for MONTHLY schedulers. Values will range from 1 to 31.
 `,
-													Type:     schema.TypeString,
+													Type:     schema.TypeList,
 													Computed: true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 
 												"scheduler_day": &schema.Schema{
-													Description: `Applies every week on the selected days
+													Description: `Applies every week on the selected days. Ex: ["sunday","saturday","tuesday","wednesday","thursday","friday","monday"]
 `,
-													Type:     schema.TypeString,
+													Type:     schema.TypeList,
 													Computed: true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 
 												"scheduler_end_time": &schema.Schema{
@@ -172,7 +178,7 @@ func dataSourceWirelessSettingsApProfilesID() *schema.Resource {
 									},
 
 									"dot1x_password": &schema.Schema{
-										Description: `Password for 802.1X authentication. AP dot1x password length should not exceed 120.
+										Description: `Password for 802.1X authentication.  Length must be 8-120 characters.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -377,7 +383,21 @@ func dataSourceWirelessSettingsApProfilesIDRead(ctx context.Context, d *schema.R
 		log.Printf("[DEBUG] Selected method: GetApProfileByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.GetApProfileByID(vvID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetApProfileByID", err,
+				"Failure at GetApProfileByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

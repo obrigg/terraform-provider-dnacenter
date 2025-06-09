@@ -5,13 +5,13 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceEoXStatusDevice() *schema.Resource {
+func dataSourceEoxStatusDevice() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on EoX.
 
@@ -20,7 +20,7 @@ func dataSourceEoXStatusDevice() *schema.Resource {
 - Retrieves EoX details for a device
 `,
 
-		ReadContext: dataSourceEoXStatusDeviceRead,
+		ReadContext: dataSourceEoxStatusDeviceRead,
 		Schema: map[string]*schema.Schema{
 			"device_id": &schema.Schema{
 				Description: `deviceId path parameter. Device instance UUID
@@ -296,7 +296,7 @@ func dataSourceEoXStatusDevice() *schema.Resource {
 	}
 }
 
-func dataSourceEoXStatusDeviceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceEoxStatusDeviceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*dnacentersdkgo.Client)
 
 	var diags diag.Diagnostics
@@ -312,7 +312,7 @@ func dataSourceEoXStatusDeviceRead(ctx context.Context, d *schema.ResourceData, 
 	selectedMethod := pickMethod([][]bool{method1, method2})
 	if selectedMethod == 1 {
 		log.Printf("[DEBUG] Selected method: GetEoxStatusForAllDevices")
-		queryParams1 := dnacentersdkgo.GetEoXStatusForAllDevicesQueryParams{}
+		queryParams1 := dnacentersdkgo.GetEoxStatusForAllDevicesQueryParams{}
 
 		if okLimit {
 			queryParams1.Limit = vLimit.(float64)
@@ -321,24 +321,38 @@ func dataSourceEoXStatusDeviceRead(ctx context.Context, d *schema.ResourceData, 
 			queryParams1.Offset = vOffset.(float64)
 		}
 
-		response1, restyResp1, err := client.EoX.GetEoXStatusForAllDevices(&queryParams1)
+		// has_unknown_response: None
+
+		response1, restyResp1, err := client.Eox.GetEoxStatusForAllDevices(&queryParams1)
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
 				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
 			}
 			diags = append(diags, diagErrorWithAlt(
-				"Failure when executing 2 GetEoXStatusForAllDevices", err,
-				"Failure at GetEoXStatusForAllDevices, unexpected response", ""))
+				"Failure when executing 2 GetEoxStatusForAllDevices", err,
+				"Failure at GetEoxStatusForAllDevices, unexpected response", ""))
 			return diags
 		}
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-		vItems1 := flattenEoXGetEoXStatusForAllDevicesItems(response1.Response)
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetEoxStatusForAllDevices", err,
+				"Failure at GetEoxStatusForAllDevices, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
+
+		vItems1 := flattenEoxGetEoxStatusForAllDevicesItems(response1.Response)
 		if err := d.Set("items", vItems1); err != nil {
 			diags = append(diags, diagError(
-				"Failure when setting GetEoXStatusForAllDevices response",
+				"Failure when setting GetEoxStatusForAllDevices response",
 				err))
 			return diags
 		}
@@ -348,27 +362,41 @@ func dataSourceEoXStatusDeviceRead(ctx context.Context, d *schema.ResourceData, 
 
 	}
 	if selectedMethod == 2 {
-		log.Printf("[DEBUG] Selected method: GetEoXDetailsPerDevice")
+		log.Printf("[DEBUG] Selected method: GetEoxDetailsPerDevice")
 		vvDeviceID := vDeviceID.(string)
 
-		response2, restyResp2, err := client.EoX.GetEoXDetailsPerDevice(vvDeviceID)
+		// has_unknown_response: None
+
+		response2, restyResp2, err := client.Eox.GetEoxDetailsPerDevice(vvDeviceID)
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {
 				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
 			}
 			diags = append(diags, diagErrorWithAlt(
-				"Failure when executing 2 GetEoXDetailsPerDevice", err,
-				"Failure at GetEoXDetailsPerDevice, unexpected response", ""))
+				"Failure when executing 2 GetEoxDetailsPerDevice", err,
+				"Failure at GetEoxDetailsPerDevice, unexpected response", ""))
 			return diags
 		}
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
-		vItem2 := flattenEoXGetEoXDetailsPerDeviceItem(response2.Response)
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetEoxDetailsPerDevice", err,
+				"Failure at GetEoxDetailsPerDevice, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
+
+		vItem2 := flattenEoxGetEoxDetailsPerDeviceItem(response2.Response)
 		if err := d.Set("item", vItem2); err != nil {
 			diags = append(diags, diagError(
-				"Failure when setting GetEoXDetailsPerDevice response",
+				"Failure when setting GetEoxDetailsPerDevice response",
 				err))
 			return diags
 		}
@@ -380,7 +408,7 @@ func dataSourceEoXStatusDeviceRead(ctx context.Context, d *schema.ResourceData, 
 	return diags
 }
 
-func flattenEoXGetEoXStatusForAllDevicesItems(items *[]dnacentersdkgo.ResponseEoXGetEoXStatusForAllDevicesResponse) []map[string]interface{} {
+func flattenEoxGetEoxStatusForAllDevicesItems(items *[]dnacentersdkgo.ResponseEoxGetEoxStatusForAllDevicesResponse) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}
@@ -389,7 +417,7 @@ func flattenEoXGetEoXStatusForAllDevicesItems(items *[]dnacentersdkgo.ResponseEo
 		respItem := make(map[string]interface{})
 		respItem["device_id"] = item.DeviceID
 		respItem["alert_count"] = item.AlertCount
-		respItem["summary"] = flattenEoXGetEoXStatusForAllDevicesItemsSummary(item.Summary)
+		respItem["summary"] = flattenEoxGetEoxStatusForAllDevicesItemsSummary(item.Summary)
 		respItem["scan_status"] = item.ScanStatus
 		respItem["comments"] = item.Comments
 		respItem["last_scan_time"] = item.LastScanTime
@@ -398,27 +426,27 @@ func flattenEoXGetEoXStatusForAllDevicesItems(items *[]dnacentersdkgo.ResponseEo
 	return respItems
 }
 
-func flattenEoXGetEoXStatusForAllDevicesItemsSummary(items *[]dnacentersdkgo.ResponseEoXGetEoXStatusForAllDevicesResponseSummary) []map[string]interface{} {
+func flattenEoxGetEoxStatusForAllDevicesItemsSummary(items *[]dnacentersdkgo.ResponseEoxGetEoxStatusForAllDevicesResponseSummary) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}
 	var respItems []map[string]interface{}
 	for _, item := range *items {
 		respItem := make(map[string]interface{})
-		respItem["eox_type"] = item.EoXType
+		respItem["eox_type"] = item.EoxType
 		respItems = append(respItems, respItem)
 	}
 	return respItems
 }
 
-func flattenEoXGetEoXDetailsPerDeviceItem(item *dnacentersdkgo.ResponseEoXGetEoXDetailsPerDeviceResponse) []map[string]interface{} {
+func flattenEoxGetEoxDetailsPerDeviceItem(item *dnacentersdkgo.ResponseEoxGetEoxDetailsPerDeviceResponse) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
 	respItem := make(map[string]interface{})
 	respItem["device_id"] = item.DeviceID
 	respItem["alert_count"] = item.AlertCount
-	respItem["eox_details"] = flattenEoXGetEoXDetailsPerDeviceItemEoXDetails(item.EoXDetails)
+	respItem["eox_details"] = flattenEoxGetEoxDetailsPerDeviceItemEoxDetails(item.EoxDetails)
 	respItem["scan_status"] = item.ScanStatus
 	respItem["comments"] = item.Comments
 	respItem["last_scan_time"] = item.LastScanTime
@@ -427,7 +455,7 @@ func flattenEoXGetEoXDetailsPerDeviceItem(item *dnacentersdkgo.ResponseEoXGetEoX
 	}
 }
 
-func flattenEoXGetEoXDetailsPerDeviceItemEoXDetails(items *[]dnacentersdkgo.ResponseEoXGetEoXDetailsPerDeviceResponseEoXDetails) []map[string]interface{} {
+func flattenEoxGetEoxDetailsPerDeviceItemEoxDetails(items *[]dnacentersdkgo.ResponseEoxGetEoxDetailsPerDeviceResponseEoxDetails) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}
@@ -450,8 +478,8 @@ func flattenEoXGetEoXDetailsPerDeviceItemEoXDetails(items *[]dnacentersdkgo.Resp
 		respItem["end_of_life_date"] = item.EndOfLifeDate
 		respItem["last_date_of_support"] = item.LastDateOfSupport
 		respItem["end_of_software_maintenance_releases_date"] = item.EndOfSoftwareMaintenanceReleasesDate
-		respItem["eox_alert_type"] = item.EoXAlertType
-		respItem["eox_physical_type"] = item.EoXPhysicalType
+		respItem["eox_alert_type"] = item.EoxAlertType
+		respItem["eox_physical_type"] = item.EoxPhysicalType
 		respItem["bulletin_pid"] = item.BulletinPID
 		respItems = append(respItems, respItem)
 	}

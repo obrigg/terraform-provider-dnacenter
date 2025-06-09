@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -11,7 +12,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -22,9 +23,9 @@ func resourceWirelessControllersAssignManagedApLocations() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs create operation on Wireless.
 
-- This data source action allows user to assign Managed AP Locations for WLC by device ID. The payload should always be
-a complete list. The Managed AP Locations included in the payload will be fully processed for both addition and
-deletion.
+- This data source action allows user to assign Managed AP Locations for IOS-XE Wireless supported devices by device ID.
+The payload should always be a complete list. The Managed AP Locations included in the payload will be fully processed
+for both addition and deletion.
 `,
 
 		CreateContext: resourceWirelessControllersAssignManagedApLocationsCreate,
@@ -155,7 +156,7 @@ func resourceWirelessControllersAssignManagedApLocationsCreate(ctx context.Conte
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

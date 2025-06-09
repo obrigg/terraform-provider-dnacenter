@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -211,7 +211,7 @@ func resourceWirelessSettingsAnchorGroupsCreate(ctx context.Context, d *schema.R
 	request1 := expandRequestWirelessSettingsAnchorGroupsCreateAnchorGroup(ctx, "parameters.0", d)
 	log.Printf("[DEBUG] request sent => %v", responseInterfaceToString(*request1))
 
-	item2, _, err := client.Wireless.GetAnchorGroups()
+	item2, _, err := client.Wireless.GetAnchorGroups(nil)
 	if err != nil || item2 != nil {
 		resourceMap := make(map[string]string)
 		d.SetId(joinResourceID(resourceMap))
@@ -256,13 +256,13 @@ func resourceWirelessSettingsAnchorGroupsCreate(ctx context.Context, d *schema.R
 			return diags
 		}
 	}
-	item3, _, err := client.Wireless.GetAnchorGroups()
+	item3, _, err := client.Wireless.GetAnchorGroups(nil)
 	if err != nil || item3 != nil {
 		resourceMap := make(map[string]string)
 		d.SetId(joinResourceID(resourceMap))
 		return resourceWirelessSettingsAnchorGroupsRead(ctx, d, m)
 	}
-	item4, _, err := client.Wireless.GetAnchorGroups()
+	item4, _, err := client.Wireless.GetAnchorGroups(nil)
 	if err != nil || item4 == nil {
 		diags = append(diags, diagErrorWithAlt(
 			"Failure when executing CreateAnchorGroup", err,
@@ -285,7 +285,7 @@ func resourceWirelessSettingsAnchorGroupsRead(ctx context.Context, d *schema.Res
 	if selectedMethod == 1 {
 		log.Printf("[DEBUG] Selected method: GetAnchorGroups")
 
-		response1, restyResp1, err := client.Wireless.GetAnchorGroups()
+		response1, restyResp1, err := client.Wireless.GetAnchorGroups(nil)
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -321,6 +321,7 @@ func resourceWirelessSettingsAnchorGroupsDelete(ctx context.Context, d *schema.R
 	//       Returning empty diags to delete it on Terraform
 	return diags
 }
+
 func expandRequestWirelessSettingsAnchorGroupsCreateAnchorGroup(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessCreateAnchorGroup {
 	request := dnacentersdkgo.RequestWirelessCreateAnchorGroup{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".anchor_group_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".anchor_group_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".anchor_group_name")))) {

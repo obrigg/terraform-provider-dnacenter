@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +15,8 @@ func dataSourceNetworkDevicesIntentCount() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Devices.
 
-- API to fetch the count of network devices using basic filters. Use the */dna/intent/api/v1/networkDevices/query/count*
-API if you need advanced filtering.
+- API to fetch the count of network devices using basic filters. Use the
+**/dna/intent/api/v1/networkDevices/query/count** API if you need advanced filtering.
 `,
 
 		ReadContext: dataSourceNetworkDevicesIntentCountRead,
@@ -142,7 +142,21 @@ func dataSourceNetworkDevicesIntentCountRead(ctx context.Context, d *schema.Reso
 			queryParams1.ManagementState = vManagementState.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Devices.CountTheNumberOfNetworkDevices(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 CountTheNumberOfNetworkDevices", err,
+				"Failure at CountTheNumberOfNetworkDevices, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

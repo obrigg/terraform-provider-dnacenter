@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,7 +16,7 @@ func dataSourcePlatformReleaseSummary() *schema.Resource {
 		Description: `It performs read operation on Platform Configuration.
 
 - Provides information such as API version, mandatory core packages for installation or upgrade, optional packages,
-Cisco DNA Center name and version, supported direct updates, and tenant ID.
+Cisco Catalyst Center name and version, supported direct updates, and tenant ID.
 `,
 
 		ReadContext: dataSourcePlatformReleaseSummaryRead,
@@ -99,26 +99,40 @@ func dataSourcePlatformReleaseSummaryRead(ctx context.Context, d *schema.Resourc
 
 	selectedMethod := 1
 	if selectedMethod == 1 {
-		log.Printf("[DEBUG] Selected method: CiscoDnaCenterReleaseSummary")
+		log.Printf("[DEBUG] Selected method: CiscoCatalystCenterReleaseSummary")
 
-		response1, restyResp1, err := client.Platform.CiscoDnaCenterReleaseSummary()
+		// has_unknown_response: None
+
+		response1, restyResp1, err := client.Platform.CiscoCatalystCenterReleaseSummary()
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
 				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
 			}
 			diags = append(diags, diagErrorWithAlt(
-				"Failure when executing 2 CiscoDnaCenterReleaseSummary", err,
-				"Failure at CiscoDnaCenterReleaseSummary, unexpected response", ""))
+				"Failure when executing 2 CiscoCatalystCenterReleaseSummary", err,
+				"Failure at CiscoCatalystCenterReleaseSummary, unexpected response", ""))
 			return diags
 		}
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-		vItem1 := flattenPlatformCiscoDnaCenterReleaseSummaryItem(response1.Response)
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 CiscoCatalystCenterReleaseSummary", err,
+				"Failure at CiscoCatalystCenterReleaseSummary, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
+
+		vItem1 := flattenPlatformCiscoCatalystCenterReleaseSummaryItem(response1.Response)
 		if err := d.Set("item", vItem1); err != nil {
 			diags = append(diags, diagError(
-				"Failure when setting CiscoDnaCenterReleaseSummary response",
+				"Failure when setting CiscoCatalystCenterReleaseSummary response",
 				err))
 			return diags
 		}
@@ -130,7 +144,7 @@ func dataSourcePlatformReleaseSummaryRead(ctx context.Context, d *schema.Resourc
 	return diags
 }
 
-func flattenPlatformCiscoDnaCenterReleaseSummaryItem(item *dnacentersdkgo.ResponsePlatformCiscoDnaCenterReleaseSummaryResponse) []map[string]interface{} {
+func flattenPlatformCiscoCatalystCenterReleaseSummaryItem(item *dnacentersdkgo.ResponsePlatformCiscoCatalystCenterReleaseSummaryResponse) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -140,14 +154,14 @@ func flattenPlatformCiscoDnaCenterReleaseSummaryItem(item *dnacentersdkgo.Respon
 	respItem["name"] = item.Name
 	respItem["installed_version"] = item.InstalledVersion
 	respItem["system_version"] = item.SystemVersion
-	respItem["supported_direct_updates"] = flattenPlatformCiscoDnaCenterReleaseSummaryItemSupportedDirectUpdates(item.SupportedDirectUpdates)
+	respItem["supported_direct_updates"] = flattenPlatformCiscoCatalystCenterReleaseSummaryItemSupportedDirectUpdates(item.SupportedDirectUpdates)
 	respItem["tenant_id"] = item.TenantID
 	return []map[string]interface{}{
 		respItem,
 	}
 }
 
-func flattenPlatformCiscoDnaCenterReleaseSummaryItemSupportedDirectUpdates(items *[]dnacentersdkgo.ResponsePlatformCiscoDnaCenterReleaseSummaryResponseSupportedDirectUpdates) []interface{} {
+func flattenPlatformCiscoCatalystCenterReleaseSummaryItemSupportedDirectUpdates(items *[]dnacentersdkgo.ResponsePlatformCiscoCatalystCenterReleaseSummaryResponseSupportedDirectUpdates) []interface{} {
 	if items == nil {
 		return nil
 	}

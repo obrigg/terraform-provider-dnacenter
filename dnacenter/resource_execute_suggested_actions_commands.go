@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,11 +18,8 @@ func resourceExecuteSuggestedActionsCommands() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs create operation on Issues.
 
-- This data source action triggers the execution of the suggested actions for an issue, given the Issue Id. It will
-return an execution Id. At the completion of the execution, the output of the commands associated with the suggested
-actions will be provided
-Invoking this API would provide the execution id. Execute the 'Get Business API Execution Details' API with this
-execution id, to receive the suggested actions commands output.
+- This data source action fetches the issue details and suggested actions for an issue, given the Issue Id, executes the
+commands associated with the suggested actions to remediate the issue
 `,
 
 		CreateContext: resourceExecuteSuggestedActionsCommandsCreate,
@@ -30,6 +27,10 @@ execution id, to receive the suggested actions commands output.
 		DeleteContext: resourceExecuteSuggestedActionsCommandsDelete,
 		Schema: map[string]*schema.Schema{
 			"last_updated": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"item": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},

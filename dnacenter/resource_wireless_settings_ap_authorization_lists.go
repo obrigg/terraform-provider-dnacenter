@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -322,6 +322,7 @@ func resourceWirelessSettingsApAuthorizationListsDelete(ctx context.Context, d *
 	//       Returning empty diags to delete it on Terraform
 	return diags
 }
+
 func expandRequestWirelessSettingsApAuthorizationListsCreateApAuthorizationList(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessCreateApAuthorizationList {
 	request := dnacentersdkgo.RequestWirelessCreateApAuthorizationList{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ap_authorization_list_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ap_authorization_list_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ap_authorization_list_name")))) {

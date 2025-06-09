@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -19,8 +19,8 @@ func resourceIPamSiteIPAddressPools() *schema.Resource {
 		Description: `It manages create and read operations on Network Settings.
 
 - Reserves (creates) an IP address subpool, which reserves address space from a global pool (or global pools) for a
-particular site (and it's child sites). A subpool must be either an IPv4 or dual-stack pool, with *ipV4AddressSpace* and
-optionally *ipV6AddressSpace* properties specified.
+particular site (and it's child sites). A subpool must be either an IPv4 or dual-stack pool, with **ipV4AddressSpace**
+and optionally **ipV6AddressSpace** properties specified.
 `,
 
 		CreateContext: resourceIPamSiteIPAddressPoolsCreate,
@@ -225,7 +225,7 @@ optionally *ipV6AddressSpace* properties specified.
 							Computed: true,
 						},
 						"site_id": &schema.Schema{
-							Description: `The *id* of the site that this subpool belongs to. This must be the *id* of a non-Global site.
+							Description: `The **id** of the site that this subpool belongs to. This must be the **id** of a non-Global site.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -451,7 +451,7 @@ optionally *ipV6AddressSpace* properties specified.
 							Computed: true,
 						},
 						"site_id": &schema.Schema{
-							Description: `The *id* of the site that this subpool belongs to. This must be the *id* of a non-Global site.
+							Description: `The **id** of the site that this subpool belongs to. This must be the **id** of a non-Global site.
 `,
 							Type:     schema.TypeString,
 							Optional: true,
@@ -660,6 +660,7 @@ func resourceIPamSiteIPAddressPoolsDelete(ctx context.Context, d *schema.Resourc
 	//       Returning empty diags to delete it on Terraform
 	return diags
 }
+
 func expandRequestIPamSiteIPAddressPoolsReservecreateIPAddressSubpools(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsReservecreateIPAddressSubpools {
 	request := dnacentersdkgo.RequestNetworkSettingsReservecreateIPAddressSubpools{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ip_v4_address_space")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ip_v4_address_space")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ip_v4_address_space")))) {

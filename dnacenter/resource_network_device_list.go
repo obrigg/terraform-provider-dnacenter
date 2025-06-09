@@ -10,7 +10,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -449,7 +449,7 @@ an inventory sync.
 							},
 						},
 						"netconf_port": &schema.Schema{
-							Description: `Netconf Port of the device. cliTransport must be 'ssh' if netconf is provided.
+							Description: `Netconf Port of the device. cliTransport must be 'ssh' if netconf is provided. Netconf port is required for eWLC.
 `,
 							Type:     schema.TypeString,
 							Optional: true,
@@ -821,6 +821,7 @@ func resourceNetworkDeviceListDelete(ctx context.Context, d *schema.ResourceData
 
 	return diags
 }
+
 func expandRequestNetworkDeviceListAddDeviceKnowYourNetwork(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestDevicesAddDeviceKnowYourNetwork {
 	request := dnacentersdkgo.RequestDevicesAddDeviceKnowYourNetwork{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".cli_transport")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".cli_transport")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".cli_transport")))) {

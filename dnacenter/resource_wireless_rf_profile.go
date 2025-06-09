@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -132,7 +132,7 @@ func resourceWirelessRfProfile() *schema.Resource {
 										Computed: true,
 									},
 									"power_threshold_v1": &schema.Schema{
-										Description: `Power Threshold  ( (Default: -70)
+										Description: `Power Threshold V1 ( (Default: -70)
 `,
 										Type:     schema.TypeFloat,
 										Computed: true,
@@ -189,7 +189,7 @@ func resourceWirelessRfProfile() *schema.Resource {
 										Computed: true,
 									},
 									"power_threshold_v1": &schema.Schema{
-										Description: `Power Threshold   (Default: -70)
+										Description: `Power Threshold V1  (Default: -70)
 `,
 										Type:     schema.TypeFloat,
 										Computed: true,
@@ -246,7 +246,7 @@ func resourceWirelessRfProfile() *schema.Resource {
 										Computed: true,
 									},
 									"power_threshold_v1": &schema.Schema{
-										Description: `Power Threshold   (Default: -70)
+										Description: `Power Threshold V1  (Default: -70)
 `,
 										Type:     schema.TypeFloat,
 										Computed: true,
@@ -387,7 +387,7 @@ func resourceWirelessRfProfile() *schema.Resource {
 										Computed: true,
 									},
 									"power_threshold_v1": &schema.Schema{
-										Description: `Power Threshold  ( (Default: -70)
+										Description: `Power Threshold V1 ( (Default: -70)
 `,
 										Type:     schema.TypeFloat,
 										Optional: true,
@@ -453,7 +453,7 @@ func resourceWirelessRfProfile() *schema.Resource {
 										Computed: true,
 									},
 									"power_threshold_v1": &schema.Schema{
-										Description: `Power Threshold   (Default: -70)
+										Description: `Power Threshold V1  (Default: -70)
 `,
 										Type:     schema.TypeFloat,
 										Optional: true,
@@ -519,7 +519,7 @@ func resourceWirelessRfProfile() *schema.Resource {
 										Computed: true,
 									},
 									"power_threshold_v1": &schema.Schema{
-										Description: `Power Threshold   (Default: -70)
+										Description: `Power Threshold V1  (Default: -70)
 `,
 										Type:     schema.TypeFloat,
 										Optional: true,
@@ -820,6 +820,7 @@ func resourceWirelessRfProfileDelete(ctx context.Context, d *schema.ResourceData
 
 	return diags
 }
+
 func expandRequestWirelessRfProfileCreateOrUpdateRfProfile(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessCreateOrUpdateRfProfile {
 	request := dnacentersdkgo.RequestWirelessCreateOrUpdateRfProfile{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".name")))) {
@@ -876,7 +877,7 @@ func expandRequestWirelessRfProfileCreateOrUpdateRfProfileRadioTypeAProperties(c
 		request.MandatoryDataRates = interfaceToString(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".power_threshold_v1")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".power_threshold_v1")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".power_threshold_v1")))) {
-		request.PowerThreshold = interfaceToFloat64Ptr(v)
+		request.PowerThresholdV1 = interfaceToFloat64Ptr(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".rx_sop_threshold")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".rx_sop_threshold")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".rx_sop_threshold")))) {
 		request.RxSopThreshold = interfaceToString(v)
@@ -908,7 +909,7 @@ func expandRequestWirelessRfProfileCreateOrUpdateRfProfileRadioTypeBProperties(c
 		request.MandatoryDataRates = interfaceToString(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".power_threshold_v1")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".power_threshold_v1")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".power_threshold_v1")))) {
-		request.PowerThreshold = interfaceToFloat64Ptr(v)
+		request.PowerThresholdV1 = interfaceToFloat64Ptr(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".rx_sop_threshold")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".rx_sop_threshold")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".rx_sop_threshold")))) {
 		request.RxSopThreshold = interfaceToString(v)
@@ -949,7 +950,7 @@ func expandRequestWirelessRfProfileCreateOrUpdateRfProfileRadioTypeCProperties(c
 		request.MaxPowerLevel = interfaceToFloat64Ptr(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".power_threshold_v1")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".power_threshold_v1")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".power_threshold_v1")))) {
-		request.PowerThreshold = interfaceToFloat64Ptr(v)
+		request.PowerThresholdV1 = interfaceToFloat64Ptr(v)
 	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil

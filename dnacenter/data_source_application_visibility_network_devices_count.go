@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -52,7 +52,7 @@ func dataSourceApplicationVisibilityNetworkDevicesCount() *schema.Resource {
 			},
 			"hostname": &schema.Schema{
 				Description: `hostname query parameter. The host name of the network device.
-Partial search is supported. For example, searching for *switch* will include *edge-switch1.domain.com*, *switch25*, etc.
+Partial search is supported. For example, searching for **switch** will include **edge-switch1.domain.com**, **switch25**, etc.
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -65,7 +65,7 @@ Partial search is supported. For example, searching for *switch* will include *e
 			},
 			"management_address": &schema.Schema{
 				Description: `managementAddress query parameter. The management address for the network device. This is normally IP address of the device. But it could be hostname in some cases like Meraki devices.
-Partial search is supported. For example, searching for *25.* would include *10.25.1.1*, *25.5.10.1*, *225.225.1.0*, *10.10.10.125*, etc.
+Partial search is supported. For example, searching for **25.** would include **10.25.1.1**, **25.5.10.1**, **225.225.1.0**, **10.10.10.125**, etc.
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -162,7 +162,21 @@ func dataSourceApplicationVisibilityNetworkDevicesCountRead(ctx context.Context,
 			queryParams1.ApplicationRegistrySyncStatus = vApplicationRegistrySyncStatus.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.ApplicationPolicy.RetrieveTheCountOfNetworkDevicesForTheGivenApplicationVisibilityStatusFilters(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveTheCountOfNetworkDevicesForTheGivenApplicationVisibilityStatusFilters", err,
+				"Failure at RetrieveTheCountOfNetworkDevicesForTheGivenApplicationVisibilityStatusFilters, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

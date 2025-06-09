@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -9,7 +10,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -62,14 +63,14 @@ building first if this site is a floor.
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"profile_id": &schema.Schema{
-							Description: `profileId path parameter. The *id* of the network profile, retrievable from *GET /intent/api/v1/networkProfilesForSites*
+							Description: `profileId path parameter. The **id** of the network profile, retrievable from **GET /intent/api/v1/networkProfilesForSites**
 `,
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
 						"site_id": &schema.Schema{
-							Description: `siteId query parameter. The *id* of the site, retrievable from *GET /intent/api/v1/sites*
+							Description: `siteId query parameter. The id or ids of the network profile, retrievable from /dna/intent/api/v1/sites.. A list of profile ids can be passed as a queryParameter in two ways:  1. a comma-separated string ( siteId=388a23e9-4739-4be7-a0aa-cc5a95d158dd,2726dc60-3a12-451e-947a-d972ebf58743), or... 2. as separate query parameters with the same name ( siteId=388a23e9-4739-4be7-a0aa-cc5a95d158dd&siteId=2726dc60-3a12-451e-947a-d972ebf58743
 `,
 							Type:     schema.TypeString,
 							Required: true,
@@ -141,7 +142,7 @@ func resourceNetworkProfilesForSitesSiteAssignmentsBulkDeleteCreate(ctx context.
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,11 +15,17 @@ func dataSourceSitesWirelessSettingsSSIDsCount() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Wireless.
 
-- This data source allows the user to get count of all SSIDs (Service Set Identifier) present at global site.
+- This data source allows the user to get count of all SSIDs (Service Set Identifier) .
 `,
 
 		ReadContext: dataSourceSitesWirelessSettingsSSIDsCountRead,
 		Schema: map[string]*schema.Schema{
+			"inherited": &schema.Schema{
+				Description: `_inherited query parameter. This query parameter indicates whether the current SSID count at the given 'siteId' is of the SSID(s) it is inheriting or count of non-inheriting SSID(s)
+`,
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"site_id": &schema.Schema{
 				Description: `siteId path parameter. Site UUID
 `,
@@ -51,13 +57,33 @@ func dataSourceSitesWirelessSettingsSSIDsCountRead(ctx context.Context, d *schem
 
 	var diags diag.Diagnostics
 	vSiteID := d.Get("site_id")
+	vInherited, okInherited := d.GetOk("inherited")
 
 	selectedMethod := 1
 	if selectedMethod == 1 {
 		log.Printf("[DEBUG] Selected method: GetSSIDCountBySite")
 		vvSiteID := vSiteID.(string)
+		queryParams1 := dnacentersdkgo.GetSSIDCountBySiteQueryParams{}
 
-		response1, restyResp1, err := client.Wireless.GetSSIDCountBySite(vvSiteID)
+		if okInherited {
+			queryParams1.Inherited = vInherited.(bool)
+		}
+
+		// has_unknown_response: None
+
+		response1, restyResp1, err := client.Wireless.GetSSIDCountBySite(vvSiteID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetSSIDCountBySite", err,
+				"Failure at GetSSIDCountBySite, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

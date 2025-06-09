@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -2913,6 +2913,405 @@ func resourceSensorTestCreateDelete(ctx context.Context, d *schema.ResourceData,
 	return diags
 }
 
+func flattenSensorsCreateSensorTestTemplateItem(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponse) []map[string]interface{} {
+	if item == nil {
+		return nil
+	}
+	respItem := make(map[string]interface{})
+	respItem["name"] = item.Name
+	respItem["type_id"] = item.TypeID
+	respItem["version"] = item.Version
+	respItem["model_version"] = item.ModelVersion
+	respItem["start_time"] = item.StartTime
+	respItem["last_modified_time"] = item.LastModifiedTime
+	respItem["num_associated_sensor"] = item.NumAssociatedSensor
+	respItem["location"] = item.Location
+	respItem["site_hierarchy"] = item.SiteHierarchy
+	respItem["status"] = item.Status
+	respItem["connection"] = item.Connection
+	respItem["action_in_progress"] = item.ActionInProgress
+	respItem["frequency"] = flattenSensorsCreateSensorTestTemplateItemFrequency(item.Frequency)
+	respItem["rssi_threshold"] = item.RssiThreshold
+	respItem["num_neighbor_apthreshold"] = item.NumNeighborApThreshold
+	respItem["schedule_in_days"] = item.ScheduleInDays
+	respItem["wlans"] = item.WLANs
+	respItem["ssids"] = flattenSensorsCreateSensorTestTemplateItemSSIDs(item.SSIDs)
+	respItem["profiles"] = flattenSensorsCreateSensorTestTemplateItemProfiles(item.Profiles)
+	respItem["test_schedule_mode"] = item.TestScheduleMode
+	respItem["show_wlc_upgrade_banner"] = boolPtrToString(item.ShowWlcUpgradeBanner)
+	respItem["radio_as_sensor_removed"] = boolPtrToString(item.RadioAsSensorRemoved)
+	respItem["encryption_mode"] = item.EncryptionMode
+	respItem["run_now"] = item.RunNow
+	respItem["location_info_list"] = flattenSensorsCreateSensorTestTemplateItemLocationInfoList(item.LocationInfoList)
+	respItem["sensors"] = flattenSensorsCreateSensorTestTemplateItemSensors(item.Sensors)
+	respItem["ap_coverage"] = flattenSensorsCreateSensorTestTemplateItemApCoverage(item.ApCoverage)
+	return []map[string]interface{}{
+		respItem,
+	}
+}
+
+func flattenSensorsCreateSensorTestTemplateItemFrequency(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseFrequency) []map[string]interface{} {
+	if item == nil {
+		return nil
+	}
+	respItem := make(map[string]interface{})
+	respItem["value"] = item.Value
+	respItem["unit"] = item.Unit
+
+	return []map[string]interface{}{
+		respItem,
+	}
+
+}
+
+func flattenSensorsCreateSensorTestTemplateItemSSIDs(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDs) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["bands"] = item.Bands
+		respItem["ssid"] = item.SSID
+		respItem["profile_name"] = item.ProfileName
+		respItem["num_aps"] = item.NumAps
+		respItem["num_sensors"] = item.NumSensors
+		respItem["layer3web_authsecurity"] = item.Layer3WebAuthsecurity
+		respItem["layer3web_authuser_name"] = item.Layer3WebAuthuserName
+		respItem["layer3web_authpassword"] = item.Layer3WebAuthpassword
+		respItem["layer3web_auth_email_address"] = item.Layer3WebAuthEmailAddress
+		respItem["third_party"] = flattenSensorsCreateSensorTestTemplateItemSSIDsThirdParty(item.ThirdParty)
+		respItem["id"] = item.ID
+		respItem["wlan_id"] = item.WLANID
+		respItem["wlc"] = item.Wlc
+		respItem["valid_from"] = item.ValidFrom
+		respItem["valid_to"] = item.ValidTo
+		respItem["status"] = item.Status
+		respItem["proxy_server"] = item.ProxyServer
+		respItem["proxy_port"] = item.ProxyPort
+		respItem["proxy_user_name"] = item.ProxyUserName
+		respItem["proxy_password"] = item.ProxyPassword
+		respItem["auth_type"] = item.AuthType
+		respItem["psk"] = item.Psk
+		respItem["username"] = item.Username
+		respItem["password"] = item.Password
+		respItem["password_type"] = item.PasswordType
+		respItem["eap_method"] = item.EapMethod
+		respItem["scep"] = boolPtrToString(item.Scep)
+		respItem["auth_protocol"] = item.AuthProtocol
+		respItem["certfilename"] = item.Certfilename
+		respItem["certxferprotocol"] = item.Certxferprotocol
+		respItem["certstatus"] = item.Certstatus
+		respItem["certpassphrase"] = item.Certpassphrase
+		respItem["certdownloadurl"] = item.Certdownloadurl
+		respItem["ext_web_auth_virtual_ip"] = item.ExtWebAuthVirtualIP
+		respItem["ext_web_auth"] = boolPtrToString(item.ExtWebAuth)
+		respItem["white_list"] = boolPtrToString(item.WhiteList)
+		respItem["ext_web_auth_portal"] = item.ExtWebAuthPortal
+		respItem["ext_web_auth_access_url"] = item.ExtWebAuthAccessURL
+		respItem["ext_web_auth_html_tag"] = flattenSensorsCreateSensorTestTemplateItemSSIDsExtWebAuthHTMLTag(item.ExtWebAuthHTMLTag)
+		respItem["qos_policy"] = item.QosPolicy
+		respItem["tests"] = flattenSensorsCreateSensorTestTemplateItemSSIDsTests(item.Tests)
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemSSIDsThirdParty(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDsThirdParty) []map[string]interface{} {
+	if item == nil {
+		return nil
+	}
+	respItem := make(map[string]interface{})
+	respItem["selected"] = boolPtrToString(item.Selected)
+
+	return []map[string]interface{}{
+		respItem,
+	}
+
+}
+
+func flattenSensorsCreateSensorTestTemplateItemSSIDsExtWebAuthHTMLTag(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDsExtWebAuthHTMLTag) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["label"] = item.Label
+		respItem["tag"] = item.Tag
+		respItem["value"] = item.Value
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemSSIDsTests(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDsTests) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["name"] = item.Name
+		respItem["config"] = flattenSensorsCreateSensorTestTemplateItemSSIDsTestsConfig(item.Config)
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemSSIDsTestsConfig(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDsTestsConfig) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["domains"] = item.Domains
+		respItem["server"] = item.Server
+		respItem["user_name"] = item.UserName
+		respItem["password"] = item.Password
+		respItem["url"] = item.URL
+		respItem["port"] = item.Port
+		respItem["protocol"] = item.Protocol
+		respItem["servers"] = item.Servers
+		respItem["direction"] = item.Direction
+		respItem["start_port"] = item.StartPort
+		respItem["end_port"] = item.EndPort
+		respItem["udp_bandwidth"] = item.UDPBandwidth
+		respItem["probe_type"] = item.ProbeType
+		respItem["num_packets"] = item.NumPackets
+		respItem["path_to_download"] = item.PathToDownload
+		respItem["transfer_type"] = item.TransferType
+		respItem["shared_secret"] = item.SharedSecret
+		respItem["ndt_server"] = item.NdtServer
+		respItem["ndt_server_port"] = item.NdtServerPort
+		respItem["ndt_server_path"] = item.NdtServerPath
+		respItem["uplink_test"] = boolPtrToString(item.UplinkTest)
+		respItem["downlink_test"] = boolPtrToString(item.DownlinkTest)
+		respItem["proxy_server"] = item.ProxyServer
+		respItem["proxy_port"] = item.ProxyPort
+		respItem["proxy_user_name"] = item.ProxyUserName
+		respItem["proxy_password"] = item.ProxyPassword
+		respItem["user_name_prompt"] = item.UserNamePrompt
+		respItem["password_prompt"] = item.PasswordPrompt
+		respItem["exit_command"] = item.ExitCommand
+		respItem["final_prompt"] = item.FinalPrompt
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemProfiles(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfiles) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["auth_type"] = item.AuthType
+		respItem["psk"] = item.Psk
+		respItem["username"] = item.Username
+		respItem["password"] = item.Password
+		respItem["password_type"] = item.PasswordType
+		respItem["eap_method"] = item.EapMethod
+		respItem["scep"] = boolPtrToString(item.Scep)
+		respItem["auth_protocol"] = item.AuthProtocol
+		respItem["certfilename"] = item.Certfilename
+		respItem["certxferprotocol"] = item.Certxferprotocol
+		respItem["certstatus"] = item.Certstatus
+		respItem["certpassphrase"] = item.Certpassphrase
+		respItem["certdownloadurl"] = item.Certdownloadurl
+		respItem["ext_web_auth_virtual_ip"] = item.ExtWebAuthVirtualIP
+		respItem["ext_web_auth"] = boolPtrToString(item.ExtWebAuth)
+		respItem["white_list"] = boolPtrToString(item.WhiteList)
+		respItem["ext_web_auth_portal"] = item.ExtWebAuthPortal
+		respItem["ext_web_auth_access_url"] = item.ExtWebAuthAccessURL
+		respItem["ext_web_auth_html_tag"] = flattenSensorsCreateSensorTestTemplateItemProfilesExtWebAuthHTMLTag(item.ExtWebAuthHTMLTag)
+		respItem["qos_policy"] = item.QosPolicy
+		respItem["tests"] = flattenSensorsCreateSensorTestTemplateItemProfilesTests(item.Tests)
+		respItem["profile_name"] = item.ProfileName
+		respItem["device_type"] = item.DeviceType
+		respItem["vlan"] = item.VLAN
+		respItem["location_vlan_list"] = flattenSensorsCreateSensorTestTemplateItemProfilesLocationVLANList(item.LocationVLANList)
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemProfilesExtWebAuthHTMLTag(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfilesExtWebAuthHTMLTag) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["label"] = item.Label
+		respItem["tag"] = item.Tag
+		respItem["value"] = item.Value
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemProfilesTests(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfilesTests) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["name"] = item.Name
+		respItem["config"] = flattenSensorsCreateSensorTestTemplateItemProfilesTestsConfig(item.Config)
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemProfilesTestsConfig(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfilesTestsConfig) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["domains"] = item.Domains
+		respItem["server"] = item.Server
+		respItem["user_name"] = item.UserName
+		respItem["password"] = item.Password
+		respItem["url"] = item.URL
+		respItem["port"] = item.Port
+		respItem["protocol"] = item.Protocol
+		respItem["servers"] = item.Servers
+		respItem["direction"] = item.Direction
+		respItem["start_port"] = item.StartPort
+		respItem["end_port"] = item.EndPort
+		respItem["udp_bandwidth"] = item.UDPBandwidth
+		respItem["probe_type"] = item.ProbeType
+		respItem["num_packets"] = item.NumPackets
+		respItem["path_to_download"] = item.PathToDownload
+		respItem["transfer_type"] = item.TransferType
+		respItem["shared_secret"] = item.SharedSecret
+		respItem["ndt_server"] = item.NdtServer
+		respItem["ndt_server_port"] = item.NdtServerPort
+		respItem["ndt_server_path"] = item.NdtServerPath
+		respItem["uplink_test"] = boolPtrToString(item.UplinkTest)
+		respItem["downlink_test"] = boolPtrToString(item.DownlinkTest)
+		respItem["proxy_server"] = item.ProxyServer
+		respItem["proxy_port"] = item.ProxyPort
+		respItem["proxy_user_name"] = item.ProxyUserName
+		respItem["proxy_password"] = item.ProxyPassword
+		respItem["user_name_prompt"] = item.UserNamePrompt
+		respItem["password_prompt"] = item.PasswordPrompt
+		respItem["exit_command"] = item.ExitCommand
+		respItem["final_prompt"] = item.FinalPrompt
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemProfilesLocationVLANList(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfilesLocationVLANList) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["location_id"] = item.LocationID
+		respItem["vlans"] = item.VLANs
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemLocationInfoList(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseLocationInfoList) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["location_id"] = item.LocationID
+		respItem["location_type"] = item.LocationType
+		respItem["all_sensors"] = boolPtrToString(item.AllSensors)
+		respItem["site_hierarchy"] = item.SiteHierarchy
+		respItem["mac_address_list"] = item.MacAddressList
+		respItem["management_vlan"] = item.ManagementVLAN
+		respItem["custom_management_vlan"] = boolPtrToString(item.CustomManagementVLAN)
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemSensors(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSensors) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["name"] = item.Name
+		respItem["mac_address"] = item.MacAddress
+		respItem["switch_mac"] = item.SwitchMac
+		respItem["switch_uuid"] = item.SwitchUUID
+		respItem["switch_serial_number"] = item.SwitchSerialNumber
+		respItem["marked_for_uninstall"] = boolPtrToString(item.MarkedForUninstall)
+		respItem["ip_address"] = item.IPAddress
+		respItem["host_name"] = item.HostName
+		respItem["wired_application_status"] = item.WiredApplicationStatus
+		respItem["wired_application_message"] = item.WiredApplicationMessage
+		respItem["assigned"] = boolPtrToString(item.Assigned)
+		respItem["status"] = item.Status
+		respItem["xor_sensor"] = boolPtrToString(item.XorSensor)
+		respItem["target_a_ps"] = item.TargetAPs
+		respItem["run_now"] = item.RunNow
+		respItem["location_id"] = item.LocationID
+		respItem["all_sensor_addition"] = boolPtrToString(item.AllSensorAddition)
+		respItem["config_updated"] = item.ConfigUpdated
+		respItem["sensor_type"] = item.SensorType
+		respItem["test_mac_addresses"] = flattenSensorsCreateSensorTestTemplateItemSensorsTestMacAddresses(item.TestMacAddresses)
+		respItem["id"] = item.ID
+		respItem["service_policy"] = item.ServicePolicy
+		respItem["i_perf_info"] = flattenSensorsCreateSensorTestTemplateItemSensorsIPerfInfo(item.IPerfInfo)
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
+func flattenSensorsCreateSensorTestTemplateItemSensorsTestMacAddresses(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSensorsTestMacAddresses) interface{} {
+	if item == nil {
+		return nil
+	}
+	respItem := *item
+
+	return responseInterfaceToString(respItem)
+
+}
+
+func flattenSensorsCreateSensorTestTemplateItemSensorsIPerfInfo(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSensorsIPerfInfo) interface{} {
+	if item == nil {
+		return nil
+	}
+	respItem := *item
+
+	return responseInterfaceToString(respItem)
+
+}
+
+func flattenSensorsCreateSensorTestTemplateItemApCoverage(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseApCoverage) []map[string]interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []map[string]interface{}
+	for _, item := range *items {
+		respItem := make(map[string]interface{})
+		respItem["bands"] = item.Bands
+		respItem["number_of_aps_to_test"] = item.NumberOfApsToTest
+		respItem["rssi_threshold"] = item.RssiThreshold
+		respItems = append(respItems, respItem)
+	}
+	return respItems
+}
+
 func expandRequestSensorTestCreateCreateSensorTestTemplate(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSensorsCreateSensorTestTemplate {
 	request := dnacentersdkgo.RequestSensorsCreateSensorTestTemplate{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".name")))) {
@@ -3764,403 +4163,4 @@ func expandRequestSensorTestCreateCreateSensorTestTemplateApCoverage(ctx context
 		request.RssiThreshold = interfaceToIntPtr(v)
 	}
 	return &request
-}
-
-func flattenSensorsCreateSensorTestTemplateItem(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponse) []map[string]interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := make(map[string]interface{})
-	respItem["name"] = item.Name
-	respItem["type_id"] = item.TypeID
-	respItem["version"] = item.Version
-	respItem["model_version"] = item.ModelVersion
-	respItem["start_time"] = item.StartTime
-	respItem["last_modified_time"] = item.LastModifiedTime
-	respItem["num_associated_sensor"] = item.NumAssociatedSensor
-	respItem["location"] = item.Location
-	respItem["site_hierarchy"] = item.SiteHierarchy
-	respItem["status"] = item.Status
-	respItem["connection"] = item.Connection
-	respItem["action_in_progress"] = item.ActionInProgress
-	respItem["frequency"] = flattenSensorsCreateSensorTestTemplateItemFrequency(item.Frequency)
-	respItem["rssi_threshold"] = item.RssiThreshold
-	respItem["num_neighbor_apthreshold"] = item.NumNeighborApThreshold
-	respItem["schedule_in_days"] = item.ScheduleInDays
-	respItem["wlans"] = item.WLANs
-	respItem["ssids"] = flattenSensorsCreateSensorTestTemplateItemSSIDs(item.SSIDs)
-	respItem["profiles"] = flattenSensorsCreateSensorTestTemplateItemProfiles(item.Profiles)
-	respItem["test_schedule_mode"] = item.TestScheduleMode
-	respItem["show_wlc_upgrade_banner"] = boolPtrToString(item.ShowWlcUpgradeBanner)
-	respItem["radio_as_sensor_removed"] = boolPtrToString(item.RadioAsSensorRemoved)
-	respItem["encryption_mode"] = item.EncryptionMode
-	respItem["run_now"] = item.RunNow
-	respItem["location_info_list"] = flattenSensorsCreateSensorTestTemplateItemLocationInfoList(item.LocationInfoList)
-	respItem["sensors"] = flattenSensorsCreateSensorTestTemplateItemSensors(item.Sensors)
-	respItem["ap_coverage"] = flattenSensorsCreateSensorTestTemplateItemApCoverage(item.ApCoverage)
-	return []map[string]interface{}{
-		respItem,
-	}
-}
-
-func flattenSensorsCreateSensorTestTemplateItemFrequency(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseFrequency) []map[string]interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := make(map[string]interface{})
-	respItem["value"] = item.Value
-	respItem["unit"] = item.Unit
-
-	return []map[string]interface{}{
-		respItem,
-	}
-
-}
-
-func flattenSensorsCreateSensorTestTemplateItemSSIDs(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDs) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["bands"] = item.Bands
-		respItem["ssid"] = item.SSID
-		respItem["profile_name"] = item.ProfileName
-		respItem["num_aps"] = item.NumAps
-		respItem["num_sensors"] = item.NumSensors
-		respItem["layer3web_authsecurity"] = item.Layer3WebAuthsecurity
-		respItem["layer3web_authuser_name"] = item.Layer3WebAuthuserName
-		respItem["layer3web_authpassword"] = item.Layer3WebAuthpassword
-		respItem["layer3web_auth_email_address"] = item.Layer3WebAuthEmailAddress
-		respItem["third_party"] = flattenSensorsCreateSensorTestTemplateItemSSIDsThirdParty(item.ThirdParty)
-		respItem["id"] = item.ID
-		respItem["wlan_id"] = item.WLANID
-		respItem["wlc"] = item.Wlc
-		respItem["valid_from"] = item.ValidFrom
-		respItem["valid_to"] = item.ValidTo
-		respItem["status"] = item.Status
-		respItem["proxy_server"] = item.ProxyServer
-		respItem["proxy_port"] = item.ProxyPort
-		respItem["proxy_user_name"] = item.ProxyUserName
-		respItem["proxy_password"] = item.ProxyPassword
-		respItem["auth_type"] = item.AuthType
-		respItem["psk"] = item.Psk
-		respItem["username"] = item.Username
-		respItem["password"] = item.Password
-		respItem["password_type"] = item.PasswordType
-		respItem["eap_method"] = item.EapMethod
-		respItem["scep"] = boolPtrToString(item.Scep)
-		respItem["auth_protocol"] = item.AuthProtocol
-		respItem["certfilename"] = item.Certfilename
-		respItem["certxferprotocol"] = item.Certxferprotocol
-		respItem["certstatus"] = item.Certstatus
-		respItem["certpassphrase"] = item.Certpassphrase
-		respItem["certdownloadurl"] = item.Certdownloadurl
-		respItem["ext_web_auth_virtual_ip"] = item.ExtWebAuthVirtualIP
-		respItem["ext_web_auth"] = boolPtrToString(item.ExtWebAuth)
-		respItem["white_list"] = boolPtrToString(item.WhiteList)
-		respItem["ext_web_auth_portal"] = item.ExtWebAuthPortal
-		respItem["ext_web_auth_access_url"] = item.ExtWebAuthAccessURL
-		respItem["ext_web_auth_html_tag"] = flattenSensorsCreateSensorTestTemplateItemSSIDsExtWebAuthHTMLTag(item.ExtWebAuthHTMLTag)
-		respItem["qos_policy"] = item.QosPolicy
-		respItem["tests"] = flattenSensorsCreateSensorTestTemplateItemSSIDsTests(item.Tests)
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemSSIDsThirdParty(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDsThirdParty) []map[string]interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := make(map[string]interface{})
-	respItem["selected"] = boolPtrToString(item.Selected)
-
-	return []map[string]interface{}{
-		respItem,
-	}
-
-}
-
-func flattenSensorsCreateSensorTestTemplateItemSSIDsExtWebAuthHTMLTag(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDsExtWebAuthHTMLTag) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["label"] = item.Label
-		respItem["tag"] = item.Tag
-		respItem["value"] = item.Value
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemSSIDsTests(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDsTests) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["name"] = item.Name
-		respItem["config"] = flattenSensorsCreateSensorTestTemplateItemSSIDsTestsConfig(item.Config)
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemSSIDsTestsConfig(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSSIDsTestsConfig) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["domains"] = item.Domains
-		respItem["server"] = item.Server
-		respItem["user_name"] = item.UserName
-		respItem["password"] = item.Password
-		respItem["url"] = item.URL
-		respItem["port"] = item.Port
-		respItem["protocol"] = item.Protocol
-		respItem["servers"] = item.Servers
-		respItem["direction"] = item.Direction
-		respItem["start_port"] = item.StartPort
-		respItem["end_port"] = item.EndPort
-		respItem["udp_bandwidth"] = item.UDPBandwidth
-		respItem["probe_type"] = item.ProbeType
-		respItem["num_packets"] = item.NumPackets
-		respItem["path_to_download"] = item.PathToDownload
-		respItem["transfer_type"] = item.TransferType
-		respItem["shared_secret"] = item.SharedSecret
-		respItem["ndt_server"] = item.NdtServer
-		respItem["ndt_server_port"] = item.NdtServerPort
-		respItem["ndt_server_path"] = item.NdtServerPath
-		respItem["uplink_test"] = boolPtrToString(item.UplinkTest)
-		respItem["downlink_test"] = boolPtrToString(item.DownlinkTest)
-		respItem["proxy_server"] = item.ProxyServer
-		respItem["proxy_port"] = item.ProxyPort
-		respItem["proxy_user_name"] = item.ProxyUserName
-		respItem["proxy_password"] = item.ProxyPassword
-		respItem["user_name_prompt"] = item.UserNamePrompt
-		respItem["password_prompt"] = item.PasswordPrompt
-		respItem["exit_command"] = item.ExitCommand
-		respItem["final_prompt"] = item.FinalPrompt
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemProfiles(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfiles) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["auth_type"] = item.AuthType
-		respItem["psk"] = item.Psk
-		respItem["username"] = item.Username
-		respItem["password"] = item.Password
-		respItem["password_type"] = item.PasswordType
-		respItem["eap_method"] = item.EapMethod
-		respItem["scep"] = boolPtrToString(item.Scep)
-		respItem["auth_protocol"] = item.AuthProtocol
-		respItem["certfilename"] = item.Certfilename
-		respItem["certxferprotocol"] = item.Certxferprotocol
-		respItem["certstatus"] = item.Certstatus
-		respItem["certpassphrase"] = item.Certpassphrase
-		respItem["certdownloadurl"] = item.Certdownloadurl
-		respItem["ext_web_auth_virtual_ip"] = item.ExtWebAuthVirtualIP
-		respItem["ext_web_auth"] = boolPtrToString(item.ExtWebAuth)
-		respItem["white_list"] = boolPtrToString(item.WhiteList)
-		respItem["ext_web_auth_portal"] = item.ExtWebAuthPortal
-		respItem["ext_web_auth_access_url"] = item.ExtWebAuthAccessURL
-		respItem["ext_web_auth_html_tag"] = flattenSensorsCreateSensorTestTemplateItemProfilesExtWebAuthHTMLTag(item.ExtWebAuthHTMLTag)
-		respItem["qos_policy"] = item.QosPolicy
-		respItem["tests"] = flattenSensorsCreateSensorTestTemplateItemProfilesTests(item.Tests)
-		respItem["profile_name"] = item.ProfileName
-		respItem["device_type"] = item.DeviceType
-		respItem["vlan"] = item.VLAN
-		respItem["location_vlan_list"] = flattenSensorsCreateSensorTestTemplateItemProfilesLocationVLANList(item.LocationVLANList)
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemProfilesExtWebAuthHTMLTag(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfilesExtWebAuthHTMLTag) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["label"] = item.Label
-		respItem["tag"] = item.Tag
-		respItem["value"] = item.Value
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemProfilesTests(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfilesTests) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["name"] = item.Name
-		respItem["config"] = flattenSensorsCreateSensorTestTemplateItemProfilesTestsConfig(item.Config)
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemProfilesTestsConfig(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfilesTestsConfig) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["domains"] = item.Domains
-		respItem["server"] = item.Server
-		respItem["user_name"] = item.UserName
-		respItem["password"] = item.Password
-		respItem["url"] = item.URL
-		respItem["port"] = item.Port
-		respItem["protocol"] = item.Protocol
-		respItem["servers"] = item.Servers
-		respItem["direction"] = item.Direction
-		respItem["start_port"] = item.StartPort
-		respItem["end_port"] = item.EndPort
-		respItem["udp_bandwidth"] = item.UDPBandwidth
-		respItem["probe_type"] = item.ProbeType
-		respItem["num_packets"] = item.NumPackets
-		respItem["path_to_download"] = item.PathToDownload
-		respItem["transfer_type"] = item.TransferType
-		respItem["shared_secret"] = item.SharedSecret
-		respItem["ndt_server"] = item.NdtServer
-		respItem["ndt_server_port"] = item.NdtServerPort
-		respItem["ndt_server_path"] = item.NdtServerPath
-		respItem["uplink_test"] = boolPtrToString(item.UplinkTest)
-		respItem["downlink_test"] = boolPtrToString(item.DownlinkTest)
-		respItem["proxy_server"] = item.ProxyServer
-		respItem["proxy_port"] = item.ProxyPort
-		respItem["proxy_user_name"] = item.ProxyUserName
-		respItem["proxy_password"] = item.ProxyPassword
-		respItem["user_name_prompt"] = item.UserNamePrompt
-		respItem["password_prompt"] = item.PasswordPrompt
-		respItem["exit_command"] = item.ExitCommand
-		respItem["final_prompt"] = item.FinalPrompt
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemProfilesLocationVLANList(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseProfilesLocationVLANList) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["location_id"] = item.LocationID
-		respItem["vlans"] = item.VLANs
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemLocationInfoList(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseLocationInfoList) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["location_id"] = item.LocationID
-		respItem["location_type"] = item.LocationType
-		respItem["all_sensors"] = boolPtrToString(item.AllSensors)
-		respItem["site_hierarchy"] = item.SiteHierarchy
-		respItem["mac_address_list"] = item.MacAddressList
-		respItem["management_vlan"] = item.ManagementVLAN
-		respItem["custom_management_vlan"] = boolPtrToString(item.CustomManagementVLAN)
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemSensors(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSensors) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["name"] = item.Name
-		respItem["mac_address"] = item.MacAddress
-		respItem["switch_mac"] = item.SwitchMac
-		respItem["switch_uuid"] = item.SwitchUUID
-		respItem["switch_serial_number"] = item.SwitchSerialNumber
-		respItem["marked_for_uninstall"] = boolPtrToString(item.MarkedForUninstall)
-		respItem["ip_address"] = item.IPAddress
-		respItem["host_name"] = item.HostName
-		respItem["wired_application_status"] = item.WiredApplicationStatus
-		respItem["wired_application_message"] = item.WiredApplicationMessage
-		respItem["assigned"] = boolPtrToString(item.Assigned)
-		respItem["status"] = item.Status
-		respItem["xor_sensor"] = boolPtrToString(item.XorSensor)
-		respItem["target_a_ps"] = item.TargetAPs
-		respItem["run_now"] = item.RunNow
-		respItem["location_id"] = item.LocationID
-		respItem["all_sensor_addition"] = boolPtrToString(item.AllSensorAddition)
-		respItem["config_updated"] = item.ConfigUpdated
-		respItem["sensor_type"] = item.SensorType
-		respItem["test_mac_addresses"] = flattenSensorsCreateSensorTestTemplateItemSensorsTestMacAddresses(item.TestMacAddresses)
-		respItem["id"] = item.ID
-		respItem["service_policy"] = item.ServicePolicy
-		respItem["i_perf_info"] = flattenSensorsCreateSensorTestTemplateItemSensorsIPerfInfo(item.IPerfInfo)
-		respItems = append(respItems, respItem)
-	}
-	return respItems
-}
-
-func flattenSensorsCreateSensorTestTemplateItemSensorsTestMacAddresses(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSensorsTestMacAddresses) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenSensorsCreateSensorTestTemplateItemSensorsIPerfInfo(item *dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseSensorsIPerfInfo) interface{} {
-	if item == nil {
-		return nil
-	}
-	respItem := *item
-
-	return responseInterfaceToString(respItem)
-
-}
-
-func flattenSensorsCreateSensorTestTemplateItemApCoverage(items *[]dnacentersdkgo.ResponseSensorsCreateSensorTestTemplateResponseApCoverage) []map[string]interface{} {
-	if items == nil {
-		return nil
-	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["bands"] = item.Bands
-		respItem["number_of_aps_to_test"] = item.NumberOfApsToTest
-		respItem["rssi_threshold"] = item.RssiThreshold
-		respItems = append(respItems, respItem)
-	}
-	return respItems
 }

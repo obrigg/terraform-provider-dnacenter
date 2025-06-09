@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -113,7 +113,21 @@ func dataSourceSdaPortAssignmentForUserDeviceRead(ctx context.Context, d *schema
 
 		queryParams1.InterfaceName = vInterfaceName.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sda.GetPortAssignmentForUserDeviceInSdaFabric(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetPortAssignmentForUserDeviceInSdaFabric", err,
+				"Failure at GetPortAssignmentForUserDeviceInSdaFabric, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -152,7 +166,7 @@ func flattenSdaGetPortAssignmentForUserDeviceInSdaFabricItem(item *dnacentersdkg
 	respItem["site_name_hierarchy"] = item.SiteNameHierarchy
 	respItem["device_management_ip_address"] = item.DeviceManagementIPAddress
 	respItem["interface_name"] = item.InterfaceName
-	respItem["data_ip_address_pool_name"] = item.DataIPAddressPoolName
+	respItem["data_ip_address_pool_name"] = item.DataipAddressPoolName
 	respItem["voice_ip_address_pool_name"] = item.VoiceIPAddressPoolName
 	respItem["scalable_group_name"] = item.ScalableGroupName
 	respItem["authenticate_template_name"] = item.AuthenticateTemplateName

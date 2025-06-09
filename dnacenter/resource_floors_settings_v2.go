@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -117,7 +117,7 @@ func resourceFloorsSettingsV2Update(ctx context.Context, d *schema.ResourceData,
 	var diags diag.Diagnostics
 
 	if d.HasChange("parameters") {
-		request1 := expandRequestFloorsSettingsUpdatesFloorSettingsV2(ctx, "parameters.0", d)
+		request1 := expandRequestFloorsSettingsV2UpdatesFloorSettingsV2(ctx, "parameters.0", d)
 		log.Printf("[DEBUG] request sent => %v", responseInterfaceToString(*request1))
 		response1, restyResp1, err := client.SiteDesign.UpdatesFloorSettingsV2(request1)
 		if err != nil || response1 == nil {
@@ -176,7 +176,8 @@ func resourceFloorsSettingsV2Delete(ctx context.Context, d *schema.ResourceData,
 		"Failure at FloorsSettingsDelete, unexpected response", ""))
 	return diags
 }
-func expandRequestFloorsSettingsUpdatesFloorSettingsV2(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSiteDesignUpdatesFloorSettingsV2 {
+
+func expandRequestFloorsSettingsV2UpdatesFloorSettingsV2(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSiteDesignUpdatesFloorSettingsV2 {
 	request := dnacentersdkgo.RequestSiteDesignUpdatesFloorSettingsV2{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".units_of_measure")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".units_of_measure")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".units_of_measure")))) {
 		request.UnitsOfMeasure = interfaceToString(v)

@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"time"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	"log"
+
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,7 +17,7 @@ import (
 
 func resourceSdaPortChannels() *schema.Resource {
 	return &schema.Resource{
-		Description: `It manages create, read, update and delete operations on SDA.
+		Description: `It manages create, read, update and delete operations on Sda.
 
 - Adds port channels based on user input.
 
@@ -46,6 +47,12 @@ func resourceSdaPortChannels() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
+						"allowed_vlan_ranges": &schema.Schema{
+							Description: `Allowed VLAN of the port channel, this option is only applicable to TRUNK connectedDeviceType. (VLAN must be between 1 and 4094 (Ex 100,200,300-400) or 'all'. In cases value not set when connectedDeviceType is TRUNK, default value will be 'all').
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"connected_device_type": &schema.Schema{
 							Description: `Connected device type of the port channel.
 `,
@@ -78,6 +85,12 @@ func resourceSdaPortChannels() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+						"native_vlan_id": &schema.Schema{
+							Description: `Native VLAN of the port channel, this option is only applicable to TRUNK connectedDeviceType. (VLAN must be between 1 and 4094. In cases value not set when connectedDeviceType is TRUNK, default value will be 1).
+`,
+							Type:     schema.TypeInt,
+							Computed: true,
 						},
 						"network_device_id": &schema.Schema{
 							Description: `ID of the network device.
@@ -115,6 +128,13 @@ func resourceSdaPortChannels() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
+									"allowed_vlan_ranges": &schema.Schema{
+										Description: `Allowed VLAN of the port channel, this option is only applicable to TRUNK connectedDeviceType. (VLAN must be between 1 and 4094 (Ex 100,200,300-400) or 'all'. In cases value not set when connectedDeviceType is TRUNK, default value will be 'all').
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"connected_device_type": &schema.Schema{
 										Description: `Connected device type of the port channel.
 `,
@@ -152,6 +172,13 @@ func resourceSdaPortChannels() *schema.Resource {
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+									},
+									"native_vlan_id": &schema.Schema{
+										Description: `Native VLAN of the port channel, this option is only applicable to TRUNK connectedDeviceType. (VLAN must be between 1 and 4094. In cases value not set when connectedDeviceType is TRUNK, default value will be 1).
+`,
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
 									},
 									"network_device_id": &schema.Schema{
 										Description: `ID of the network device.
@@ -197,9 +224,8 @@ func resourceSdaPortChannelsCreate(ctx context.Context, d *schema.ResourceData, 
 	vvID := interfaceToString(vID)
 	vName := resourceItem["port_channel_name"]
 	vvName := interfaceToString(vName)
-	queryParamImport := dnacentersdkgo.GetPortChannelsQueryParams{}
-	queryParamImport.PortChannelName = vvName
-	item2, err := searchSdaGetPortChannels(m, queryParamImport, vvID)
+	queryParamImport := dnacentersdkgo.GetPortChannelsConnectivityQueryParams{}
+	item2, err := searchSdaGetPortChannelsConnectivity(m, queryParamImport, vvID, vvName)
 	if err == nil && item2 != nil {
 		resourceMap := make(map[string]string)
 		resourceMap["id"] = item2.ID
@@ -246,9 +272,8 @@ func resourceSdaPortChannelsCreate(ctx context.Context, d *schema.ResourceData, 
 			return diags
 		}
 	}
-	queryParamValidate := dnacentersdkgo.GetPortChannelsQueryParams{}
-	queryParamValidate.PortChannelName = vvName
-	item3, err := searchSdaGetPortChannels(m, queryParamValidate, vvID)
+	queryParamValidate := dnacentersdkgo.GetPortChannelsConnectivityQueryParams{}
+	item3, err := searchSdaGetPortChannelsConnectivity(m, queryParamValidate, vvID, vvName)
 	if err != nil || item3 == nil {
 		diags = append(diags, diagErrorWithAlt(
 			"Failure when executing AddPortChannels", err,
@@ -273,22 +298,21 @@ func resourceSdaPortChannelsRead(ctx context.Context, d *schema.ResourceData, m 
 	vvName := resourceMap["port_channel_name"]
 	selectedMethod := 1
 	if selectedMethod == 1 {
-		log.Printf("[DEBUG] Selected method: GetPortChannels")
-		queryParams1 := dnacentersdkgo.GetPortChannelsQueryParams{}
-		queryParams1.PortChannelName = vvName
-		item1, err := searchSdaGetPortChannels(m, queryParams1, vvID)
+		log.Printf("[DEBUG] Selected method: GetPortChannelsConnectivity")
+		queryParams1 := dnacentersdkgo.GetPortChannelsConnectivityQueryParams{}
+		item1, err := searchSdaGetPortChannelsConnectivity(m, queryParams1, vvID, vvName)
 		if err != nil || item1 == nil {
 			d.SetId("")
 			return diags
 		}
-		items := []dnacentersdkgo.ResponseSdaGetPortChannelsResponse{
+		items := []dnacentersdkgo.ResponseSdaGetPortChannelsConnectivityResponse{
 			*item1,
 		}
 		// Review flatten function used
-		vItem1 := flattenSdaGetPortChannelsItems(&items)
+		vItem1 := flattenSdaGetPortChannelsConnectivityItems(&items)
 		if err := d.Set("item", vItem1); err != nil {
 			diags = append(diags, diagError(
-				"Failure when setting GetPortChannels search response",
+				"Failure when setting GetPortChannelsConnectivity search response",
 				err))
 			return diags
 		}
@@ -421,6 +445,7 @@ func resourceSdaPortChannelsDelete(ctx context.Context, d *schema.ResourceData, 
 
 	return diags
 }
+
 func expandRequestSdaPortChannelsAddPortChannels(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddPortChannels {
 	request := dnacentersdkgo.RequestSdaAddPortChannels{}
 	if v := expandRequestSdaPortChannelsAddPortChannelsItemArray(ctx, key+".payload", d); v != nil {
@@ -474,6 +499,12 @@ func expandRequestSdaPortChannelsAddPortChannelsItem(ctx context.Context, key st
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".description")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".description")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".description")))) {
 		request.Description = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".native_vlan_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".native_vlan_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".native_vlan_id")))) {
+		request.NativeVLANID = interfaceToIntPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".allowed_vlan_ranges")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".allowed_vlan_ranges")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".allowed_vlan_ranges")))) {
+		request.AllowedVLANRanges = interfaceToString(v)
 	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil
@@ -541,20 +572,26 @@ func expandRequestSdaPortChannelsUpdatePortChannelsItem(ctx context.Context, key
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".description")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".description")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".description")))) {
 		request.Description = interfaceToString(v)
 	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".native_vlan_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".native_vlan_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".native_vlan_id")))) {
+		request.NativeVLANID = interfaceToIntPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".allowed_vlan_ranges")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".allowed_vlan_ranges")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".allowed_vlan_ranges")))) {
+		request.AllowedVLANRanges = interfaceToString(v)
+	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil
 	}
 	return &request
 }
 
-func searchSdaGetPortChannels(m interface{}, queryParams dnacentersdkgo.GetPortChannelsQueryParams, vID string) (*dnacentersdkgo.ResponseSdaGetPortChannelsResponse, error) {
+func searchSdaGetPortChannelsConnectivity(m interface{}, queryParams dnacentersdkgo.GetPortChannelsConnectivityQueryParams, vID string, vName string) (*dnacentersdkgo.ResponseSdaGetPortChannelsConnectivityResponse, error) {
 	client := m.(*dnacentersdkgo.Client)
 	var err error
-	var foundItem *dnacentersdkgo.ResponseSdaGetPortChannelsResponse
-	var ite *dnacentersdkgo.ResponseSdaGetPortChannels
+	var foundItem *dnacentersdkgo.ResponseSdaGetPortChannelsConnectivityResponse
+	var ite *dnacentersdkgo.ResponseSdaGetPortChannelsConnectivity
 	if vID != "" {
 		queryParams.Offset = 1
-		nResponse, _, err := client.Sda.GetPortChannels(nil)
+		nResponse, _, err := client.Sda.GetPortChannelsConnectivity(nil)
 		maxPageSize := len(*nResponse.Response)
 		for len(*nResponse.Response) > 0 {
 			time.Sleep(15 * time.Second)
@@ -565,15 +602,15 @@ func searchSdaGetPortChannels(m interface{}, queryParams dnacentersdkgo.GetPortC
 				}
 			}
 			queryParams.Limit = float64(maxPageSize)
-			queryParams.Offset += float64(maxPageSize)
-			nResponse, _, err = client.Sda.GetPortChannels(&queryParams)
+			queryParams.Offset = float64(maxPageSize)
+			nResponse, _, err = client.Sda.GetPortChannelsConnectivity(&queryParams)
 			if nResponse == nil || nResponse.Response == nil {
 				break
 			}
 		}
 		return nil, err
-	} else if queryParams.PortChannelName != "" {
-		ite, _, err = client.Sda.GetPortChannels(&queryParams)
+	} else if vName != "" {
+		ite, _, err = client.Sda.GetPortChannelsConnectivity(&queryParams)
 		if err != nil || ite == nil {
 			return foundItem, err
 		}
@@ -582,7 +619,7 @@ func searchSdaGetPortChannels(m interface{}, queryParams dnacentersdkgo.GetPortC
 			return foundItem, err
 		}
 		for _, item := range itemsCopy {
-			if item.PortChannelName == queryParams.PortChannelName {
+			if item.PortChannelName == vName {
 				foundItem = &item
 				return foundItem, err
 			}

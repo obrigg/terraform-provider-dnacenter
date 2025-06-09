@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,9 +16,10 @@ func dataSourceNetworkApplicationsCount() *schema.Resource {
 		Description: `It performs read operation on Applications.
 
 - Retrieves the number of network applications by applying basic filtering. If startTime and endTime are not provided,
-the API defaults to the last 24 hours. *siteId* is mandatory. *siteId* must be a site UUID of a building. For detailed
-information about the usage of the API, please refer to the Open API specification document https://github.com/cisco-en-
-programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-NetworkApplications-1.0.0-resolved.yaml
+the API defaults to the last 24 hours. **siteId** is mandatory. **siteId** must be a site UUID of a building. For
+detailed information about the usage of the API, please refer to the Open API specification document
+https://github.com/cisco-en-programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-
+NetworkApplications-1.0.0-resolved.yaml
 `,
 
 		ReadContext: dataSourceNetworkApplicationsCountRead,
@@ -26,8 +27,8 @@ programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-
 			"application_name": &schema.Schema{
 				Description: `applicationName query parameter. Name of the application for which the experience data is intended.
 Examples:
-*applicationName=webex* (single applicationName requested)
-*applicationName=webex&applicationName=teams* (multiple applicationName requested)
+**applicationName=webex** (single applicationName requested)
+**applicationName=webex&applicationName=teams** (multiple applicationName requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -45,7 +46,7 @@ Examples:
 				Optional: true,
 			},
 			"site_id": &schema.Schema{
-				Description: `siteId query parameter. The site UUID without the top level hierarchy. *siteId* is mandatory. *siteId* must be a site UUID of a building. (Ex."buildingUuid") Examples: *siteId=buildingUuid* (single siteId requested) *siteId=buildingUuid1&siteId=buildingUuid2* (multiple siteId requested)
+				Description: `siteId query parameter. The site UUID without the top level hierarchy. **siteId** is mandatory. **siteId** must be a site UUID of a building. (Ex."buildingUuid") Examples: **siteId=buildingUuid** (single siteId requested) **siteId=buildingUuid1&siteId=buildingUuid2** (multiple siteId requested)
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -53,8 +54,8 @@ Examples:
 			"ssid": &schema.Schema{
 				Description: `ssid query parameter. In the context of a network application, SSID refers to the name of the wireless network to which the client connects.
 Examples:
-*ssid=Alpha* (single ssid requested)
-*ssid=Alpha&ssid=Guest* (multiple ssid requested)
+**ssid=Alpha** (single ssid requested)
+**ssid=Alpha&ssid=Guest** (multiple ssid requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -128,7 +129,21 @@ func dataSourceNetworkApplicationsCountRead(ctx context.Context, d *schema.Resou
 		}
 		headerParams1.XCaLLERID = vXCaLLERID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Applications.RetrievesTheTotalCountOfNetworkApplicationsByApplyingBasicFiltering(&headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesTheTotalCountOfNetworkApplicationsByApplyingBasicFiltering", err,
+				"Failure at RetrievesTheTotalCountOfNetworkApplicationsByApplyingBasicFiltering, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

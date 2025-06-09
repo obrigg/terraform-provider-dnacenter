@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -72,6 +72,39 @@ func resourceSdaLayer2VirtualNetworks() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"is_multiple_ip_to_mac_addresses": &schema.Schema{
+							Description: `Set to true to enable multiple IP-to-MAC Addresses (Wireless Bridged-Network Virtual Machine). This field will only be present on layer 2 virtual networks associated with a layer 3 virtual network.
+`,
+							// Type:        schema.TypeBool,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"is_resource_guard_enabled": &schema.Schema{
+							Description: `Set to true to enable resource guard.
+`,
+							// Type:        schema.TypeBool,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"is_wireless_flooding_enabled": &schema.Schema{
+							Description: `Set to true to enable wireless flooding.
+`,
+							// Type:        schema.TypeBool,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"layer2_flooding_address": &schema.Schema{
+							Description: `The flooding address to use for layer 2 flooding.
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"layer2_flooding_address_assignment": &schema.Schema{
+							Description: `The source of the flooding address for layer 2 flooding.
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"traffic_type": &schema.Schema{
 							Description: `The type of traffic that is served.
 `,
@@ -101,7 +134,7 @@ func resourceSdaLayer2VirtualNetworks() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"payload": &schema.Schema{
-							Description: `Array of RequestApplicationPolicyCreateApplication`,
+							Description: `Array of RequestSdaAddLayer2VirtualNetworks`,
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
@@ -137,6 +170,47 @@ func resourceSdaLayer2VirtualNetworks() *schema.Resource {
 										Optional:     true,
 										Computed:     true,
 									},
+									"is_multiple_ip_to_mac_addresses": &schema.Schema{
+										Description: `Set to true to enable multiple IP-to-MAC addresses (Wireless Bridged-Network Virtual Machine). This field defaults to false when associated with a layer 3 virtual network and cannot be used when not associated with a layer 3 virtual network.
+`,
+										// Type:        schema.TypeBool,
+										Type:         schema.TypeString,
+										ValidateFunc: validateStringHasValueFunc([]string{"", "true", "false"}),
+										Optional:     true,
+										Computed:     true,
+									},
+									"is_resource_guard_enabled": &schema.Schema{
+										Description: `Set to true to enable Resource Guard.
+`,
+										// Type:        schema.TypeBool,
+										Type:         schema.TypeString,
+										ValidateFunc: validateStringHasValueFunc([]string{"", "true", "false"}),
+										Optional:     true,
+										Computed:     true,
+									},
+									"is_wireless_flooding_enabled": &schema.Schema{
+										Description: `Set to true to enable wireless flooding. If there is an associated layer 3 virtual network, wireless flooding will default to false and can only be true when fabric-enabled wireless is also true. If there is no associated layer 3 virtual network, wireless flooding will match fabric-enabled wireless.
+`,
+										// Type:        schema.TypeBool,
+										Type:         schema.TypeString,
+										ValidateFunc: validateStringHasValueFunc([]string{"", "true", "false"}),
+										Optional:     true,
+										Computed:     true,
+									},
+									"layer2_flooding_address": &schema.Schema{
+										Description: `The flooding address to use for layer 2 flooding. The IP address must be in the 239.0.0.0/8 range. This property is applicable only when the flooding address source is set to "CUSTOM".
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"layer2_flooding_address_assignment": &schema.Schema{
+										Description: `The source of the flooding address for layer 2 flooding. "SHARED" means that the layer 2 virtual network will inherit the flooding address from the fabric. "CUSTOM" allows the layer 2 virtual network to use a different flooding address (defaults to "SHARED").
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"traffic_type": &schema.Schema{
 										Description: `The type of traffic that is served.
 `,
@@ -161,8 +235,7 @@ func resourceSdaLayer2VirtualNetworks() *schema.Resource {
 								},
 							},
 						},
-					},
-				},
+					}},
 			},
 		},
 	}
@@ -421,6 +494,7 @@ func resourceSdaLayer2VirtualNetworksDelete(ctx context.Context, d *schema.Resou
 
 	return diags
 }
+
 func expandRequestSdaLayer2VirtualNetworksAddLayer2VirtualNetworks(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddLayer2VirtualNetworks {
 	request := dnacentersdkgo.RequestSdaAddLayer2VirtualNetworks{}
 	if v := expandRequestSdaLayer2VirtualNetworksAddLayer2VirtualNetworksItemArray(ctx, key+".payload", d); v != nil {
@@ -471,6 +545,21 @@ func expandRequestSdaLayer2VirtualNetworksAddLayer2VirtualNetworksItem(ctx conte
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_fabric_enabled_wireless")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_fabric_enabled_wireless")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_fabric_enabled_wireless")))) {
 		request.IsFabricEnabledWireless = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_wireless_flooding_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_wireless_flooding_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_wireless_flooding_enabled")))) {
+		request.IsWirelessFloodingEnabled = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_resource_guard_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_resource_guard_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_resource_guard_enabled")))) {
+		request.IsResourceGuardEnabled = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".layer2_flooding_address_assignment")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".layer2_flooding_address_assignment")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".layer2_flooding_address_assignment")))) {
+		request.Layer2FloodingAddressAssignment = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".layer2_flooding_address")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".layer2_flooding_address")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".layer2_flooding_address")))) {
+		request.Layer2FloodingAddress = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_multiple_ip_to_mac_addresses")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_multiple_ip_to_mac_addresses")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_multiple_ip_to_mac_addresses")))) {
+		request.IsMultipleIPToMacAddresses = interfaceToBoolPtr(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".associated_layer3_virtual_network_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".associated_layer3_virtual_network_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".associated_layer3_virtual_network_name")))) {
 		request.AssociatedLayer3VirtualNetworkName = interfaceToString(v)
@@ -534,6 +623,21 @@ func expandRequestSdaLayer2VirtualNetworksUpdateLayer2VirtualNetworksItem(ctx co
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_fabric_enabled_wireless")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_fabric_enabled_wireless")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_fabric_enabled_wireless")))) {
 		request.IsFabricEnabledWireless = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_wireless_flooding_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_wireless_flooding_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_wireless_flooding_enabled")))) {
+		request.IsWirelessFloodingEnabled = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_resource_guard_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_resource_guard_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_resource_guard_enabled")))) {
+		request.IsResourceGuardEnabled = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".layer2_flooding_address_assignment")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".layer2_flooding_address_assignment")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".layer2_flooding_address_assignment")))) {
+		request.Layer2FloodingAddressAssignment = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".layer2_flooding_address")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".layer2_flooding_address")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".layer2_flooding_address")))) {
+		request.Layer2FloodingAddress = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_multiple_ip_to_mac_addresses")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_multiple_ip_to_mac_addresses")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_multiple_ip_to_mac_addresses")))) {
+		request.IsMultipleIPToMacAddresses = interfaceToBoolPtr(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".associated_layer3_virtual_network_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".associated_layer3_virtual_network_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".associated_layer3_virtual_network_name")))) {
 		request.AssociatedLayer3VirtualNetworkName = interfaceToString(v)

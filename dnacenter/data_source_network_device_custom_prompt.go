@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -68,26 +68,40 @@ func dataSourceNetworkDeviceCustomPromptRead(ctx context.Context, d *schema.Reso
 
 	selectedMethod := 1
 	if selectedMethod == 1 {
-		log.Printf("[DEBUG] Selected method: CustomPromptSupportGETAPI")
+		log.Printf("[DEBUG] Selected method: CustomPromptSupportGetAPI")
 
-		response1, restyResp1, err := client.SystemSettings.CustomPromptSupportGETAPI()
+		// has_unknown_response: None
+
+		response1, restyResp1, err := client.SystemSettings.CustomPromptSupportGetAPI()
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
 				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
 			}
 			diags = append(diags, diagErrorWithAlt(
-				"Failure when executing 2 CustomPromptSupportGETAPI", err,
-				"Failure at CustomPromptSupportGETAPI, unexpected response", ""))
+				"Failure when executing 2 CustomPromptSupportGetAPI", err,
+				"Failure at CustomPromptSupportGetAPI, unexpected response", ""))
 			return diags
 		}
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-		vItem1 := flattenSystemSettingsCustomPromptSupportGETAPIItem(response1.Response)
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 CustomPromptSupportGetAPI", err,
+				"Failure at CustomPromptSupportGetAPI, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
+
+		vItem1 := flattenSystemSettingsCustomPromptSupportGetAPIItem(response1.Response)
 		if err := d.Set("item", vItem1); err != nil {
 			diags = append(diags, diagError(
-				"Failure when setting CustomPromptSupportGETAPI response",
+				"Failure when setting CustomPromptSupportGetAPI response",
 				err))
 			return diags
 		}
@@ -99,7 +113,7 @@ func dataSourceNetworkDeviceCustomPromptRead(ctx context.Context, d *schema.Reso
 	return diags
 }
 
-func flattenSystemSettingsCustomPromptSupportGETAPIItem(item *dnacentersdkgo.ResponseSystemSettingsCustomPromptSupportGETAPIResponse) []map[string]interface{} {
+func flattenSystemSettingsCustomPromptSupportGetAPIItem(item *dnacentersdkgo.ResponseSystemSettingsCustomPromptSupportGetAPIResponse) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}

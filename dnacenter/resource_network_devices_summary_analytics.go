@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,7 +23,7 @@ func resourceNetworkDevicesSummaryAnalytics() *schema.Resource {
 obtain the consolidated insights into the performance and status of the monitored network devices. For detailed
 information about the usage of the API, please refer to the Open API specification document https://github.com/cisco-en-
 programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-
-AssuranceNetworkDevices-1.0.2-resolved.yaml
+AssuranceNetworkDevices-2.0.1-resolved.yaml
 `,
 
 		CreateContext: resourceNetworkDevicesSummaryAnalyticsCreate,

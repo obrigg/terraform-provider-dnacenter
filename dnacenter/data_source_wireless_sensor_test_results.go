@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -172,13 +172,13 @@ func dataSourceWirelessSensorTestResults() *schema.Resource {
 										},
 									},
 
-									"ema_il": &schema.Schema{
+									"email": &schema.Schema{
 										Type:     schema.TypeList,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 
-												"mai_lse_rve_r": &schema.Schema{
+												"mail_server": &schema.Schema{
 													Type:     schema.TypeList,
 													Computed: true,
 													Elem: &schema.Resource{
@@ -444,7 +444,21 @@ func dataSourceWirelessSensorTestResultsRead(ctx context.Context, d *schema.Reso
 			queryParams1.TestFailureBy = vTestFailureBy.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.SensorTestResults(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 SensorTestResults", err,
+				"Failure at SensorTestResults, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -496,7 +510,7 @@ func flattenWirelessSensorTestResultsItemSummary(item *dnacentersdkgo.ResponseWi
 	respItem["net_wor_kse_rvi_ces"] = flattenWirelessSensorTestResultsItemSummaryNETWORKSERVICES(item.NETWORKSERVICES)
 	respItem["app_con_nec_tiv_ity"] = flattenWirelessSensorTestResultsItemSummaryApPCONNECTIVITY(item.ApPCONNECTIVITY)
 	respItem["rfa_sse_ssm_ent"] = flattenWirelessSensorTestResultsItemSummaryRfASSESSMENT(item.RfASSESSMENT)
-	respItem["ema_il"] = flattenWirelessSensorTestResultsItemSummaryEmail(item.Email)
+	respItem["email"] = flattenWirelessSensorTestResultsItemSummaryEMAiL(item.EMAiL)
 
 	return []map[string]interface{}{
 		respItem,
@@ -714,12 +728,12 @@ func flattenWirelessSensorTestResultsItemSummaryRfASSESSMENTSNR(item *dnacenters
 
 }
 
-func flattenWirelessSensorTestResultsItemSummaryEmail(item *dnacentersdkgo.ResponseWirelessSensorTestResultsResponseSummaryEmail) []map[string]interface{} {
+func flattenWirelessSensorTestResultsItemSummaryEmail(item *dnacentersdkgo.ResponseWirelessSensorTestResultsResponseSummaryEMAiL) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
 	respItem := make(map[string]interface{})
-	respItem["mai_lse_rve_r"] = flattenWirelessSensorTestResultsItemSummaryEmailMailServer(item.MailServer)
+	respItem["mail_server"] = flattenWirelessSensorTestResultsItemSummaryEmailMailServer(item.MAiLSERVER)
 
 	return []map[string]interface{}{
 		respItem,
@@ -727,7 +741,7 @@ func flattenWirelessSensorTestResultsItemSummaryEmail(item *dnacentersdkgo.Respo
 
 }
 
-func flattenWirelessSensorTestResultsItemSummaryEmailMailServer(item *dnacentersdkgo.ResponseWirelessSensorTestResultsResponseSummaryEmailMailServer) []map[string]interface{} {
+func flattenWirelessSensorTestResultsItemSummaryEmailMailServer(item *dnacentersdkgo.ResponseWirelessSensorTestResultsResponseSummaryEMAiLMAiLSERVER) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}

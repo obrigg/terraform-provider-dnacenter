@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,7 +15,7 @@ func dataSourceUser() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on User and Roles.
 
-- Get all users for the Cisco DNA Center System.
+- Get all users in the system
 `,
 
 		ReadContext: dataSourceUserRead,
@@ -125,7 +125,21 @@ func dataSourceUserRead(ctx context.Context, d *schema.ResourceData, m interface
 			queryParams1.AuthSource = vAuthSource.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.UserandRoles.GetUsersAPI(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetUsersAPI", err,
+				"Failure at GetUsersAPI, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

@@ -2,13 +2,12 @@ package dnacenter
 
 import (
 	"context"
-
 	"errors"
 	"time"
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -355,7 +354,6 @@ Devices currently provisioned cannot be deleted. To delete a provisioned device,
 				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 1,
-				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 

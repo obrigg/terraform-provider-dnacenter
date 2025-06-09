@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -47,6 +47,12 @@ func resourceSdaPortAssignments() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
+						"allowed_vlan_ranges": &schema.Schema{
+							Description: `Allowed VLAN of the port assignment, this option is only applicable to TRUNKING_DEVICE connectedDeviceType. (VLAN must be between 1 and 4094 (Ex 100,200,300-400) or 'all'. In cases value not set when connectedDeviceType is TRUNKING_DEVICE, default value will be 'all').
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"authenticate_template_name": &schema.Schema{
 							Description: `Authenticate template name of the port assignment.
 `,
@@ -89,6 +95,12 @@ func resourceSdaPortAssignments() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"native_vlan_id": &schema.Schema{
+							Description: `Native VLAN of the port assignment, this option is only applicable to TRUNKING_DEVICE connectedDeviceType. (VLAN must be between 1 and 4094. In cases value not set when connectedDeviceType is TRUNKING_DEVICE, default value will be 1).
+`,
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"network_device_id": &schema.Schema{
 							Description: `Network device ID of the port assignment.
 `,
@@ -118,12 +130,19 @@ func resourceSdaPortAssignments() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"payload": &schema.Schema{
-							Description: `Array of RequestApplicationPolicyCreateApplication`,
+							Description: `Array of RequestSdaAddPortAssignments`,
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"allowed_vlan_ranges": &schema.Schema{
+										Description: `Allowed VLAN of the port assignment, this option is only applicable to TRUNKING_DEVICE connectedDeviceType. (VLAN must be between 1 and 4094 (Ex 100,200,300-400) or 'all'. In cases value not set when connectedDeviceType is TRUNKING_DEVICE, default value will be 'all').
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"authenticate_template_name": &schema.Schema{
 										Description: `Authenticate template name of the port assignment.
 `,
@@ -173,6 +192,13 @@ func resourceSdaPortAssignments() *schema.Resource {
 										Optional: true,
 										Computed: true,
 									},
+									"native_vlan_id": &schema.Schema{
+										Description: `integer example: 1 Native VLAN of the port assignment, this option is only applicable to TRUNKING_DEVICE connectedDeviceType. (VLAN must be between 1 and 4094. In cases value not set when connectedDeviceType is TRUNKING_DEVICE, default value will be 1).
+`,
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
 									"network_device_id": &schema.Schema{
 										Description: `Network device ID of the port assignment.
 `,
@@ -204,8 +230,7 @@ func resourceSdaPortAssignments() *schema.Resource {
 								},
 							},
 						},
-					},
-				},
+					}},
 			},
 		},
 	}
@@ -482,6 +507,7 @@ func resourceSdaPortAssignmentsDelete(ctx context.Context, d *schema.ResourceDat
 
 	return diags
 }
+
 func expandRequestSdaPortAssignmentsAddPortAssignments(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSdaAddPortAssignments {
 	request := dnacentersdkgo.RequestSdaAddPortAssignments{}
 	if v := expandRequestSdaPortAssignmentsAddPortAssignmentsItemArray(ctx, key+".payload", d); v != nil {
@@ -544,6 +570,12 @@ func expandRequestSdaPortAssignmentsAddPortAssignmentsItem(ctx context.Context, 
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".interface_description")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".interface_description")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".interface_description")))) {
 		request.InterfaceDescription = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".native_vlan_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".native_vlan_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".native_vlan_id")))) {
+		request.NativeVLANID = interfaceToIntPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".allowed_vlan_ranges")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".allowed_vlan_ranges")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".allowed_vlan_ranges")))) {
+		request.AllowedVLANRanges = interfaceToString(v)
 	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil
@@ -616,6 +648,12 @@ func expandRequestSdaPortAssignmentsUpdatePortAssignmentsItem(ctx context.Contex
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".interface_description")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".interface_description")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".interface_description")))) {
 		request.InterfaceDescription = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".native_vlan_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".native_vlan_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".native_vlan_id")))) {
+		request.NativeVLANID = interfaceToIntPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".allowed_vlan_ranges")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".allowed_vlan_ranges")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".allowed_vlan_ranges")))) {
+		request.AllowedVLANRanges = interfaceToString(v)
 	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil

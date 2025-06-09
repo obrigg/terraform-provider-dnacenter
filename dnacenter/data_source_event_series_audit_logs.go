@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -81,7 +81,7 @@ func dataSourceEventSeriesAuditLogs() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. Number of Audit Log records to be returned per page.
+				Description: `limit query parameter. Number of Audit Log records to be returned per page. Default is 25 if not specified. Maximum allowed limit is 25
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -441,7 +441,21 @@ func dataSourceEventSeriesAuditLogsRead(ctx context.Context, d *schema.ResourceD
 			queryParams1.Order = vOrder.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.EventManagement.GetAuditLogRecords(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetAuditLogRecords", err,
+				"Failure at GetAuditLogRecords, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

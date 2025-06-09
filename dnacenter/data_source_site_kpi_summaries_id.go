@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,13 +23,13 @@ specs/blob/main/Assurance/CE_Cat_Center_Org-SiteKpiSummaries-1.0.0-resolved.yaml
 		ReadContext: dataSourceSiteKpiSummariesIDRead,
 		Schema: map[string]*schema.Schema{
 			"attribute": &schema.Schema{
-				Description: `attribute query parameter. List of attributes related to site analytics. If these are provided, then only those attributes will be part of response along with the default attributes. Examples: *attribute=coverageAverage* (single attribute requested) *attribute=coverageFailureMetrics&attribute=coverageTotalCount* (multiple attributes requested)
+				Description: `attribute query parameter. List of attributes related to site analytics. If these are provided, then only those attributes will be part of response along with the default attributes. Examples: **attribute=coverageAverage** (single attribute requested) **attribute=coverageFailureMetrics&attribute=coverageTotalCount** (multiple attributes requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"band": &schema.Schema{
-				Description: `band query parameter. WiFi frequency band that client or Access Point operates. Band value is represented in Giga Hertz GHz Examples: *band=5* (single band requested) *band=2.4&band=6* (multiple band requested)
+				Description: `band query parameter. WiFi frequency band that client or Access Point operates. Band value is represented in Giga Hertz GHz Examples: **band=5** (single band requested) **band=2.4&band=6** (multiple band requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -41,13 +41,13 @@ specs/blob/main/Assurance/CE_Cat_Center_Org-SiteKpiSummaries-1.0.0-resolved.yaml
 				Optional: true,
 			},
 			"failure_category": &schema.Schema{
-				Description: `failureCategory query parameter. Category of failure when a client fails to meet the threshold. Examples: *failureCategory=AUTH* (single failure category requested) *failureCategory=AUTH&failureCategory=DHCP* (multiple failure categories requested)
+				Description: `failureCategory query parameter. Category of failure when a client fails to meet the threshold. Examples: **failureCategory=AUTH** (single failure category requested) **failureCategory=AUTH&failureCategory=DHCP** (multiple failure categories requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"failure_reason": &schema.Schema{
-				Description: `failureReason query parameter. Reason for failure when a client fails to meet the threshold. Examples: *failureReason=MOBILITY_FAILURE* (single ssid requested) *failureReason=REASON_IPLEARN_CONNECT_TIMEOUT&failureReason=ST_EAP_TIMEOUT*   (multiple ssid requested)
+				Description: `failureReason query parameter. Reason for failure when a client fails to meet the threshold. Examples: **failureReason=MOBILITY_FAILURE** (single ssid requested) **failureReason=REASON_IPLEARN_CONNECT_TIMEOUT&failureReason=ST_EAP_TIMEOUT**   (multiple ssid requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -59,7 +59,7 @@ specs/blob/main/Assurance/CE_Cat_Center_Org-SiteKpiSummaries-1.0.0-resolved.yaml
 				Required: true,
 			},
 			"ssid": &schema.Schema{
-				Description: `ssid query parameter. SSID is the name of wireless network to which client connects to. It is also referred to as WLAN ID Wireless Local Area Network Identifier. Examples: *ssid=Alpha* (single ssid requested) *ssid=Alpha&ssid=Guest* (multiple ssid requested)
+				Description: `ssid query parameter. SSID is the name of wireless network to which client connects to. It is also referred to as WLAN ID Wireless Local Area Network Identifier. Examples: **ssid=Alpha** (single ssid requested) **ssid=Alpha&ssid=Guest** (multiple ssid requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -77,8 +77,8 @@ specs/blob/main/Assurance/CE_Cat_Center_Org-SiteKpiSummaries-1.0.0-resolved.yaml
 				Optional: true,
 			},
 			"view": &schema.Schema{
-				Description: `view query parameter.
-The name of the View. Each view represents a specific data set. Please refer to the
+				Description: `view query parameter. 
+The name of the View. Each view represents a specific data set. Please refer to the 
 SiteAnalyticsView
  Model for supported views. View is predefined set of attributes supported by the API. Only the attributes related to the given view will be part of the API response along with default attributes. If multiple views are provided, then response will contain attributes from all those views. If no views are specified, all attributes will be returned.
 View Name
@@ -95,11 +95,11 @@ roamingDuration
 roamingDurationAverage, roamingDurationSuccessPercentage, roamingDurationSuccessCount, roamingDurationTotalCount, roamingDurationFailureCount, roamingDurationClientCount, roamingDurationImpactedEntities, roamingDurationFailureImpactedEntities, roamingDurationFailureMetrics
 connectionSpeed
 connectionSpeedAverage, connectionSpeedSuccessPercentage, connectionSpeedSuccessCount, connectionSpeedTotalCount, connectionSpeedFailureCount, connectionSpeedClientCount, connectionSpeedImpactedEntities, connectionSpeedFailureImpactedEntities, connectionSpeedFailureMetrics
-Examples:
+Examples: 
 view=connectionSpeed
- (single view requested)
+ (single view requested) 
 view=roamingDuration&view=roamingAttempts
- (multiple views requested)
+ (multiple views requested)       
 
 `,
 				Type:     schema.TypeString,
@@ -975,7 +975,21 @@ func dataSourceSiteKpiSummariesIDRead(ctx context.Context, d *schema.ResourceDat
 		}
 		headerParams1.XCaLLERID = vXCaLLERID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sites.GetSiteAnalyticsForOneSite(vvID, &headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetSiteAnalyticsForOneSite", err,
+				"Failure at GetSiteAnalyticsForOneSite, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

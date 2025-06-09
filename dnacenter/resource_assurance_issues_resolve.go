@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -19,9 +19,11 @@ func resourceAssuranceIssuesResolve() *schema.Resource {
 		Description: `It performs create operation on Issues.
 
 - Resolves the given list of issues. The response contains the list of issues which were successfully resolved as well
-as the issues which are failed to resolve. For detailed information about the usage of the API, please refer to the Open
-API specification document https://github.com/cisco-en-programmability/catalyst-center-api-
-specs/blob/main/Assurance/CE_Cat_Center_Org-IssuesLifecycle-1.0.0-resolved.yaml
+as the issues which are failed to resolve. After this API returns success response, it may take few seconds for the
+issue status to be updated if the system is heavily loaded. Please use **GET /dna/data/api/v1/assuranceIssues/{id}** API
+to fetch the details of a particular issue and verify **updatedTime**. For detailed information about the usage of the
+API, please refer to the Open API specification document https://github.com/cisco-en-programmability/catalyst-center-
+api-specs/blob/main/Assurance/CE_Cat_Center_Org-IssuesLifecycle-1.0.0-resolved.yaml
 `,
 
 		CreateContext: resourceAssuranceIssuesResolveCreate,

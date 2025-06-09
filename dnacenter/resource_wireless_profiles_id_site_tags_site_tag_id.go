@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,17 +18,18 @@ func resourceWirelessProfilesIDSiteTagsSiteTagID() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read, update and delete operations on Wireless.
 
-- This endpoint allows updating the details of a specific *Site Tag* associated with a given *Wireless Profile*. The
-*id* of the *Wireless Profile* and the *siteTagId* of the Site Tag must be provided as path parameters, and the request
-body should contain the updated *Site Tag* details.  The *siteTagName* cannot be modified through this endpoint. Note:
-When updating a Site Tag (siteTag), if the siteId already has an associated siteTag and the same siteId is included in
-the update request, the existing siteTag for that siteId will be overridden by the new one. For Flex-enabled Wireless
-Profiles (i.e., a Wireless Profile with one or more Flex SSIDs), a non-default Flex Profile Name (flexProfileName) will
-be used. If no custom flexProfileName is provided, the System will automatically generate one and configure it in the
-controller.
+- This endpoint allows updating the details of a specific **Site Tag** associated with a given **Wireless Profile**. The
+**id** of the **Wireless Profile** and the **siteTagId** of the Site Tag must be provided as path parameters, and the
+request body should contain the updated **Site Tag** details.  The **siteTagName** cannot be modified through this
+endpoint. Note: When updating a Site Tag (siteTag), if the siteId already has an associated siteTag and the same siteId
+is included in the update request, the existing siteTag for that siteId will be overridden by the new one. For Flex-
+enabled Wireless Profiles (i.e., a Wireless Profile with one or more Flex SSIDs), a non-default Flex Profile Name
+(flexProfileName) will be used. If no custom flexProfileName is provided, the System will automatically generate one and
+configure it in the controller.
 
-- This endpoint enables the deletion of a specific *Site Tag* associated with a given *Wireless Profile*. This resource
-requires the *id* of the *Wireless Profile* and the *siteTagId* of the *Site Tag* to be provided as path parameters.
+- This endpoint enables the deletion of a specific **Site Tag** associated with a given **Wireless Profile**. This
+resource requires the **id** of the **Wireless Profile** and the **siteTagId** of the **Site Tag** to be provided as
+path parameters.
 `,
 
 		CreateContext: resourceWirelessProfilesIDSiteTagsSiteTagIDCreate,
@@ -313,6 +314,7 @@ func resourceWirelessProfilesIDSiteTagsSiteTagIDDelete(ctx context.Context, d *s
 
 	return diags
 }
+
 func expandRequestWirelessProfilesIDSiteTagsSiteTagIDUpdateASpecificSiteTagForAWirelessProfile(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessUpdateASpecificSiteTagForAWirelessProfile {
 	request := dnacentersdkgo.RequestWirelessUpdateASpecificSiteTagForAWirelessProfile{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".site_ids")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".site_ids")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".site_ids")))) {

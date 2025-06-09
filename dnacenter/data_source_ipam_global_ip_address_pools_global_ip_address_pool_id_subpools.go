@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,19 +16,19 @@ func dataSourceIPamGlobalIPAddressPoolsGlobalIPAddressPoolIDSubpools() *schema.R
 		Description: `It performs read operation on Network Settings.
 
 - Retrieves subpools IDs of a global IP address pool.  The IDs can be fetched with
-*/dna/intent/api/v1/ipam/siteIpAddressPools/{id}*
+**/dna/intent/api/v1/ipam/siteIpAddressPools/{id}**
 `,
 
 		ReadContext: dataSourceIPamGlobalIPAddressPoolsGlobalIPAddressPoolIDSubpoolsRead,
 		Schema: map[string]*schema.Schema{
 			"global_ip_address_pool_id": &schema.Schema{
-				Description: `globalIpAddressPoolId path parameter. The *id* of the global IP address pool for which to retrieve subpool IDs.
+				Description: `globalIpAddressPoolId path parameter. The **id** of the global IP address pool for which to retrieve subpool IDs.
 `,
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. The number of records to show for this page;The minimum is 1, and the maximum is 500.
+				Description: `limit query parameter. The number of records to show for this page; the minimum is 1, and the maximum is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -80,7 +80,21 @@ func dataSourceIPamGlobalIPAddressPoolsGlobalIPAddressPoolIDSubpoolsRead(ctx con
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.NetworkSettings.RetrievesSubpoolsIDsOfAGlobalIPAddressPool(vvGlobalIPAddressPoolID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesSubpoolsIDsOfAGlobalIPAddressPool", err,
+				"Failure at RetrievesSubpoolsIDsOfAGlobalIPAddressPool, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

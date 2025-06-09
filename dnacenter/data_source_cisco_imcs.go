@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,7 +24,8 @@ More data about the Cisco IMC can be retrieved using the APIs exposed directly b
 the Cisco IMC documentation https://www.cisco.com/c/en/us/support/servers-unified-computing/ucs-c-series-integrated-
 management-controller/series.html#~tab-documents
 The Cisco IMC configuration is relevant only for Catalyst Center deployments based on UCS appliances. In cases where
-Cisco IMC configuration is not supported by the deployment, these APIs will respond with a *404 Not Found* status code.
+Cisco IMC configuration is not supported by the deployment, these APIs will respond with a **404 Not Found** status
+code.
 `,
 
 		ReadContext: dataSourceCiscoImcsRead,
@@ -51,7 +52,7 @@ Cisco IMC configuration is not supported by the deployment, these APIs will resp
 						},
 
 						"node_id": &schema.Schema{
-							Description: `The UUID that represents the Catalyst Center node. Its value can be obtained from the *id* attribute of the response of the */dna/intent/api/v1/nodes-config* API.
+							Description: `The UUID that represents the Catalyst Center node. Its value can be obtained from the **id** attribute of the response of the **/dna/intent/api/v1/nodes-config** API.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -79,7 +80,21 @@ func dataSourceCiscoImcsRead(ctx context.Context, d *schema.ResourceData, m inte
 	if selectedMethod == 1 {
 		log.Printf("[DEBUG] Selected method: RetrievesCiscoIMCConfigurationsForCatalystCenterNodes")
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.CiscoIMC.RetrievesCiscoIMCConfigurationsForCatalystCenterNodes()
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesCiscoIMCConfigurationsForCatalystCenterNodes", err,
+				"Failure at RetrievesCiscoIMCConfigurationsForCatalystCenterNodes, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,9 +15,9 @@ func dataSourceNetworkDeviceReplacementsID() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Device Replacement.
 
-- Fetches the status of the device replacement workflow for a given device replacement *id*. Invoke the API
-*/dna/intent/api/v1/networkDeviceReplacements* to *GET* the list of all device replacements and use the *id* field data
-as input to this API.
+- Fetches the status of the device replacement workflow for a given device replacement **id**. Invoke the API
+**/dna/intent/api/v1/networkDeviceReplacements** to **GET** the list of all device replacements and use the **id** field
+data as input to this API.
 `,
 
 		ReadContext: dataSourceNetworkDeviceReplacementsIDRead,
@@ -224,7 +224,21 @@ func dataSourceNetworkDeviceReplacementsIDRead(ctx context.Context, d *schema.Re
 		log.Printf("[DEBUG] Selected method: RetrieveTheStatusOfDeviceReplacementWorkflowThatReplacesAFaultyDeviceWithAReplacementDevice")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.DeviceReplacement.RetrieveTheStatusOfDeviceReplacementWorkflowThatReplacesAFaultyDeviceWithAReplacementDevice(vvID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveTheStatusOfDeviceReplacementWorkflowThatReplacesAFaultyDeviceWithAReplacementDevice", err,
+				"Failure at RetrieveTheStatusOfDeviceReplacementWorkflowThatReplacesAFaultyDeviceWithAReplacementDevice, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

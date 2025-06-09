@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,9 +18,9 @@ func resourceTagsInterfacesMembersAssociationsQuery() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs create operation on Tag.
 
-- Fetches the tags associated with the given interface *ids*. Interfaces that don't have any tags associated will not be
-included in the response. A tag is a user-defined or system-defined construct to group resources. When an interface is
-tagged, it is called a member of the tag. *ids* can be fetched via */dna/intent/api/v1/interface* API.
+- Fetches the tags associated with the given interface **ids**. Interfaces that don't have any tags associated will not
+be included in the response. A tag is a user-defined or system-defined construct to group resources. When an interface
+is tagged, it is called a member of the tag. **ids** can be fetched via **/dna/intent/api/v1/interface** API.
 `,
 
 		CreateContext: resourceTagsInterfacesMembersAssociationsQueryCreate,

@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,7 +23,7 @@ profile.
 		ReadContext: dataSourceNetworkProfilesForSitesSiteAssignmentsRead,
 		Schema: map[string]*schema.Schema{
 			"limit": &schema.Schema{
-				Description: `limit query parameter. The number of records to show for this page.
+				Description: `limit query parameter. The number of records to show for this page;The minimum is 1, and the maximum is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -35,7 +35,7 @@ profile.
 				Optional: true,
 			},
 			"profile_id": &schema.Schema{
-				Description: `profileId path parameter. The *id* of the network profile, retrievable from *GET /intent/api/v1/networkProfilesForSites*
+				Description: `profileId path parameter. The **id** of the network profile, retrievable from **GET /intent/api/v1/networkProfilesForSites**
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -80,7 +80,21 @@ func dataSourceNetworkProfilesForSitesSiteAssignmentsRead(ctx context.Context, d
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SiteDesign.RetrievesTheListOfSitesThatTheGivenNetworkProfileForSitesIsAssignedTo(vvProfileID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesTheListOfSitesThatTheGivenNetworkProfileForSitesIsAssignedTo", err,
+				"Failure at RetrievesTheListOfSitesThatTheGivenNetworkProfileForSitesIsAssignedTo, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

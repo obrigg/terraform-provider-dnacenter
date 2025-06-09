@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -27,7 +27,7 @@ func dataSourceDiagnosticValidationWorkflowsCount() *schema.Resource {
 				Optional: true,
 			},
 			"run_status": &schema.Schema{
-				Description: `runStatus query parameter. Execution status of the workflow. If the workflow is successfully submitted, runStatus is *PENDING*. If the workflow execution has started, runStatus is *IN_PROGRESS*. If the workflow executed is completed with all validations executed, runStatus is *COMPLETED*. If the workflow execution fails while running validations, runStatus is *FAILED*.
+				Description: `runStatus query parameter. Execution status of the workflow. If the workflow is successfully submitted, runStatus is **PENDING**. If the workflow execution has started, runStatus is **IN_PROGRESS**. If the workflow executed is completed with all validations executed, runStatus is **COMPLETED**. If the workflow execution fails while running validations, runStatus is **FAILED**.
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -81,7 +81,21 @@ func dataSourceDiagnosticValidationWorkflowsCountRead(ctx context.Context, d *sc
 			queryParams1.RunStatus = vRunStatus.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.HealthAndPerformance.RetrievesTheCountOfValidationWorkflows(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesTheCountOfValidationWorkflows", err,
+				"Failure at RetrievesTheCountOfValidationWorkflows, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

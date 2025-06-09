@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -12,7 +13,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,7 +24,8 @@ func resourceWirelessAccessPointsProvision() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs create operation on Wireless.
 
-- This data source action is used to provision access points
+- This data source action is used to provision Access Points. Prerequisite: Access Point has to be assigned to the site
+using the API /dna/intent/api/v1/networkDevices/assignToSite/apply.
 `,
 
 		CreateContext: resourceWirelessAccessPointsProvisionCreate,
@@ -79,6 +81,14 @@ func resourceWirelessAccessPointsProvision() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
+									"beam_state": &schema.Schema{
+										Description: `Beam State (Applicable only for CW9179F AP models)
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
+									},
 									"device_id": &schema.Schema{
 										Description: `Network device ID of access points
 `,
@@ -171,7 +181,7 @@ func resourceWirelessAccessPointsProvisionCreate(ctx context.Context, d *schema.
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()
@@ -254,6 +264,9 @@ func expandRequestWirelessAccessPointsProvisionApProvisionNetworkDevices(ctx con
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".mesh_role")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".mesh_role")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".mesh_role")))) {
 		request.MeshRole = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".beam_state")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".beam_state")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".beam_state")))) {
+		request.BeamState = interfaceToString(v)
 	}
 	return &request
 }

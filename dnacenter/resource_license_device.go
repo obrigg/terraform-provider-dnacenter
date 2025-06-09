@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -74,8 +74,8 @@ func resourceLicenseDevice() *schema.Resource {
 			},
 			"parameters": &schema.Schema{
 				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -331,6 +331,7 @@ func resourceLicenseDeviceDelete(ctx context.Context, d *schema.ResourceData, m 
 	d.SetId("")
 	return diags
 }
+
 func expandRequestLicenseDeviceChangeVirtualAccount(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestLicensesChangeVirtualAccount {
 	request := dnacentersdkgo.RequestLicensesChangeVirtualAccount{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".device_uuids")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".device_uuids")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".device_uuids")))) {

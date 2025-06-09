@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -560,6 +560,7 @@ func resourceNetworkV2Delete(ctx context.Context, d *schema.ResourceData, m inte
 
 	return diags
 }
+
 func expandRequestNetworkV2CreateNetworkV2(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsCreateNetworkV2 {
 	request := dnacentersdkgo.RequestNetworkSettingsCreateNetworkV2{}
 	request.Settings = expandRequestNetworkV2CreateNetworkV2Settings(ctx, key, d)

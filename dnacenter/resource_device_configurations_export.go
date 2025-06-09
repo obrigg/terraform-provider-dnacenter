@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -11,7 +12,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -22,7 +23,7 @@ func resourceDeviceConfigurationsExport() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs create operation on Configuration Archive.
 
-- Export Device configurations to an encrypted zip file
+- Export Device configuration for every device that is provided will be included in an encrypted zip file.
 `,
 
 		CreateContext: resourceDeviceConfigurationsExportCreate,
@@ -40,14 +41,16 @@ func resourceDeviceConfigurationsExport() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 
 						"task_id": &schema.Schema{
-							Description: `Task Id`,
-							Type:        schema.TypeString,
-							Computed:    true,
+							Description: `The UUID of the task.
+`,
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"url": &schema.Schema{
-							Description: `Url`,
-							Type:        schema.TypeString,
-							Computed:    true,
+							Description: `The path to the API endpoint to GET for information on the task.
+`,
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},
@@ -63,10 +66,13 @@ func resourceDeviceConfigurationsExport() *schema.Resource {
 						"device_id": &schema.Schema{
 							Description: `UUIDs of the devices for which configurations need to be exported.
 `,
-							Type:     schema.TypeString,
+							Type:     schema.TypeList,
 							Optional: true,
 							ForceNew: true,
 							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 						"password": &schema.Schema{
 							Description: `Password for the zip file to protect exported configurations. Must contain, at minimum 8 characters, one lowercase letter, one uppercase letter, one number, one special character(-=[];,./~!@#$%^&*()_+{}|:?). It may not contain white space or the characters <>.
@@ -134,7 +140,7 @@ func resourceDeviceConfigurationsExportCreate(ctx context.Context, d *schema.Res
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()
@@ -175,11 +181,11 @@ func resourceDeviceConfigurationsExportDelete(ctx context.Context, d *schema.Res
 
 func expandRequestDeviceConfigurationsExportExportDeviceConfigurations(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestConfigurationArchiveExportDeviceConfigurations {
 	request := dnacentersdkgo.RequestConfigurationArchiveExportDeviceConfigurations{}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".device_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".device_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".device_id")))) {
+		request.DeviceID = interfaceToSliceString(v)
+	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".password")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".password")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".password")))) {
 		request.Password = interfaceToString(v)
-	}
-	if v, ok := d.GetOkExists(fixKeyAccess(key + ".device_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".device_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".device_id")))) {
-		request.DeviceID = interfaceToString(v)
 	}
 	return &request
 }
@@ -189,8 +195,8 @@ func flattenConfigurationArchiveExportDeviceConfigurationsItem(item *dnacentersd
 		return nil
 	}
 	respItem := make(map[string]interface{})
-	respItem["url"] = item.URL
 	respItem["task_id"] = item.TaskID
+	respItem["url"] = item.URL
 	return []map[string]interface{}{
 		respItem,
 	}

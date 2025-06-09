@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +15,8 @@ func dataSourceSitesImageDistributionSettings() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Network Settings.
 
-- Retrieve image distribution settings for a site; *null* values indicate that the setting will be inherited from the
-parent site; empty objects (*{}*) indicate that the setting is unset at a site.
+- Retrieve image distribution settings for a site; **null** values indicate that the setting will be inherited from the
+parent site; empty objects (**{}**) indicate that the setting is unset at a site.
 `,
 
 		ReadContext: dataSourceSitesImageDistributionSettingsRead,
@@ -28,7 +28,7 @@ parent site; empty objects (*{}*) indicate that the setting is unset at a site.
 				Required: true,
 			},
 			"inherited": &schema.Schema{
-				Description: `_inherited query parameter. Include settings explicitly set for this site and settings inherited from sites higher in the site hierarchy; when *false*, *null* values indicate that the site inherits that setting from the parent site or a site higher in the site hierarchy.
+				Description: `_inherited query parameter. Include settings explicitly set for this site and settings inherited from sites higher in the site hierarchy; when **false**, **null** values indicate that the site inherits that setting from the parent site or a site higher in the site hierarchy.
 `,
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -96,7 +96,21 @@ func dataSourceSitesImageDistributionSettingsRead(ctx context.Context, d *schema
 			queryParams1.Inherited = vInherited.(bool)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.NetworkSettings.RetrieveImageDistributionSettingsForASite(vvID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveImageDistributionSettingsForASite", err,
+				"Failure at RetrieveImageDistributionSettingsForASite, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

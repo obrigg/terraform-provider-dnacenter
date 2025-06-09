@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -89,7 +89,7 @@ func resourceIntegrateIseCreate(ctx context.Context, d *schema.ResourceData, m i
 
 	// has_unknown_response: None
 
-	response1, err := client.SystemSettings.AcceptCiscoIseServerCertificateForCiscoIseServerIntegration(vvID, request1)
+	_, response1, err := client.SystemSettings.AcceptCiscoIseServerCertificateForCiscoIseServerIntegration(vvID, request1)
 
 	log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 	if err != nil {

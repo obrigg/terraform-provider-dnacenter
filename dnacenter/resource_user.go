@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,9 +17,9 @@ func resourceUser() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages create, read and update operations on User and Roles.
 
-- Add a new user for Cisco DNA Center System.
+- Add a new user in the system
 
-- Update a user for Cisco DNA Center System.
+- Update a user in the system
 `,
 
 		CreateContext: resourceUserCreate,
@@ -289,6 +289,7 @@ func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface
 		"Failure at UserDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestUserAddUserAPI(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestUserandRolesAddUserAPI {
 	request := dnacentersdkgo.RequestUserandRolesAddUserAPI{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".first_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".first_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".first_name")))) {

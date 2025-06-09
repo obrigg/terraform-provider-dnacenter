@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -12,7 +13,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -107,7 +108,7 @@ func resourceSdaAnycastGatewaysUpdate() *schema.Resource {
 										Computed:     true,
 									},
 									"is_group_based_policy_enforcement_enabled": &schema.Schema{
-										Description: `Enable/disable Group-Based Policy Enforcement (applicable only to INFRA_VN; defaults to false).
+										Description: `Enable/disable Group-Based Policy Enforcement (defaults to false when using INFRA_VN; defaults to true for other VNs; can only be modified when using INFRA_VN).
 `,
 										// Type:        schema.TypeBool,
 										Type:         schema.TypeString,
@@ -156,8 +157,28 @@ func resourceSdaAnycastGatewaysUpdate() *schema.Resource {
 										ForceNew:     true,
 										Computed:     true,
 									},
+									"is_resource_guard_enabled": &schema.Schema{
+										Description: `Enable/disable Resource Guard (not applicable to INFRA_VN).
+`,
+										// Type:        schema.TypeBool,
+										Type:         schema.TypeString,
+										ValidateFunc: validateStringHasValueFunc([]string{"", "true", "false"}),
+										Optional:     true,
+										ForceNew:     true,
+										Computed:     true,
+									},
 									"is_supplicant_based_extended_node_onboarding": &schema.Schema{
 										Description: `Enable/disable Supplicant-Based Extended Node Onboarding (applicable only to INFRA_VN requests; must not be null when poolType is EXTENDED_NODE).
+`,
+										// Type:        schema.TypeBool,
+										Type:         schema.TypeString,
+										ValidateFunc: validateStringHasValueFunc([]string{"", "true", "false"}),
+										Optional:     true,
+										ForceNew:     true,
+										Computed:     true,
+									},
+									"is_wireless_flooding_enabled": &schema.Schema{
+										Description: `Enable/disable wireless flooding (not applicable to INFRA_VN; can only be true when isWirelessPool is true).
 `,
 										// Type:        schema.TypeBool,
 										Type:         schema.TypeString,
@@ -175,6 +196,22 @@ func resourceSdaAnycastGatewaysUpdate() *schema.Resource {
 										Optional:     true,
 										ForceNew:     true,
 										Computed:     true,
+									},
+									"layer2_flooding_address": &schema.Schema{
+										Description: `The flooding address to use for layer 2 flooding. The IP address must be in the 239.0.0.0/8 range. This property is applicable only when the flooding address source is set to "CUSTOM".
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
+									},
+									"layer2_flooding_address_assignment": &schema.Schema{
+										Description: `The source of the flooding address for layer 2 flooding. Layer 2 flooding must be enabled to configure this property. "SHARED" means that the anycast gateway will inherit the flooding address from the fabric. "CUSTOM" allows the anycast gateway to use a different flooding address (not applicable to INFRA_VN; defaults to "SHARED").
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
 									},
 									"pool_type": &schema.Schema{
 										Description: `The pool type of the anycast gateway (required for & applicable only to INFRA_VN; updating this field is not allowed).
@@ -292,7 +329,7 @@ func resourceSdaAnycastGatewaysUpdateCreate(ctx context.Context, d *schema.Resou
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()
@@ -397,8 +434,20 @@ func expandRequestSdaAnycastGatewaysUpdateUpdateAnycastGatewaysItem(ctx context.
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_layer2_flooding_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_layer2_flooding_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_layer2_flooding_enabled")))) {
 		request.IsLayer2FloodingEnabled = interfaceToBoolPtr(v)
 	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".layer2_flooding_address_assignment")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".layer2_flooding_address_assignment")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".layer2_flooding_address_assignment")))) {
+		request.Layer2FloodingAddressAssignment = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".layer2_flooding_address")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".layer2_flooding_address")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".layer2_flooding_address")))) {
+		request.Layer2FloodingAddress = interfaceToString(v)
+	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_wireless_pool")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_wireless_pool")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_wireless_pool")))) {
 		request.IsWirelessPool = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_wireless_flooding_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_wireless_flooding_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_wireless_flooding_enabled")))) {
+		request.IsWirelessFloodingEnabled = interfaceToBoolPtr(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_resource_guard_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_resource_guard_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_resource_guard_enabled")))) {
+		request.IsResourceGuardEnabled = interfaceToBoolPtr(v)
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".is_ip_directed_broadcast")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".is_ip_directed_broadcast")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".is_ip_directed_broadcast")))) {
 		request.IsIPDirectedBroadcast = interfaceToBoolPtr(v)

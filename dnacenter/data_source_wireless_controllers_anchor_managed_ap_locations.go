@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,7 +21,7 @@ func dataSourceWirelessControllersAnchorManagedApLocations() *schema.Resource {
 		ReadContext: dataSourceWirelessControllersAnchorManagedApLocationsRead,
 		Schema: map[string]*schema.Schema{
 			"limit": &schema.Schema{
-				Description: `limit query parameter. The number of records to show for this page.
+				Description: `limit query parameter. The number of records to show for this page. Default is 500 if not specified. Maximum allowed limit is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -39,7 +39,7 @@ func dataSourceWirelessControllersAnchorManagedApLocations() *schema.Resource {
 				Optional: true,
 			},
 
-			"items": &schema.Schema{
+			"item": &schema.Schema{
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -95,6 +95,8 @@ func dataSourceWirelessControllersAnchorManagedApLocationsRead(ctx context.Conte
 			queryParams1.Offset = vOffset.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.GetAnchorManagedApLocationsForSpecificWirelessController(vvNetworkDeviceID, &queryParams1)
 
 		if err != nil || response1 == nil {
@@ -109,8 +111,20 @@ func dataSourceWirelessControllersAnchorManagedApLocationsRead(ctx context.Conte
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-		vItems1 := flattenWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerItems(response1.Response)
-		if err := d.Set("items", vItems1); err != nil {
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetAnchorManagedApLocationsForSpecificWirelessController", err,
+				"Failure at GetAnchorManagedApLocationsForSpecificWirelessController, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
+
+		vItem1 := flattenWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerItem(response1.Response)
+		if err := d.Set("item", vItem1); err != nil {
 			diags = append(diags, diagError(
 				"Failure when setting GetAnchorManagedApLocationsForSpecificWirelessController response",
 				err))
@@ -124,20 +138,18 @@ func dataSourceWirelessControllersAnchorManagedApLocationsRead(ctx context.Conte
 	return diags
 }
 
-func flattenWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerItems(items *[]dnacentersdkgo.ResponseWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerResponse) []map[string]interface{} {
-	if items == nil {
+func flattenWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerItem(item *dnacentersdkgo.ResponseWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerResponse) []map[string]interface{} {
+	if item == nil {
 		return nil
 	}
-	var respItems []map[string]interface{}
-	for _, item := range *items {
-		respItem := make(map[string]interface{})
-		respItem["managed_ap_locations"] = flattenWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerItemsManagedApLocations(item.ManagedApLocations)
-		respItems = append(respItems, respItem)
+	respItem := make(map[string]interface{})
+	respItem["managed_ap_locations"] = flattenWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerItemManagedApLocations(item.ManagedApLocations)
+	return []map[string]interface{}{
+		respItem,
 	}
-	return respItems
 }
 
-func flattenWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerItemsManagedApLocations(items *[]dnacentersdkgo.ResponseWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerResponseManagedApLocations) []map[string]interface{} {
+func flattenWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerItemManagedApLocations(items *[]dnacentersdkgo.ResponseWirelessGetAnchorManagedApLocationsForSpecificWirelessControllerResponseManagedApLocations) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}

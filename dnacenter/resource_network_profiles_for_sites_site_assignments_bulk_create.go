@@ -3,15 +3,17 @@ package dnacenter
 import (
 	"context"
 	"fmt"
-	"reflect"
+	"strings"
 
 	"errors"
 
 	"time"
 
+	"reflect"
+
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -144,7 +146,7 @@ func resourceNetworkProfilesForSitesSiteAssignmentsBulkCreateCreate(ctx context.
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()
@@ -189,17 +191,11 @@ func expandRequestNetworkProfilesForSitesSiteAssignmentsBulkCreateAssignANetwork
 	return &request
 }
 
-func expandRequestNetworkProfilesForSitesSiteAssignmentsBulkCreateAssignANetworkProfileForSitesToAListOfSitesItems(ctx context.Context, key string, d *schema.ResourceData) []struct {
-	ID string `json:"id,omitempty"`
-} {
-	var request []struct {
-		ID string `json:"id,omitempty"`
-	}
+func expandRequestNetworkProfilesForSitesSiteAssignmentsBulkCreateAssignANetworkProfileForSitesToAListOfSitesItems(ctx context.Context, key string, d *schema.ResourceData) *[][]string {
+	var request [][]string
+
 	key = fixKeyAccess(key)
 	o := d.Get(key)
-	if o == nil {
-		return nil
-	}
 	objs := o.([]interface{})
 	if len(objs) == 0 {
 		return nil
@@ -207,10 +203,10 @@ func expandRequestNetworkProfilesForSitesSiteAssignmentsBulkCreateAssignANetwork
 	for item_no := range objs {
 		i := expandRequestNetworkProfilesForSitesSiteAssignmentsBulkCreateAssignANetworkProfileForSitesToAListOfSitesItem(ctx, fmt.Sprintf("%s.%d", key, item_no), d)
 		if i != nil {
-			request = append(request, *i)
+			request = append(request, []string{i.ID})
 		}
 	}
-	return request
+	return &request
 }
 
 func expandRequestNetworkProfilesForSitesSiteAssignmentsBulkCreateAssignANetworkProfileForSitesToAListOfSitesItem(ctx context.Context, key string, d *schema.ResourceData) *struct {

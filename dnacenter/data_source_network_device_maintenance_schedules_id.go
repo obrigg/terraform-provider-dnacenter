@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -54,7 +54,7 @@ func dataSourceNetworkDeviceMaintenanceSchedulesID() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 
 									"end_id": &schema.Schema{
-										Description: `Activity id of end schedule of the maintenance window. To check the status of the end schedule, use GET /intent/api/v1/activities/{id}. endId remains same for every occurrence of recurrence instance.
+										Description: `Activity id of end schedule of the maintenance window. To check the status of the end schedule, use GET /dna/intent/api/v1/activities/{id}. endId remains same for every occurrence of recurrence instance.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -91,7 +91,7 @@ func dataSourceNetworkDeviceMaintenanceSchedulesID() *schema.Resource {
 									},
 
 									"start_id": &schema.Schema{
-										Description: `Activity id of start schedule of the maintenance window. To check the status of the start schedule, use GET /intent/api/v1/activities/{id}. startId remains same for every occurrence of recurrence instance.
+										Description: `Activity id of start schedule of the maintenance window. To check the status of the start schedule, use GET /dna/intent/api/v1/activities/{id}. startId remains same for every occurrence of recurrence instance.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -141,7 +141,21 @@ func dataSourceNetworkDeviceMaintenanceSchedulesIDRead(ctx context.Context, d *s
 		log.Printf("[DEBUG] Selected method: RetrievesTheMaintenanceScheduleInformation")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Devices.RetrievesTheMaintenanceScheduleInformation(vvID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesTheMaintenanceScheduleInformation", err,
+				"Failure at RetrievesTheMaintenanceScheduleInformation, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

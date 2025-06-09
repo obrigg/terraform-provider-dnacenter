@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,7 +15,7 @@ func dataSourceWirelessControllersSSIDDetailsCount() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Wireless.
 
-- Retrieves the count of SSIDs associated with the specific Wireless Controller.
+- Retrieves the count of SSIDs associated with the specific wireless controller.
 `,
 
 		ReadContext: dataSourceWirelessControllersSSIDDetailsCountRead,
@@ -79,7 +79,21 @@ func dataSourceWirelessControllersSSIDDetailsCountRead(ctx context.Context, d *s
 			queryParams1.Managed = vManaged.(bool)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.GetSSIDCountForSpecificWirelessController(vvNetworkDeviceID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetSSIDCountForSpecificWirelessController", err,
+				"Failure at GetSSIDCountForSpecificWirelessController, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

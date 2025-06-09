@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -119,15 +119,6 @@ center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-SiteKpiSummaries-1.0.0-re
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-						},
-						"task_id": &schema.Schema{
-							Description: `task id`,
-							Type:        schema.TypeString,
-							Required:    true,
-						}, "xca_lle_rid": &schema.Schema{
-							Description: `xca lle rid`,
-							Type:        schema.TypeString,
-							Required:    true,
 						},
 						"start_time": &schema.Schema{
 							Description: `Start Time`,
@@ -317,6 +308,7 @@ func resourceSiteKpiSummariesTopNAnalyticsDelete(ctx context.Context, d *schema.
 	//       Returning empty diags to delete it on Terraform
 	return diags
 }
+
 func expandRequestSiteKpiSummariesTopNAnalyticsSubmitRequestForTopNEntitiesRelatedToSiteAnalytics(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSitesSubmitRequestForTopNEntitiesRelatedToSiteAnalytics {
 	request := dnacentersdkgo.RequestSitesSubmitRequestForTopNEntitiesRelatedToSiteAnalytics{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".start_time")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".start_time")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".start_time")))) {

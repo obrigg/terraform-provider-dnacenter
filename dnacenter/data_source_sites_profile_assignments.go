@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,14 +17,14 @@ func dataSourceSitesProfileAssignments() *schema.Resource {
 
 - Retrieves the list of profiles that the given site has been assigned.  These profiles may either be directly assigned
 to this site, or were assigned to a parent site and have been inherited.
-These assigments can be modified via the */dna/intent/api/v1/networkProfilesForSites/{profileId}/siteAssignments*
+These assigments can be modified via the **/dna/intent/api/v1/networkProfilesForSites/{profileId}/siteAssignments**
 resources.
 `,
 
 		ReadContext: dataSourceSitesProfileAssignmentsRead,
 		Schema: map[string]*schema.Schema{
 			"limit": &schema.Schema{
-				Description: `limit query parameter. The number of records to show for this page.
+				Description: `limit query parameter. The number of records to show for this page;The minimum is 1, and the maximum is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -36,7 +36,7 @@ resources.
 				Optional: true,
 			},
 			"site_id": &schema.Schema{
-				Description: `siteId path parameter. The *id* of the site, retrievable from */dna/intent/api/v1/sites*
+				Description: `siteId path parameter. The **id** of the site, retrievable from **/dna/intent/api/v1/sites**
 `,
 				Type:     schema.TypeString,
 				Required: true,
@@ -81,7 +81,21 @@ func dataSourceSitesProfileAssignmentsRead(ctx context.Context, d *schema.Resour
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SiteDesign.RetrievesTheListOfNetworkProfilesThatTheGivenSiteHasBeenAssigned(vvSiteID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesTheListOfNetworkProfilesThatTheGivenSiteHasBeenAssigned", err,
+				"Failure at RetrievesTheListOfNetworkProfilesThatTheGivenSiteHasBeenAssigned, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

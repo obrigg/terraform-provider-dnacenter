@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +15,8 @@ func dataSourceWirelessProfilesIDSiteTagsCount() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Wireless.
 
-- This endpoint retrieves the total count of *Site Tags* associated with a specific *Wireless Profile*.This data source
-requires the *id* of the *Wireless Profile* to be provided as a path parameter.
+- This endpoint retrieves the total count of **Site Tags** associated with a specific **Wireless Profile**.This data
+source requires the **id** of the **Wireless Profile** to be provided as a path parameter.
 `,
 
 		ReadContext: dataSourceWirelessProfilesIDSiteTagsCountRead,
@@ -58,7 +58,21 @@ func dataSourceWirelessProfilesIDSiteTagsCountRead(ctx context.Context, d *schem
 		log.Printf("[DEBUG] Selected method: RetrieveTheCountOfSiteTagsForAWirelessProfile")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.RetrieveTheCountOfSiteTagsForAWirelessProfile(vvID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveTheCountOfSiteTagsForAWirelessProfile", err,
+				"Failure at RetrieveTheCountOfSiteTagsForAWirelessProfile, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -257,6 +257,7 @@ func resourceSystemIssueDefinitionsDelete(ctx context.Context, d *schema.Resourc
 		"Failure at SystemIssueDefinitionsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestSystemIssueDefinitionsIssueTriggerDefinitionUpdate(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestIssuesIssueTriggerDefinitionUpdate {
 	request := dnacentersdkgo.RequestIssuesIssueTriggerDefinitionUpdate{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".synchronize_to_health_threshold")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".synchronize_to_health_threshold")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".synchronize_to_health_threshold")))) {

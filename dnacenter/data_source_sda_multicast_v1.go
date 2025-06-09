@@ -5,20 +5,20 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceSdaMulticast() *schema.Resource {
+func dataSourceSdaMulticastV1() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on SDA.
 
 - Returns a list of multicast configurations at a fabric site level that match the provided query parameters.
 `,
 
-		ReadContext: dataSourceSdaMulticastRead,
+		ReadContext: dataSourceSdaMulticastV1Read,
 		Schema: map[string]*schema.Schema{
 			"fabric_id": &schema.Schema{
 				Description: `fabricId query parameter. ID of the fabric site where multicast is configured.
@@ -27,7 +27,7 @@ func dataSourceSdaMulticast() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. Maximum number of records to return.
+				Description: `limit query parameter. Maximum number of records to return. The maximum number of objects supported in a single request is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -65,7 +65,7 @@ func dataSourceSdaMulticast() *schema.Resource {
 	}
 }
 
-func dataSourceSdaMulticastRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceSdaMulticastV1Read(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*dnacentersdkgo.Client)
 
 	var diags diag.Diagnostics
@@ -88,7 +88,21 @@ func dataSourceSdaMulticastRead(ctx context.Context, d *schema.ResourceData, m i
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sda.GetMulticast(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetMulticast", err,
+				"Failure at GetMulticast, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

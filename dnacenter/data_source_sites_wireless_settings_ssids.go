@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -41,14 +41,16 @@ func dataSourceSitesWirelessSettingsSSIDs() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter.`,
-				Type:        schema.TypeFloat,
-				Optional:    true,
+				Description: `limit query parameter. The number of records to show for this page. Default is 500 if not specified. Maximum allowed limit is 500.
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 			"offset": &schema.Schema{
-				Description: `offset query parameter.`,
-				Type:        schema.TypeFloat,
-				Optional:    true,
+				Description: `offset query parameter. The first record to show for this page; the first record is numbered 1.
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 			"site_id": &schema.Schema{
 				Description: `siteId path parameter. Site UUID
@@ -101,7 +103,7 @@ func dataSourceSitesWirelessSettingsSSIDs() *schema.Resource {
 						},
 
 						"auth_server": &schema.Schema{
-							Description: `Authentication Server, Mandatory for Guest SSIDs with wlanType=Guest and l3AuthType=web_auth
+							Description: `For Guest SSIDs ('wlanType' is 'Guest' and 'l3AuthType' is 'web_auth'), the Authentication Server('authServer') is mandatory. Otherwise, it defaults to 'auth_external'.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -125,7 +127,7 @@ func dataSourceSitesWirelessSettingsSSIDs() *schema.Resource {
 						},
 
 						"basic_service_set_client_idle_timeout": &schema.Schema{
-							Description: `This refers to the duration of inactivity, measured in seconds, before a client connected to the Basic Service Set is considered idle and timed out
+							Description: `This refers to the duration of inactivity, measured in seconds, before a client connected to the Basic Service Set is considered idle and timed out. Default is Basic ServiceSet ClientIdle Timeout if exists else 300. If it needs to be disabled , pass 0 as its value else valid range is [15 to 100000].
 `,
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -454,6 +456,14 @@ func dataSourceSitesWirelessSettingsSSIDs() *schema.Resource {
 							Computed: true,
 						},
 
+						"is_radius_profiling_enabled": &schema.Schema{
+							Description: `'true' if Radius profiling needs to be enabled, defaults to 'false' if not specified. At least one AAA/PSN server is required to enable Radius Profiling.
+`,
+							// Type:        schema.TypeBool,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
 						"is_random_mac_filter_enabled": &schema.Schema{
 							Description: `Deny clients using randomized MAC addresses when set to true
 `,
@@ -471,7 +481,7 @@ func dataSourceSitesWirelessSettingsSSIDs() *schema.Resource {
 						},
 
 						"l3_auth_type": &schema.Schema{
-							Description: `L3 Authentication Type
+							Description: `L3 Authentication Type. When 'wlanType' is 'Enterprise', ‘l3AuthType' is optional and defaults to 'open' if not specified. If 'wlanType' is 'Guest' then 'l3AuthType' is mandatory.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -701,7 +711,7 @@ func dataSourceSitesWirelessSettingsSSIDs() *schema.Resource {
 						},
 
 						"auth_server": &schema.Schema{
-							Description: `Authentication Server, Mandatory for Guest SSIDs with wlanType=Guest and l3AuthType=web_auth
+							Description: `For Guest SSIDs ('wlanType' is 'Guest' and 'l3AuthType' is 'web_auth'), the Authentication Server('authServer') is mandatory. Otherwise, it defaults to 'auth_external'.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -725,7 +735,7 @@ func dataSourceSitesWirelessSettingsSSIDs() *schema.Resource {
 						},
 
 						"basic_service_set_client_idle_timeout": &schema.Schema{
-							Description: `This refers to the duration of inactivity, measured in seconds, before a client connected to the Basic Service Set is considered idle and timed out
+							Description: `This refers to the duration of inactivity, measured in seconds, before a client connected to the Basic Service Set is considered idle and timed out. Default is Basic ServiceSet ClientIdle Timeout if exists else 300. If it needs to be disabled , pass 0 as its value else valid range is [15 to 100000].
 `,
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -1047,6 +1057,14 @@ func dataSourceSitesWirelessSettingsSSIDs() *schema.Resource {
 							Computed: true,
 						},
 
+						"is_radius_profiling_enabled": &schema.Schema{
+							Description: `'true' if Radius profiling needs to be enabled, defaults to 'false' if not specified. At least one AAA/PSN server is required to enable Radius Profiling.
+`,
+							// Type:        schema.TypeBool,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
 						"is_random_mac_filter_enabled": &schema.Schema{
 							Description: `Deny clients using randomized MAC addresses when set to true
 `,
@@ -1064,7 +1082,7 @@ func dataSourceSitesWirelessSettingsSSIDs() *schema.Resource {
 						},
 
 						"l3_auth_type": &schema.Schema{
-							Description: `L3 Authentication Type
+							Description: `L3 Authentication Type. When 'wlanType' is 'Enterprise', ‘l3AuthType' is optional and defaults to 'open' if not specified. If 'wlanType' is 'Guest' then 'l3AuthType' is mandatory.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -1308,7 +1326,21 @@ func dataSourceSitesWirelessSettingsSSIDsRead(ctx context.Context, d *schema.Res
 			queryParams1.L3AuthType = vL3AuthType.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.GetSSIDBySite(vvSiteID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetSSIDBySite", err,
+				"Failure at GetSSIDBySite, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -1339,7 +1371,21 @@ func dataSourceSitesWirelessSettingsSSIDsRead(ctx context.Context, d *schema.Res
 		vvSiteID := vSiteID.(string)
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Wireless.GetSSIDByID(vvSiteID, vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetSSIDByID", err,
+				"Failure at GetSSIDByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {
@@ -1448,6 +1494,7 @@ func flattenWirelessGetSSIDBySiteItems(items *[]dnacentersdkgo.ResponseWirelessG
 		respItem["is_random_mac_filter_enabled"] = boolPtrToString(item.IsRandomMacFilterEnabled)
 		respItem["fast_transition_over_the_distributed_system_enable"] = boolPtrToString(item.FastTransitionOverTheDistributedSystemEnable)
 		respItem["inherited_site_name_hierarchy"] = item.InheritedSiteNameHierarchy
+		respItem["is_radius_profiling_enabled"] = boolPtrToString(item.IsRadiusProfilingEnabled)
 		respItems = append(respItems, respItem)
 	}
 	return respItems
@@ -1547,6 +1594,7 @@ func flattenWirelessGetSSIDByIDItem(item *dnacentersdkgo.ResponseWirelessGetSSID
 	respItem["fast_transition_over_the_distributed_system_enable"] = boolPtrToString(item.FastTransitionOverTheDistributedSystemEnable)
 	respItem["inherited_site_name_hierarchy"] = item.InheritedSiteNameHierarchy
 	respItem["inherited_site_uui_d"] = item.InheritedSiteUUID
+	respItem["is_radius_profiling_enabled"] = boolPtrToString(item.IsRadiusProfilingEnabled)
 	return []map[string]interface{}{
 		respItem,
 	}

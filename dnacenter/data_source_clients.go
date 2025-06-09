@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -27,24 +27,24 @@ specs/blob/main/Assurance/CE_Cat_Center_Org-clients1-1.0.0-resolved.yaml
 		ReadContext: dataSourceClientsRead,
 		Schema: map[string]*schema.Schema{
 			"attribute": &schema.Schema{
-				Description: `attribute query parameter. List of attributes related to resource that can be requested to only be part of the response along with the required attributes. Refer to ClientAttribute schema for list of attributes supported Examples: *attribute=band* (single attribute requested) *attribute=band&attribute=ssid&attribute=overallScore* (multiple attribute requested)
+				Description: `attribute query parameter. List of attributes related to resource that can be requested to only be part of the response along with the required attributes. Refer to ClientAttribute schema for list of attributes supported Examples: **attribute=band** (single attribute requested) **attribute=band&attribute=ssid&attribute=overallScore** (multiple attribute requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"band": &schema.Schema{
 				Description: `band query parameter. WiFi frequency band that client or Access Point operates. Band value is represented in Giga Hertz GHz Examples:
-*band=5GHZ* (single band requested)
-*band=2.4GHZ&band=6GHZ* (multiple band requested)
+**band=5GHZ** (single band requested)
+**band=2.4GHZ&band=6GHZ** (multiple band requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"connected_network_device_name": &schema.Schema{
-				Description: `connectedNetworkDeviceName query parameter. Name of the neighbor network device that client is connected to. This field supports wildcard (***) character-based search. If the value contains the (***) character, please use the /query API for regex search. Ex: **ap-25** or *ap-25** or **ap-25*
+				Description: `connectedNetworkDeviceName query parameter. Name of the neighbor network device that client is connected to. This field supports wildcard (*****) character-based search. If the value contains the (*****) character, please use the /query API for regex search. Ex: ***ap-25*** or **ap-25*** or ***ap-25**
 Examples:
-*connectedNetworkDeviceName=ap-25* (single connectedNetworkDeviceName requested)
-*connectedNetworkDeviceName=ap-25&ap-34* (multiple connectedNetworkDeviceName requested)
+**connectedNetworkDeviceName=ap-25** (single connectedNetworkDeviceName requested)
+**connectedNetworkDeviceName=ap-25&ap-34** (multiple connectedNetworkDeviceName requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -56,25 +56,25 @@ Examples:
 				Optional: true,
 			},
 			"id": &schema.Schema{
-				Description: `id path parameter. id is the client mac address. It can be specified is any notational conventions  01:23:45:67:89:AB or 01-23-45-67-89-AB or 0123.4567.89AB and is case insensitive
+				Description: `id path parameter. id is the client mac address. It can be specified is any notational conventions 01:23:45:67:89:AB or 01-23-45-67-89-AB or 0123.4567.89AB and is case insensitive
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"ipv4_address": &schema.Schema{
-				Description: `ipv4Address query parameter. IPv4 Address of the network entity either network device or client This field supports wildcard (***) character-based search.  Ex: **1.1** or *1.1** or **1.1*
+				Description: `ipv4Address query parameter. IPv4 Address of the network entity either network device or client This field supports wildcard (*****) character-based search. Ex: ***1.1*** or **1.1*** or ***1.1**
 Examples:
-*ipv4Address=1.1.1.1* (single ipv4Address requested)
-*ipv4Address=1.1.1.1&ipv4Address=2.2.2.2* (multiple ipv4Address requested)
+**ipv4Address=1.1.1.1** (single ipv4Address requested)
+**ipv4Address=1.1.1.1&ipv4Address=2.2.2.2** (multiple ipv4Address requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"ipv6_address": &schema.Schema{
-				Description: `ipv6Address query parameter. IPv6 Address of the network entity either network device or client This field supports wildcard (***) character-based search. Ex: **2001:db8** or *2001:db8** or **2001:db8*
+				Description: `ipv6Address query parameter. IPv6 Address of the network entity either network device or client This field supports wildcard (*****) character-based search. Ex: ***2001:db8*** or **2001:db8*** or ***2001:db8**
 Examples:
-*ipv6Address=2001:db8:0:0:0:0:2:1* (single ipv6Address requested)
-*ipv6Address=2001:db8:0:0:0:0:2:1&ipv6Address=2001:db8:85a3:8d3:1319:8a2e:370:7348* (multiple ipv6Address requested)
+**ipv6Address=2001:db8:0:0:0:0:2:1** (single ipv6Address requested)
+**ipv6Address=2001:db8:0:0:0:0:2:1&ipv6Address=2001:db8:85a3:8d3:1319:8a2e:370:7348** (multiple ipv6Address requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -86,9 +86,9 @@ Examples:
 				Optional: true,
 			},
 			"mac_address": &schema.Schema{
-				Description: `macAddress query parameter. The macAddress of the network device or client This field supports wildcard (***) character-based search.  Ex: **AB:AB:AB** or *AB:AB:AB** or **AB:AB:AB* Examples:
-*macAddress=AB:AB:AB:CD:CD:CD* (single macAddress requested)
-*macAddress=AB:AB:AB:CD:CD:DC&macAddress=AB:AB:AB:CD:CD:FE* (multiple macAddress requested)
+				Description: `macAddress query parameter. The macAddress of the network device or client This field supports wildcard (*****) character-based search. Ex: ***AB:AB:AB*** or **AB:AB:AB*** or ***AB:AB:AB** Examples:
+**macAddress=AB:AB:AB:CD:CD:CD** (single macAddress requested)
+**macAddress=AB:AB:AB:CD:CD:DC&macAddress=AB:AB:AB:CD:CD:FE** (multiple macAddress requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -106,35 +106,35 @@ Examples:
 				Optional: true,
 			},
 			"os_type": &schema.Schema{
-				Description: `osType query parameter. Client device operating system type. This field supports wildcard (***) character-based search. If the value contains the (***) character, please use the /query API for regex search.  Ex: **iOS** or *iOS** or **iOS* Examples:
-*osType=iOS* (single osType requested)
-*osType=iOS&osType=Android* (multiple osType requested)
+				Description: `osType query parameter. Client device operating system type. This field supports wildcard (*****) character-based search. If the value contains the (*****) character, please use the /query API for regex search. Ex: ***iOS*** or **iOS*** or ***iOS** Examples:
+**osType=iOS** (single osType requested)
+**osType=iOS&osType=Android** (multiple osType requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"os_version": &schema.Schema{
-				Description: `osVersion query parameter. Client device operating system version This field supports wildcard (***) character-based search. If the value contains the (***) character, please use the /query API for regex search.  Ex: **14.3** or *14.3** or **14.3* Examples:
-*osVersion=14.3* (single osVersion requested)
-*osVersion=14.3&osVersion=10.1* (multiple osVersion requested)
+				Description: `osVersion query parameter. Client device operating system version This field supports wildcard (*****) character-based search. If the value contains the (*****) character, please use the /query API for regex search. Ex: ***14.3*** or **14.3*** or ***14.3** Examples:
+**osVersion=14.3** (single osVersion requested)
+**osVersion=14.3&osVersion=10.1** (multiple osVersion requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_hierarchy": &schema.Schema{
-				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. "Global/AreaName/BuildingName/FloorName") This field supports wildcard (***) character-based search. If the value contains the (***) character, please use the /query API for regex search.  Ex: **BuildingName** or *BuildingName** or **BuildingName* Examples: *siteHierarchy=Global/AreaName/BuildingName/FloorName* (single siteHierarchy requested) *siteHierarchy=Global/AreaName/BuildingName1/FloorName1&siteHierarchy=Global/AreaName/BuildingName1/FloorName2* (multiple siteHierarchy requested)
+				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. "Global/AreaName/BuildingName/FloorName") This field supports wildcard (*****) character-based search. If the value contains the (*****) character, please use the /query API for regex search.  Ex: ***BuildingName*** or **BuildingName*** or ***BuildingName** Examples: **siteHierarchy=Global/AreaName/BuildingName/FloorName** (single siteHierarchy requested) **siteHierarchy=Global/AreaName/BuildingName1/FloorName1&siteHierarchy=Global/AreaName/BuildingName1/FloorName2** (multiple siteHierarchy requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_hierarchy_id": &schema.Schema{
-				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. "globalUuid/areaUuid/buildingUuid/floorUuid") This field supports wildcard (***) character-based search.  Ex: **buildingUuid** or *buildingUuid** or **buildingUuid* Examples: *siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid* (single siteHierarchyId requested) *siteHierarchyId=globalUuid/areaUuid/buildingUuid1/floorUuid1&siteHierarchyId=globalUuid/areaUuid/buildingUuid1/floorUuid2* (multiple siteHierarchyId requested)
+				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. "globalUuid/areaUuid/buildingUuid/floorUuid") This field supports wildcard (*****) character-based search.  Ex: ***buildingUuid*** or **buildingUuid*** or ***buildingUuid** Examples: **siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid** (single siteHierarchyId requested) **siteHierarchyId=globalUuid/areaUuid/buildingUuid1/floorUuid1&siteHierarchyId=globalUuid/areaUuid/buildingUuid1/floorUuid2** (multiple siteHierarchyId requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_id": &schema.Schema{
-				Description: `siteId query parameter. The site UUID without the top level hierarchy. (Ex."floorUuid") Examples: *siteId=floorUuid* (single siteId requested) *siteId=floorUuid1&siteId=floorUuid2* (multiple siteId requested)
+				Description: `siteId query parameter. The site UUID without the top level hierarchy. (Ex."floorUuid") Examples: **siteId=floorUuid** (single siteId requested) **siteId=floorUuid1&siteId=floorUuid2** (multiple siteId requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -146,17 +146,17 @@ Examples:
 				Optional: true,
 			},
 			"ssid": &schema.Schema{
-				Description: `ssid query parameter. SSID is the name of wireless network to which client connects to. It is also referred to as WLAN ID Wireless Local Area Network Identifier. This field supports wildcard (***) character-based search. If the value contains the (***) character, please use the /query API for regex search.  Ex: **Alpha** or *Alpha** or **Alpha*
+				Description: `ssid query parameter. SSID is the name of wireless network to which client connects to. It is also referred to as WLAN ID Wireless Local Area Network Identifier. This field supports wildcard (*****) character-based search. If the value contains the (*****) character, please use the /query API for regex search. Ex: ***Alpha*** or **Alpha*** or ***Alpha**
 Examples:
-*ssid=Alpha* (single ssid requested)
-*ssid=Alpha&ssid=Guest* (multiple ssid requested)
+**ssid=Alpha** (single ssid requested)
+**ssid=Alpha&ssid=Guest** (multiple ssid requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"start_time": &schema.Schema{
 				Description: `startTime query parameter. Start time from which API queries the data set related to the resource. It must be specified in UNIX epochtime in milliseconds. Value is inclusive.
-If *startTime* is not provided, API will default to current time.
+If **startTime** is not provided, API will default to current time.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -169,17 +169,17 @@ If *startTime* is not provided, API will default to current time.
 			},
 			"view": &schema.Schema{
 				Description: `view query parameter. Client related Views Refer to ClientView schema for list of views supported Examples:
-*view=Wireless* (single view requested)
-*view=WirelessHealth&view=WirelessTraffic* (multiple view requested)
+**view=Wireless** (single view requested)
+**view=WirelessHealth&view=WirelessTraffic** (multiple view requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"wlc_name": &schema.Schema{
-				Description: `wlcName query parameter. Wireless Controller name that reports the wireless client. This field supports wildcard (***) character-based search. If the value contains the (***) character, please use the /query API for regex search. Ex: **wlc-25** or *wlc-25** or **wlc-25*
+				Description: `wlcName query parameter. Wireless Controller name that reports the wireless client. This field supports wildcard (*****) character-based search. If the value contains the (*****) character, please use the /query API for regex search. Ex: ***wlc-25*** or **wlc-25*** or ***wlc-25**
 Examples:
-*wlcName=wlc-25* (single wlcName requested)
-*wlcName=wlc-25&wlc-34* (multiple wlcName requested)
+**wlcName=wlc-25** (single wlcName requested)
+**wlcName=wlc-25&wlc-34** (multiple wlcName requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1739,7 +1739,21 @@ func dataSourceClientsRead(ctx context.Context, d *schema.ResourceData, m interf
 			headerParams1.XCaLLERID = vXCaLLERID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Clients.RetrievesTheListOfClientsWhileAlsoOfferingBasicFilteringAndSortingCapabilities(&headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesTheListOfClientsWhileAlsoOfferingBasicFilteringAndSortingCapabilities", err,
+				"Failure at RetrievesTheListOfClientsWhileAlsoOfferingBasicFilteringAndSortingCapabilities, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -1788,7 +1802,21 @@ func dataSourceClientsRead(ctx context.Context, d *schema.ResourceData, m interf
 			headerParams2.XCaLLERID = vXCaLLERID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Clients.RetrievesSpecificClientInformationMatchingTheMacaddress(vvID, &headerParams2, &queryParams2)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesSpecificClientInformationMatchingTheMacaddress", err,
+				"Failure at RetrievesSpecificClientInformationMatchingTheMacaddress, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

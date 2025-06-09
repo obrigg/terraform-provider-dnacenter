@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -57,31 +57,31 @@ attribute=networkDeviceCount&attribute=clientCount (multiple attributes requeste
 				Optional: true,
 			},
 			"site_hierarchy": &schema.Schema{
-				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. *Global/AreaName/BuildingName/FloorName*)
-This field supports wildcard asterisk (***) character search support. E.g. */San*, */San*, */San*
+				Description: `siteHierarchy query parameter. The full hierarchical breakdown of the site tree starting from Global site name and ending with the specific site name. The Root site is named "Global" (Ex. **Global/AreaName/BuildingName/FloorName**)
+This field supports wildcard asterisk (*****) character search support. E.g. ***/San*, */San, /San***
 Examples:
-*?siteHierarchy=Global/AreaName/BuildingName/FloorName* (single siteHierarchy requested)
-*?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2* (multiple siteHierarchies requested)
+**?siteHierarchy=Global/AreaName/BuildingName/FloorName** (single siteHierarchy requested)
+**?siteHierarchy=Global/AreaName/BuildingName/FloorName&siteHierarchy=Global/AreaName2/BuildingName2/FloorName2** (multiple siteHierarchies requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_hierarchy_id": &schema.Schema{
-				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. *globalUuid/areaUuid/buildingUuid/floorUuid*)
-This field supports wildcard asterisk (***) character search support. E.g. *uuid*, *uuid*, *uuid*
+				Description: `siteHierarchyId query parameter. The full hierarchy breakdown of the site tree in id form starting from Global site UUID and ending with the specific site UUID. (Ex. **globalUuid/areaUuid/buildingUuid/floorUuid**)
+This field supports wildcard asterisk (*****) character search support. E.g. ***uuid*, *uuid, uuid***
 Examples:
-*?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid *(single siteHierarchyId requested)
-*?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2* (multiple siteHierarchyIds requested)
+**?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid **(single siteHierarchyId requested)
+**?siteHierarchyId=globalUuid/areaUuid/buildingUuid/floorUuid&siteHierarchyId=globalUuid/areaUuid2/buildingUuid2/floorUuid2** (multiple siteHierarchyIds requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"site_type": &schema.Schema{
 				Description: `siteType query parameter. The type of the site. A site can be an area, building, or floor.
-Default when not provided will be *[floor,building,area]*
+Default when not provided will be **[floor,building,area]**
 Examples:
-*?siteType=area* (single siteType requested)
-*?siteType=area&siteType=building&siteType=floor* (multiple siteTypes requested)
+**?siteType=area** (single siteType requested)
+**?siteType=area&siteType=building&siteType=floor** (multiple siteTypes requested)
 `,
 				Type:     schema.TypeString,
 				Optional: true,
@@ -219,7 +219,21 @@ func dataSourceSiteHealthSummariesTrendAnalyticsRead(ctx context.Context, d *sch
 		}
 		headerParams1.XCaLLERID = vXCaLLERID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sites.ReadTrendAnalyticsDataForAGroupingOfSitesInYourNetwork(&headerParams1, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReadTrendAnalyticsDataForAGroupingOfSitesInYourNetwork", err,
+				"Failure at ReadTrendAnalyticsDataForAGroupingOfSitesInYourNetwork, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

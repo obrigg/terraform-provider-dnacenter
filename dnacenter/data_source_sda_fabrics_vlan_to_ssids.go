@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,7 +21,7 @@ func dataSourceSdaFabricsVLANToSSIDs() *schema.Resource {
 		ReadContext: dataSourceSdaFabricsVLANToSSIDsRead,
 		Schema: map[string]*schema.Schema{
 			"limit": &schema.Schema{
-				Description: `limit query parameter. Return only this many IP Pool to SSID Mapping
+				Description: `limit query parameter. Return only this many IP Pool to SSID Mapping. Default is 500 if not specified. Maximum allowed limit is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -108,7 +108,21 @@ func dataSourceSdaFabricsVLANToSSIDsRead(ctx context.Context, d *schema.Resource
 			queryParams1.Offset = vOffset.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.FabricWireless.ReturnsAllTheFabricSitesThatHaveVLANToSSIDMapping(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReturnsAllTheFabricSitesThatHaveVLANToSSIDMapping", err,
+				"Failure at ReturnsAllTheFabricSitesThatHaveVLANToSSIDMapping, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

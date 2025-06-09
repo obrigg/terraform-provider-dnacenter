@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -201,6 +201,7 @@ func resourceProvisioningSettingsDelete(ctx context.Context, d *schema.ResourceD
 		"Failure at ProvisioningSettingsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestProvisioningSettingsSetProvisioningSettings(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSystemSettingsSetProvisioningSettings {
 	request := dnacentersdkgo.RequestSystemSettingsSetProvisioningSettings{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".require_itsm_approval")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".require_itsm_approval")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".require_itsm_approval")))) {

@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,7 +20,9 @@ func resourceIcapSettingsConfigurationModelsPreviewActivityIDNetworkDevicesNetwo
 
 - Generates the device's CLIs of the ICAP intent for preview and approve prior to deploying the ICAP configuration
 intent to the device.  After deploying the configuration intent, generating intent CLIs will not be available for
-preview.
+preview. For detailed information about the usage of the API, please refer to the Open API specification document
+https://github.com/cisco-en-programmability/catalyst-center-api-specs/blob/main/Assurance/CE_Cat_Center_Org-
+ICAP_APIs-1.0.0-resolved.yaml
 `,
 
 		CreateContext: resourceIcapSettingsConfigurationModelsPreviewActivityIDNetworkDevicesNetworkDeviceIDConfigCreate,
@@ -258,13 +260,11 @@ func resourceIcapSettingsConfigurationModelsPreviewActivityIDNetworkDevicesNetwo
 	//       Returning empty diags to delete it on Terraform
 	return diags
 }
+
 func expandRequestIcapSettingsConfigurationModelsPreviewActivityIDNetworkDevicesNetworkDeviceIDConfigGeneratesTheDevicesClisOfTheICapConfigurationIntent(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSensorsGeneratesTheDevicesClisOfTheICapConfigurationIntent {
-	request := dnacentersdkgo.RequestSensorsGeneratesTheDevicesClisOfTheICapConfigurationIntent{}
-	if v, ok := d.GetOkExists(fixKeyAccess(key + ".object")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".object")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".object")))) {
-		request = v.(map[string]interface{})
+	var request interface{}
+	if v, ok := d.GetOkExists(fixKeyAccess(key)); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key)))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key)))) {
+		request = v
 	}
-	if isEmptyValue(reflect.ValueOf(request)) {
-		return nil
-	}
-	return &request
+	return request.(*dnacentersdkgo.RequestSensorsGeneratesTheDevicesClisOfTheICapConfigurationIntent)
 }

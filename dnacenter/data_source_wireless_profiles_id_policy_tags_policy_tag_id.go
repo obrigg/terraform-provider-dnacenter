@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +15,8 @@ func dataSourceWirelessProfilesIDPolicyTagsPolicyTagID() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Wireless.
 
-- This endpoint retrieves the details of a specific *Policy Tag* associated with a given *Wireless Profile*. This data
-source requires the *id* of the *Wireless Profile* and the *policyTagId* of the *Policy Tag*.
+- This endpoint retrieves the details of a specific **Policy Tag** associated with a given **Wireless Profile**. This
+data source requires the **id** of the **Wireless Profile** and the **policyTagId** of the **Policy Tag**.
 `,
 
 		ReadContext: dataSourceWirelessProfilesIDPolicyTagsPolicyTagIDRead,
@@ -89,7 +89,21 @@ func dataSourceWirelessProfilesIDPolicyTagsPolicyTagIDRead(ctx context.Context, 
 		vvID := vID.(string)
 		vvPolicyTagID := vPolicyTagID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.RetrieveASpecificPolicyTagForAWirelessProfile(vvID, vvPolicyTagID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveASpecificPolicyTagForAWirelessProfile", err,
+				"Failure at RetrieveASpecificPolicyTagForAWirelessProfile, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

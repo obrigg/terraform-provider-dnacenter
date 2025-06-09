@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -50,9 +50,10 @@ func dataSourceTag() *schema.Resource {
 				Optional:    true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter.`,
-				Type:        schema.TypeFloat,
-				Optional:    true,
+				Description: `limit query parameter. The number of tags to be retrieved. If not specified, the default is 500. The maximum allowed limit is 500.
+`,
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 			"name": &schema.Schema{
 				Description: `name query parameter. Tag name is mandatory when filter operation is used.
@@ -331,7 +332,21 @@ func dataSourceTagRead(ctx context.Context, d *schema.ResourceData, m interface{
 			queryParams1.SystemTag = vSystemTag.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Tag.GetTag(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetTag", err,
+				"Failure at GetTag, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -361,7 +376,21 @@ func dataSourceTagRead(ctx context.Context, d *schema.ResourceData, m interface{
 		log.Printf("[DEBUG] Selected method: GetTagByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.Tag.GetTagByID(vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetTagByID", err,
+				"Failure at GetTagByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {
@@ -428,7 +457,7 @@ func flattenTagGetTagItemsDynamicRulesRules(item *dnacentersdkgo.ResponseTagGetT
 	}
 	respItem := make(map[string]interface{})
 	respItem["values"] = item.Values
-	respItem["items"] = item.Items
+	respItem["items"] = flattenTagGetTagItemsDynamicRulesRulesItems(item.Items)
 	respItem["operation"] = item.Operation
 	respItem["name"] = item.Name
 	respItem["value"] = item.Value
@@ -437,6 +466,18 @@ func flattenTagGetTagItemsDynamicRulesRules(item *dnacentersdkgo.ResponseTagGetT
 		respItem,
 	}
 
+}
+
+func flattenTagGetTagItemsDynamicRulesRulesItems(items *[]dnacentersdkgo.ResponseTagGetTagResponseDynamicRulesRulesItems) []interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []interface{}
+	for _, item := range *items {
+		respItem := item
+		respItems = append(respItems, responseInterfaceToString(respItem))
+	}
+	return respItems
 }
 
 func flattenTagGetTagByIDItem(item *dnacentersdkgo.ResponseTagGetTagByIDResponse) []map[string]interface{} {
@@ -475,7 +516,7 @@ func flattenTagGetTagByIDItemDynamicRulesRules(item *dnacentersdkgo.ResponseTagG
 	}
 	respItem := make(map[string]interface{})
 	respItem["values"] = item.Values
-	respItem["items"] = item.Items
+	respItem["items"] = flattenTagGetTagByIDItemDynamicRulesRulesItems(item.Items)
 	respItem["operation"] = item.Operation
 	respItem["name"] = item.Name
 	respItem["value"] = item.Value
@@ -484,4 +525,16 @@ func flattenTagGetTagByIDItemDynamicRulesRules(item *dnacentersdkgo.ResponseTagG
 		respItem,
 	}
 
+}
+
+func flattenTagGetTagByIDItemDynamicRulesRulesItems(items *[]dnacentersdkgo.ResponseTagGetTagByIDResponseDynamicRulesRulesItems) []interface{} {
+	if items == nil {
+		return nil
+	}
+	var respItems []interface{}
+	for _, item := range *items {
+		respItem := item
+		respItems = append(respItems, responseInterfaceToString(respItem))
+	}
+	return respItems
 }

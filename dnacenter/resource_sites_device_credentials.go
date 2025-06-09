@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,8 +18,8 @@ func resourceSitesDeviceCredentials() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read and update operations on Network Settings.
 
-- Updates device credential settings for a site; *null* values indicate that the setting will be inherited from the
-parent site; empty objects (*{}*) indicate that the credential is unset, and that no credential of that type will be
+- Updates device credential settings for a site; **null** values indicate that the setting will be inherited from the
+parent site; empty objects (**{}**) indicate that the credential is unset, and that no credential of that type will be
 used for the site.
 `,
 
@@ -49,7 +49,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -74,7 +74,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -99,7 +99,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -124,7 +124,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -149,7 +149,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -174,7 +174,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -210,7 +210,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -227,7 +227,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -244,7 +244,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -254,7 +254,7 @@ used for the site.
 							},
 						},
 						"id": &schema.Schema{
-							Description: `id path parameter. Site Id, retrievable from the *id* attribute in */dna/intent/api/v1/sites*
+							Description: `id path parameter. Site Id, retrievable from the **id** attribute in **/dna/intent/api/v1/sites**
 `,
 							Type:     schema.TypeString,
 							Required: true,
@@ -267,7 +267,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -284,7 +284,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -301,7 +301,7 @@ used for the site.
 								Schema: map[string]*schema.Schema{
 
 									"credentials_id": &schema.Schema{
-										Description: `The *id* of the credentials.
+										Description: `The **id** of the credentials.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -438,6 +438,7 @@ func resourceSitesDeviceCredentialsDelete(ctx context.Context, d *schema.Resourc
 		"Failure at SitesDeviceCredentialsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestSitesDeviceCredentialsUpdateDeviceCredentialSettingsForASite(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsUpdateDeviceCredentialSettingsForASite {
 	request := dnacentersdkgo.RequestNetworkSettingsUpdateDeviceCredentialSettingsForASite{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".cli_credentials_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".cli_credentials_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".cli_credentials_id")))) {

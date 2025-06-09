@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +15,8 @@ func dataSourceNetworkDevicesID() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Devices.
 
-- API to fetch the details of network device using the *id*. Use the */dna/intent/api/v1/networkDevices/query* API for
-advanced filtering. The API supports views to fetch only the required fields. Refer features for more details.
+- API to fetch the details of network device using the **id**. Use the **/dna/intent/api/v1/networkDevices/query** API
+for advanced filtering. The API supports views to fetch only the required fields. Refer features for more details.
 `,
 
 		ReadContext: dataSourceNetworkDevicesIDRead,
@@ -355,7 +355,21 @@ func dataSourceNetworkDevicesIDRead(ctx context.Context, d *schema.ResourceData,
 			queryParams1.Views = vViews.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Devices.GetDetailsOfASingleNetworkDevice(vvID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetDetailsOfASingleNetworkDevice", err,
+				"Failure at GetDetailsOfASingleNetworkDevice, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

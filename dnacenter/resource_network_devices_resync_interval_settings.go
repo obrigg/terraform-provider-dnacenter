@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -11,7 +12,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -41,13 +42,13 @@ this setting for all network devices refer to [/networkDevices/resyncIntervalSet
 					Schema: map[string]*schema.Schema{
 
 						"task_id": &schema.Schema{
-							Description: `Unique identifier for the task
+							Description: `Unique identifier for the task.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"url": &schema.Schema{
-							Description: `URL for the task
+							Description: `URL for the task.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -128,7 +129,7 @@ func resourceNetworkDevicesResyncIntervalSettingsCreate(ctx context.Context, d *
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

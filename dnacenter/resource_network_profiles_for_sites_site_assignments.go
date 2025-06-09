@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -65,7 +65,7 @@ otherwise this operation will not ulimately  unassign the profile.
 							Computed:    true,
 						},
 						"profile_id": &schema.Schema{
-							Description: `profileId path parameter. The *id* of the network profile, retrievable from *GET /intent/api/v1/networkProfilesForSites*
+							Description: `profileId path parameter. The **id** of the network profile, retrievable from **GET /intent/api/v1/networkProfilesForSites**
 `,
 							Type:     schema.TypeString,
 							Required: true,
@@ -258,6 +258,7 @@ func resourceNetworkProfilesForSitesSiteAssignmentsDelete(ctx context.Context, d
 
 	return diags
 }
+
 func expandRequestNetworkProfilesForSitesSiteAssignmentsAssignANetworkProfileForSitesToTheGivenSite(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSiteDesignAssignANetworkProfileForSitesToTheGivenSite {
 	request := dnacentersdkgo.RequestSiteDesignAssignANetworkProfileForSitesToTheGivenSite{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".id")))) {

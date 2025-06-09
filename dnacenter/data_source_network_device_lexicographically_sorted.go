@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,8 +17,11 @@ func dataSourceNetworkDeviceLexicographicallySorted() *schema.Resource {
 
 - Returns the list of values of the first given required parameter. You can use the .* in any value to conduct a
 wildcard search. For example, to get all the devices with the management IP address starting with 10.10. , issue the
-following request: GET /dna/inten/api/v1/network-device/autocomplete?managementIpAddress=10.10..* It will return the
-device management IP addresses that match fully or partially the provided attribute. {[10.10.1.1, 10.10.20.2, …]}.
+following request: GET /dna/intent/api/v1/network-device/autocomplete?managementIpAddress=10.10..* It will return the
+device management IP addresses that match fully or partially the provided attribute. {[10.10.1.1, 10.10.20.2, …]}. The
+API returns a paginated response based on 'limit' and 'offset' parameters, allowing up to 500 records per page. 'limit'
+specifies the number of records, and 'offset' sets the starting point using 1-based indexing. For data sets over 500
+records, make multiple calls, adjusting 'limit' and 'offset' to retrieve all records incrementally.
 `,
 
 		ReadContext: dataSourceNetworkDeviceLexicographicallySortedRead,
@@ -54,9 +57,10 @@ device management IP addresses that match fully or partially the provided attrib
 				Optional:    true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter.`,
-				Type:        schema.TypeInt,
-				Optional:    true,
+				Description: `limit query parameter. The number of records to show for this page. Min: 1, Max: 500
+`,
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"mac_address": &schema.Schema{
 				Description: `macAddress query parameter.`,
@@ -134,16 +138,23 @@ device management IP addresses that match fully or partially the provided attrib
 				Optional:    true,
 			},
 
-			"item": &schema.Schema{
+			"items": &schema.Schema{
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
-						"object": &schema.Schema{
-							Description: `object`,
-							Type:        schema.TypeString,
-							Computed:    true,
+						"response": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+
+						"version": &schema.Schema{
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},
@@ -251,6 +262,8 @@ func dataSourceNetworkDeviceLexicographicallySortedRead(ctx context.Context, d *
 			queryParams1.Limit = vLimit.(int)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Devices.GetDeviceValuesThatMatchFullyOrPartiallyAnAttribute(&queryParams1)
 
 		if err != nil || response1 == nil {
@@ -265,8 +278,20 @@ func dataSourceNetworkDeviceLexicographicallySortedRead(ctx context.Context, d *
 
 		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-		vItem1 := flattenGetDeviceValuesThatMatchFullyOrPartiallyAnAttributeItems(response1)
-		if err := d.Set("item", vItem1); err != nil {
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetDeviceValuesThatMatchFullyOrPartiallyAnAttribute", err,
+				"Failure at GetDeviceValuesThatMatchFullyOrPartiallyAnAttribute, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
+
+		vItems1 := flattenDevicesGetDeviceValuesThatMatchFullyOrPartiallyAnAttributeItems(response1)
+		if err := d.Set("items", vItems1); err != nil {
 			diags = append(diags, diagError(
 				"Failure when setting GetDeviceValuesThatMatchFullyOrPartiallyAnAttribute response",
 				err))
@@ -280,13 +305,13 @@ func dataSourceNetworkDeviceLexicographicallySortedRead(ctx context.Context, d *
 	return diags
 }
 
-func flattenGetDeviceValuesThatMatchFullyOrPartiallyAnAttributeItems(items *dnacentersdkgo.ResponseDevicesGetDeviceValuesThatMatchFullyOrPartiallyAnAttribute) []map[string]interface{} {
+func flattenDevicesGetDeviceValuesThatMatchFullyOrPartiallyAnAttributeItems(items *dnacentersdkgo.ResponseDevicesGetDeviceValuesThatMatchFullyOrPartiallyAnAttribute) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}
 	respItem := make(map[string]interface{})
-	respItem["version"] = items.Version
 	respItem["response"] = items.Response
+	respItem["version"] = items.Version
 	return []map[string]interface{}{
 		respItem,
 	}

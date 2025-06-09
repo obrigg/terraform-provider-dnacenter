@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,7 +21,7 @@ func dataSourceTaskOperation() *schema.Resource {
 		ReadContext: dataSourceTaskOperationRead,
 		Schema: map[string]*schema.Schema{
 			"limit": &schema.Schema{
-				Description: `limit path parameter. The maximum value of {limit} supported is 500.
+				Description: `limit path parameter. The maximum value of {limit} supported is 500. 
  Base 1 indexing for {limit}, minimum value is 1
 `,
 				Type:     schema.TypeInt,
@@ -97,8 +97,9 @@ func dataSourceTaskOperation() *schema.Resource {
 						},
 
 						"operation_id_list": &schema.Schema{
-							Type:     schema.TypeList,
-							Computed: true,
+							Description: `Operation Id List`,
+							Type:        schema.TypeList,
+							Computed:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -160,7 +161,21 @@ func dataSourceTaskOperationRead(ctx context.Context, d *schema.ResourceData, m 
 		vvOffset := vOffset.(int)
 		vvLimit := vLimit.(int)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Task.GetTaskByOperationID(vvOperationID, vvOffset, vvLimit)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetTaskByOperationID", err,
+				"Failure at GetTaskByOperationID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

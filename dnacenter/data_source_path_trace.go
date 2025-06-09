@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -4014,7 +4014,21 @@ func dataSourcePathTraceRead(ctx context.Context, d *schema.ResourceData, m inte
 			queryParams1.SortBy = vSortBy.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.PathTrace.RetrievesAllPreviousPathtracesSummary(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesAllPreviousPathtracesSummary", err,
+				"Failure at RetrievesAllPreviousPathtracesSummary, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -4044,7 +4058,21 @@ func dataSourcePathTraceRead(ctx context.Context, d *schema.ResourceData, m inte
 		log.Printf("[DEBUG] Selected method: RetrievesPreviousPathtrace")
 		vvFlowAnalysisID := vFlowAnalysisID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.PathTrace.RetrievesPreviousPathtrace(vvFlowAnalysisID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesPreviousPathtrace", err,
+				"Failure at RetrievesPreviousPathtrace, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

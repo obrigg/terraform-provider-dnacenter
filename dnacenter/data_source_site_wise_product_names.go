@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,7 +15,7 @@ func dataSourceSiteWiseProductNames() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Software Image Management (SWIM).
 
-- Provides network device product names for a site. The default value of *siteId* is global. The response will include
+- Provides network device product names for a site. The default value of **siteId** is global. The response will include
 the network device count and image summary.
 `,
 
@@ -53,7 +53,7 @@ the network device count and image summary.
 					Schema: map[string]*schema.Schema{
 
 						"id": &schema.Schema{
-							Description: `The unique identifier for the record is the *id*. If there is no supervisor engine involved, the *id* will be the same as the *productNameOrdinal*. However, if the supervisor engine is applicable, the *id* will be in the form of *<productNameOrdinal>-<supervisorProductNameOrdinal>*.
+							Description: `The unique identifier for the record is the **id**. If there is no supervisor engine involved, the **id** will be the same as the **productNameOrdinal**. However, if the supervisor engine is applicable, the **id** will be in the form of **<productNameOrdinal>-<supervisorProductNameOrdinal>**.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -111,14 +111,14 @@ the network device count and image summary.
 						},
 
 						"supervisor_product_name": &schema.Schema{
-							Description: `Name of the Supervisor Engine Module, supported by the *productName*.                  Example: The *Cisco Catalyst 9404R Switch* chassis is capable of supporting  different supervisor engine modules: the *Cisco Catalyst 9400 Supervisor Engine-1*, the *Cisco Catalyst 9400 Supervisor Engine-1XL*, the *Cisco Catalyst 9400 Supervisor Engine-1XL-Y*, etc.
+							Description: `Name of the Supervisor Engine Module, supported by the **productName**.                  Example: The **Cisco Catalyst 9404R Switch** chassis is capable of supporting  different supervisor engine modules: the **Cisco Catalyst 9400 Supervisor Engine-1**, the **Cisco Catalyst 9400 Supervisor Engine-1XL**, the **Cisco Catalyst 9400 Supervisor Engine-1XL-Y**, etc.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 
 						"supervisor_product_name_ordinal": &schema.Schema{
-							Description: `Supervisor Engine Module Ordinal, supported by the *productNameOrdinal*. Example: The *286315691* chassis ordinal is capable of supporting  different supervisor engine module ordinals: *286316172*, *286316710*, *286320394* etc.
+							Description: `Supervisor Engine Module Ordinal, supported by the **productNameOrdinal**. Example: The **286315691** chassis ordinal is capable of supporting  different supervisor engine module ordinals: **286316172**, **286316710**, **286320394** etc.
 `,
 							Type:     schema.TypeFloat,
 							Computed: true,
@@ -157,7 +157,21 @@ func dataSourceSiteWiseProductNamesRead(ctx context.Context, d *schema.ResourceD
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SoftwareImageManagementSwim.ReturnsNetworkDeviceProductNamesForASite(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 ReturnsNetworkDeviceProductNamesForASite", err,
+				"Failure at ReturnsNetworkDeviceProductNamesForASite, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"time"
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -419,6 +420,7 @@ func resourceCustomIssueDefinitionsDelete(ctx context.Context, d *schema.Resourc
 
 	return diags
 }
+
 func expandRequestCustomIssueDefinitionsCreatesANewUserDefinedIssueDefinitions(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestIssuesCreatesANewUserDefinedIssueDefinitions {
 	request := dnacentersdkgo.RequestIssuesCreatesANewUserDefinedIssueDefinitions{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".name")))) {
@@ -574,20 +576,39 @@ func searchIssuesGetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters(m interfa
 	var err error
 	var foundItem *dnacentersdkgo.ResponseIssuesGetAllTheCustomIssueDefinitionsBasedOnTheGivenFiltersResponse
 	var ite *dnacentersdkgo.ResponseIssuesGetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters
-
-	ite, _, err = client.Issues.GetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters(&queryParams)
-	if err != nil || ite == nil {
-		return foundItem, err
-	}
-	itemsCopy := *ite.Response
-	if itemsCopy == nil {
-		return foundItem, err
-	}
-	for _, item := range itemsCopy {
-		if item.Name == queryParams.Name {
-			foundItem = &item
+	if vID != "" {
+		queryParams.Offset = 1
+		nResponse, _, err := client.Issues.GetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters(nil)
+		maxPageSize := len(*nResponse.Response)
+		for len(*nResponse.Response) > 0 {
+			time.Sleep(15 * time.Second)
+			for _, item := range *nResponse.Response {
+				if vID == item.ID {
+					foundItem = &item
+					return foundItem, err
+				}
+			}
+			queryParams.Limit = float64(maxPageSize)
+			queryParams.Offset += float64(maxPageSize)
+			nResponse, _, err = client.Issues.GetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters(&queryParams)
+		}
+		return nil, err
+	} else if queryParams.Name != "" {
+		ite, _, err = client.Issues.GetAllTheCustomIssueDefinitionsBasedOnTheGivenFilters(&queryParams)
+		if err != nil || ite == nil {
 			return foundItem, err
 		}
+		itemsCopy := *ite.Response
+		if itemsCopy == nil {
+			return foundItem, err
+		}
+		for _, item := range itemsCopy {
+			if item.Name == queryParams.Name {
+				foundItem = &item
+				return foundItem, err
+			}
+		}
+		return foundItem, err
 	}
 	return foundItem, err
 }

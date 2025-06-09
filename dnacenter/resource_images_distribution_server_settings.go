@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -242,6 +242,7 @@ func resourceImagesDistributionServerSettingsDelete(ctx context.Context, d *sche
 		"Failure at ImagesDistributionServerSettingsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestImagesDistributionServerSettingsAddImageDistributionServer(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestSoftwareImageManagementSwimAddImageDistributionServer {
 	request := dnacentersdkgo.RequestSoftwareImageManagementSwimAddImageDistributionServer{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".server_address")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".server_address")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".server_address")))) {

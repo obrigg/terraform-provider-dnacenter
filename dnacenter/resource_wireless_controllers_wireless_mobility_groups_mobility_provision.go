@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -12,7 +13,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -100,7 +101,7 @@ func resourceWirelessControllersWirelessMobilityGroupsMobilityProvision() *schem
 							Computed: true,
 						},
 						"mobility_group_name": &schema.Schema{
-							Description: `Self device Group Name. Must be alphanumeric without {!,<,space,?/'} <br/> and maximum of 31 characters.
+							Description: `Self device Group Name. Must be alphanumeric without {!,<,space,?/'}  and maximum of 31 characters.
 `,
 							Type:     schema.TypeString,
 							Optional: true,
@@ -247,7 +248,7 @@ func resourceWirelessControllersWirelessMobilityGroupsMobilityProvisionCreate(ct
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

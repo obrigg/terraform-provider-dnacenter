@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -109,12 +109,77 @@ func dataSourceLanAutomationStatus() *schema.Resource {
 						},
 
 						"discovery_devices": &schema.Schema{
-							Description: `Specific devices that will be LAN Automated in this session. Any other device discovered via DHCP will be attempted for a reset and reload to bring it back to the PnP agent state at the end of the LAN Automation process before process completion. The maximum supported devices that can be provided for a session is 50.
-`,
 							Type:     schema.TypeList,
 							Computed: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"device_host_name": &schema.Schema{
+										Description: `Hostname of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"device_management_ipaddress": &schema.Schema{
+										Description: `Management IP Address of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"device_serial_number": &schema.Schema{
+										Description: `Serial number of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"device_site_id": &schema.Schema{
+										Description: `Site UUID of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"device_site_name_hierarchy": &schema.Schema{
+										Description: `Site name hierarchy of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"is_device_discovered": &schema.Schema{
+										Description: `Discovery status of the device
+`,
+										// Type:        schema.TypeBool,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"is_ipallocated": &schema.Schema{
+										Description: `IP Allocation status of the device
+`,
+										// Type:        schema.TypeBool,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"is_ipassigned": &schema.Schema{
+										Description: `IP Assignment status of the device
+`,
+										// Type:        schema.TypeBool,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"pnp_device_id": &schema.Schema{
+										Description: `PnP device ID
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
 							},
 						},
 
@@ -129,6 +194,20 @@ func dataSourceLanAutomationStatus() *schema.Resource {
 							Description: `Discovery timeout in minutes. Until this time, the stop processing will not be triggered. Any device contacting after the provided discovery timeout will not be processed, and a device reset and reload will be attempted to bring it back to the PnP agent state before process completion. The supported timeout range is in minutes [20-10080].
 `,
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+
+						"host_name_file_id": &schema.Schema{
+							Description: `File ID for the uploaded file in the nw_orch namespace
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"host_name_prefix": &schema.Schema{
+							Description: `Hostname prefix of the discovered devices
+`,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 
@@ -280,12 +359,77 @@ func dataSourceLanAutomationStatus() *schema.Resource {
 						},
 
 						"discovery_devices": &schema.Schema{
-							Description: `Specific devices that will be LAN Automated in this session. Any other device discovered via DHCP will be attempted for a reset and reload to bring it back to the PnP agent state at the end of the LAN Automation process before process completion. The maximum supported devices that can be provided for a session is 50.
-`,
 							Type:     schema.TypeList,
 							Computed: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"device_host_name": &schema.Schema{
+										Description: `Hostname of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"device_management_ipaddress": &schema.Schema{
+										Description: `Management IP Address of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"device_serial_number": &schema.Schema{
+										Description: `Serial number of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"device_site_id": &schema.Schema{
+										Description: `Site UUID of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"device_site_name_hierarchy": &schema.Schema{
+										Description: `Site name hierarchy of the device
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"is_device_discovered": &schema.Schema{
+										Description: `Discovery status of the device
+`,
+										// Type:        schema.TypeBool,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"is_ipallocated": &schema.Schema{
+										Description: `IP Allocation status of the device
+`,
+										// Type:        schema.TypeBool,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"is_ipassigned": &schema.Schema{
+										Description: `IP Assignment status of the device
+`,
+										// Type:        schema.TypeBool,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"pnp_device_id": &schema.Schema{
+										Description: `PnP device ID
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
 							},
 						},
 
@@ -300,6 +444,20 @@ func dataSourceLanAutomationStatus() *schema.Resource {
 							Description: `Discovery timeout in minutes. Until this time, the stop processing will not be triggered. Any device contacting after the provided discovery timeout will not be processed, and a device reset and reload will be attempted to bring it back to the PnP agent state before process completion. The supported timeout range is in minutes [20-10080].
 `,
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+
+						"host_name_file_id": &schema.Schema{
+							Description: `File ID for the uploaded file in the nw_orch namespace
+`,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"host_name_prefix": &schema.Schema{
+							Description: `Hostname prefix of the discovered devices
+`,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 
@@ -411,7 +569,21 @@ func dataSourceLanAutomationStatusRead(ctx context.Context, d *schema.ResourceDa
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.LanAutomation.LanAutomationStatus(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 LanAutomationStatus", err,
+				"Failure at LanAutomationStatus, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -441,7 +613,21 @@ func dataSourceLanAutomationStatusRead(ctx context.Context, d *schema.ResourceDa
 		log.Printf("[DEBUG] Selected method: LanAutomationStatusByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.LanAutomation.LanAutomationStatusByID(vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 LanAutomationStatusByID", err,
+				"Failure at LanAutomationStatusByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {
@@ -492,6 +678,8 @@ func flattenLanAutomationLanAutomationStatusItems(items *[]dnacentersdkgo.Respon
 		respItem["discovery_level"] = item.DiscoveryLevel
 		respItem["discovery_timeout"] = item.DiscoveryTimeout
 		respItem["discovery_devices"] = flattenLanAutomationLanAutomationStatusItemsDiscoveryDevices(item.DiscoveryDevices)
+		respItem["host_name_prefix"] = item.HostNamePrefix
+		respItem["host_name_file_id"] = item.HostNameFileID
 		respItems = append(respItems, respItem)
 	}
 	return respItems
@@ -527,14 +715,23 @@ func flattenLanAutomationLanAutomationStatusItemsDiscoveredDeviceList(items *[]d
 	return respItems
 }
 
-func flattenLanAutomationLanAutomationStatusItemsDiscoveryDevices(items *[]dnacentersdkgo.ResponseLanAutomationLanAutomationStatusResponseDiscoveryDevices) []interface{} {
+func flattenLanAutomationLanAutomationStatusItemsDiscoveryDevices(items *[]dnacentersdkgo.ResponseLanAutomationLanAutomationStatusResponseDiscoveryDevices) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}
-	var respItems []interface{}
+	var respItems []map[string]interface{}
 	for _, item := range *items {
-		respItem := item
-		respItems = append(respItems, responseInterfaceToString(respItem))
+		respItem := make(map[string]interface{})
+		respItem["device_serial_number"] = item.DeviceSerialNumber
+		respItem["device_host_name"] = item.DeviceHostName
+		respItem["device_management_ipaddress"] = item.DeviceManagementIPAddress
+		respItem["device_site_id"] = item.DeviceSiteID
+		respItem["device_site_name_hierarchy"] = item.DeviceSiteNameHierarchy
+		respItem["is_device_discovered"] = boolPtrToString(item.IsDeviceDiscovered)
+		respItem["is_ipallocated"] = boolPtrToString(item.IsIPAllocated)
+		respItem["is_ipassigned"] = boolPtrToString(item.IsIPAssigned)
+		respItem["pnp_device_id"] = item.PnpDeviceID
+		respItems = append(respItems, respItem)
 	}
 	return respItems
 }
@@ -561,6 +758,8 @@ func flattenLanAutomationLanAutomationStatusByIDItem(items *[]dnacentersdkgo.Res
 		respItem["discovery_level"] = item.DiscoveryLevel
 		respItem["discovery_timeout"] = item.DiscoveryTimeout
 		respItem["discovery_devices"] = flattenLanAutomationLanAutomationStatusByIDItemDiscoveryDevices(item.DiscoveryDevices)
+		respItem["host_name_prefix"] = item.HostNamePrefix
+		respItem["host_name_file_id"] = item.HostNameFileID
 		respItems = append(respItems, respItem)
 	}
 	return respItems
@@ -596,14 +795,23 @@ func flattenLanAutomationLanAutomationStatusByIDItemDiscoveredDeviceList(items *
 	return respItems
 }
 
-func flattenLanAutomationLanAutomationStatusByIDItemDiscoveryDevices(items *[]dnacentersdkgo.ResponseLanAutomationLanAutomationStatusByIDResponseDiscoveryDevices) []interface{} {
+func flattenLanAutomationLanAutomationStatusByIDItemDiscoveryDevices(items *[]dnacentersdkgo.ResponseLanAutomationLanAutomationStatusByIDResponseDiscoveryDevices) []map[string]interface{} {
 	if items == nil {
 		return nil
 	}
-	var respItems []interface{}
+	var respItems []map[string]interface{}
 	for _, item := range *items {
-		respItem := item
-		respItems = append(respItems, responseInterfaceToString(respItem))
+		respItem := make(map[string]interface{})
+		respItem["device_serial_number"] = item.DeviceSerialNumber
+		respItem["device_host_name"] = item.DeviceHostName
+		respItem["device_management_ipaddress"] = item.DeviceManagementIPAddress
+		respItem["device_site_id"] = item.DeviceSiteID
+		respItem["device_site_name_hierarchy"] = item.DeviceSiteNameHierarchy
+		respItem["is_device_discovered"] = boolPtrToString(item.IsDeviceDiscovered)
+		respItem["is_ipallocated"] = boolPtrToString(item.IsIPAllocated)
+		respItem["is_ipassigned"] = boolPtrToString(item.IsIPAssigned)
+		respItem["pnp_device_id"] = item.PnpDeviceID
+		respItems = append(respItems, respItem)
 	}
 	return respItems
 }

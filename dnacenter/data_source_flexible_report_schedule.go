@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -48,6 +48,8 @@ func dataSourceFlexibleReportScheduleRead(ctx context.Context, d *schema.Resourc
 	if selectedMethod == 1 {
 		log.Printf("[DEBUG] Selected method: GetFlexibleReportScheduleByReportID")
 		vvReportID := vReportID.(string)
+
+		// has_unknown_response: None
 
 		response1, restyResp1, err := client.Reports.GetFlexibleReportScheduleByReportID(vvReportID)
 

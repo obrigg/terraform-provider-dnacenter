@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -32,7 +32,7 @@ func dataSourceTagMember() *schema.Resource {
 				Optional:    true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. Used to Number of maximum members to return in the result
+				Description: `limit query parameter. The number of members to be retrieved. If not specified, the default is 500. The maximum allowed limit is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -105,7 +105,21 @@ func dataSourceTagMemberRead(ctx context.Context, d *schema.ResourceData, m inte
 			queryParams1.Level = vLevel.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Tag.GetTagMembersByID(vvID, &queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetTagMembersByID", err,
+				"Failure at GetTagMembersByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

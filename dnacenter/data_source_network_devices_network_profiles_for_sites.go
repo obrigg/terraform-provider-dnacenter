@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,13 +23,13 @@ func dataSourceNetworkDevicesNetworkProfilesForSites() *schema.Resource {
 		ReadContext: dataSourceNetworkDevicesNetworkProfilesForSitesRead,
 		Schema: map[string]*schema.Schema{
 			"id": &schema.Schema{
-				Description: `id path parameter. The *id* of the network profile, retrievable from *GET /intent/api/v1/networkProfilesForSites*
+				Description: `id path parameter. The **id** of the network profile, retrievable from **GET /intent/api/v1/networkProfilesForSites**
 `,
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. The number of records to show for this page.
+				Description: `limit query parameter. The number of records to show for this page;The minimum is 1, and the maximum is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -157,7 +157,21 @@ func dataSourceNetworkDevicesNetworkProfilesForSitesRead(ctx context.Context, d 
 			queryParams1.Type = vType.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.SiteDesign.RetrievesTheListOfNetworkProfilesForSites(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrievesTheListOfNetworkProfilesForSites", err,
+				"Failure at RetrievesTheListOfNetworkProfilesForSites, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -187,7 +201,21 @@ func dataSourceNetworkDevicesNetworkProfilesForSitesRead(ctx context.Context, d 
 		log.Printf("[DEBUG] Selected method: RetrieveANetworkProfileForSitesByID")
 		vvID := vID.(string)
 
+		// has_unknown_response: None
+
 		response2, restyResp2, err := client.SiteDesign.RetrieveANetworkProfileForSitesByID(vvID)
+
+		if err != nil || response2 == nil {
+			if restyResp2 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp2.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveANetworkProfileForSitesByID", err,
+				"Failure at RetrieveANetworkProfileForSitesByID, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response2))
 
 		if err != nil || response2 == nil {
 			if restyResp2 != nil {

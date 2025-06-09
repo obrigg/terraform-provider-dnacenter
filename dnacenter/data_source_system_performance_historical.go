@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -203,6 +203,8 @@ func dataSourceSystemPerformanceHistoricalRead(ctx context.Context, d *schema.Re
 		if okEndTime {
 			queryParams1.EndTime = vEndTime.(float64)
 		}
+
+		// has_unknown_response: None
 
 		response1, restyResp1, err := client.HealthAndPerformance.SystemPerformanceHistoricalAPI(&queryParams1)
 

@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -12,7 +13,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -30,7 +31,7 @@ Please note that this operation can be performed even if the feature is already 
 push the updated configurations to the network device.
 This operation pushes configuration to the network devices, and is only permitted if the provisioning settings do not
 mandate a config preview for application telemetry enablement. In cases where such settings are active, attempting to
-use this endpoint will result in *422 Unprocessable Content* error.
+use this endpoint will result in **422 Unprocessable Content** error.
 `,
 
 		CreateContext: resourceApplicationVisibilityNetworkDevicesEnableAppTelemetryCreate,
@@ -166,7 +167,7 @@ func resourceApplicationVisibilityNetworkDevicesEnableAppTelemetryCreate(ctx con
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

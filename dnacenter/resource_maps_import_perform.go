@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -31,11 +31,8 @@ performing the import.
 				Computed: true,
 			},
 			"item": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeString,
 				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
 			},
 			"parameters": &schema.Schema{
 				Type:     schema.TypeList,
@@ -84,7 +81,7 @@ func resourceMapsImportPerformCreate(ctx context.Context, d *schema.ResourceData
 
 	log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
-	if err := d.Set("item", response1); err != nil {
+	if err := d.Set("item", restyResp1.String()); err != nil {
 		diags = append(diags, diagError(
 			"Failure when setting ImportMapArchivePerformImport response",
 			err))

@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -11,7 +12,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -25,7 +26,7 @@ func resourceAssignToSiteApply() *schema.Resource {
 - Assign unprovisioned network devices to a site. Along with that it can also be used to assign unprovisioned network
 devices to a different site. If device controllability is enabled, it will be triggered once device assigned to site
 successfully. Device Controllability can be enabled/disabled using
-*/dna/intent/api/v1/networkDevices/deviceControllability/settings*.
+**/dna/intent/api/v1/networkDevices/deviceControllability/settings**.
 `,
 
 		CreateContext: resourceAssignToSiteApplyCreate,
@@ -66,7 +67,7 @@ successfully. Device Controllability can be enabled/disabled using
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"device_ids": &schema.Schema{
-							Description: `Unassigned network devices.
+							Description: `Unassigned network devices, ranging from a minimum of 1 to a maximum of 100.
 `,
 							Type:     schema.TypeList,
 							Optional: true,
@@ -143,7 +144,7 @@ func resourceAssignToSiteApplyCreate(ctx context.Context, d *schema.ResourceData
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +15,8 @@ func dataSourceWirelessProfilesIDSiteTagsSiteTagID() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Wireless.
 
-- This endpoint retrieves the details of a specific *Site Tag* associated with a given *Wireless Profile*. This data
-source requires the *id* of the *Wireless Profile* and the *siteTagId* of the *Site Tag*.
+- This endpoint retrieves the details of a specific **Site Tag** associated with a given **Wireless Profile**. This data
+source requires the **id** of the **Wireless Profile** and the **siteTagId** of the **Site Tag**.
 `,
 
 		ReadContext: dataSourceWirelessProfilesIDSiteTagsSiteTagIDRead,
@@ -93,7 +93,21 @@ func dataSourceWirelessProfilesIDSiteTagsSiteTagIDRead(ctx context.Context, d *s
 		vvID := vID.(string)
 		vvSiteTagID := vSiteTagID.(string)
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Wireless.RetrieveASpecificSiteTagForAWirelessProfile(vvID, vvSiteTagID)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 RetrieveASpecificSiteTagForAWirelessProfile", err,
+				"Failure at RetrieveASpecificSiteTagForAWirelessProfile, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

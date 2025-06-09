@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -39,7 +39,7 @@ func dataSourceSdaAuthenticationProfiles() *schema.Resource {
 				Optional: true,
 			},
 			"limit": &schema.Schema{
-				Description: `limit query parameter. Maximum number of records to return.
+				Description: `limit query parameter. Maximum number of records to return. The maximum number of objects supported in a single request is 500.
 `,
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -94,6 +94,14 @@ func dataSourceSdaAuthenticationProfiles() *schema.Resource {
 
 						"is_bpdu_guard_enabled": &schema.Schema{
 							Description: `Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to "Closed Authentication".
+`,
+							// Type:        schema.TypeBool,
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"is_voice_vlan_enabled": &schema.Schema{
+							Description: `Enable/disable Voice Vlan.
 `,
 							// Type:        schema.TypeBool,
 							Type:     schema.TypeString,
@@ -213,7 +221,21 @@ func dataSourceSdaAuthenticationProfilesRead(ctx context.Context, d *schema.Reso
 			queryParams1.Limit = vLimit.(float64)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.Sda.GetAuthenticationProfiles(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetAuthenticationProfiles", err,
+				"Failure at GetAuthenticationProfiles, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {
@@ -257,6 +279,7 @@ func flattenSdaGetAuthenticationProfilesItems(items *[]dnacentersdkgo.ResponseSd
 		respItem["wake_on_lan"] = boolPtrToString(item.WakeOnLan)
 		respItem["number_of_hosts"] = item.NumberOfHosts
 		respItem["is_bpdu_guard_enabled"] = boolPtrToString(item.IsBpduGuardEnabled)
+		respItem["is_voice_vlan_enabled"] = boolPtrToString(item.IsVoiceVLANEnabled)
 		respItem["pre_auth_acl"] = flattenSdaGetAuthenticationProfilesItemsPreAuthACL(item.PreAuthACL)
 		respItems = append(respItems, respItem)
 	}

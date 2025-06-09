@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -66,7 +66,7 @@ func resourceDiagnosticValidationWorkflows() *schema.Resource {
 							Computed: true,
 						},
 						"run_status": &schema.Schema{
-							Description: `Execution status of the workflow. If the workflow is successfully submitted, runStatus will return *PENDING*. If the workflow execution has started, runStatus will return *IN_PROGRESS*. If the workflow executed is completed with all validations executed, runStatus will return *COMPLETED*. If the workflow execution fails while running validations, runStatus will return *FAILED*.
+							Description: `Execution status of the workflow. If the workflow is successfully submitted, runStatus will return **PENDING**. If the workflow execution has started, runStatus will return **IN_PROGRESS**. If the workflow executed is completed with all validations executed, runStatus will return **COMPLETED**. If the workflow execution fails while running validations, runStatus will return **FAILED**.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -144,7 +144,7 @@ func resourceDiagnosticValidationWorkflows() *schema.Resource {
 										Computed: true,
 									},
 									"validation_status": &schema.Schema{
-										Description: `Overall result of the validation set execution. If any of the contained validation execution status is *CRITICAL*, this is marked as *CRITICAL*. Else, if any of the contained validation execution status is *WARNING*, this is marked as *WARNING*. Else, this is marked as *INFORMATION*. This is empty when the workflow is in progress.
+										Description: `Overall result of the validation set execution. If any of the contained validation execution status is **CRITICAL**, this is marked as **CRITICAL**. Else, if any of the contained validation execution status is **WARNING**, this is marked as **WARNING**. Else, this is marked as **INFORMATION**. This is empty when the workflow is in progress.
 `,
 										Type:     schema.TypeString,
 										Computed: true,
@@ -159,7 +159,7 @@ func resourceDiagnosticValidationWorkflows() *schema.Resource {
 							},
 						},
 						"validation_status": &schema.Schema{
-							Description: `Overall result of the execution of all the validations. If any of the contained validation execution status is *CRITICAL*, this is marked as *CRITICAL*. Else, if any of the contained validation execution status is *WARNING*, this is marked as *WARNING*. Else, this is marked as *INFORMATION*.
+							Description: `Overall result of the execution of all the validations. If any of the contained validation execution status is **CRITICAL**, this is marked as **CRITICAL**. Else, if any of the contained validation execution status is **WARNING**, this is marked as **WARNING**. Else, this is marked as **INFORMATION**.
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -338,6 +338,7 @@ func resourceDiagnosticValidationWorkflowsDelete(ctx context.Context, d *schema.
 
 	return diags
 }
+
 func expandRequestDiagnosticValidationWorkflowsSubmitsTheWorkflowForExecutingValidations(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestHealthAndPerformanceSubmitsTheWorkflowForExecutingValidations {
 	request := dnacentersdkgo.RequestHealthAndPerformanceSubmitsTheWorkflowForExecutingValidations{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".name")))) {

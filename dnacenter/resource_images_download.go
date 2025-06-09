@@ -2,6 +2,7 @@ package dnacenter
 
 import (
 	"context"
+	"strings"
 
 	"errors"
 
@@ -9,7 +10,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,8 +21,8 @@ func resourceImagesDownload() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs create operation on Software Image Management (SWIM).
 
-- Initiates download of the software image from Cisco.com on the disk for the given *id*. Refer to
-*/dna/intent/api/v1/images* for obtaining *id*.
+- Initiates download of the software image from Cisco.com on the disk for the given **id**. Refer to
+**/dna/intent/api/v1/images** for obtaining **id**.
 `,
 
 		CreateContext: resourceImagesDownloadCreate,
@@ -62,7 +63,7 @@ func resourceImagesDownload() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": &schema.Schema{
-							Description: `id path parameter. Software image identifier. Check API */dna/intent/api/v1/images* for *id* from response.
+							Description: `id path parameter. Software image identifier. Check API **/dna/intent/api/v1/images** for **id** from response.
 `,
 							Type:     schema.TypeString,
 							Required: true,
@@ -129,7 +130,7 @@ func resourceImagesDownloadCreate(ctx context.Context, d *schema.ResourceData, m
 				return diags
 			}
 			var errorMsg string
-			if restyResp3 == nil {
+			if restyResp3 == nil || strings.Contains(restyResp3.String(), "<!doctype html>") {
 				errorMsg = response2.Response.Progress + "\nFailure Reason: " + response2.Response.FailureReason
 			} else {
 				errorMsg = restyResp3.String()

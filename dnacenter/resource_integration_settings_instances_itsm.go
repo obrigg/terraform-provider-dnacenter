@@ -6,7 +6,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -366,6 +366,7 @@ func resourceIntegrationSettingsInstancesItsmDelete(ctx context.Context, d *sche
 
 	return diags
 }
+
 func expandRequestIntegrationSettingsInstancesItsmCreateItsmIntegrationSetting(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestItsmIntegrationCreateItsmIntegrationSetting {
 	request := dnacentersdkgo.RequestItsmIntegrationCreateItsmIntegrationSetting{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".name")))) {
@@ -465,12 +466,12 @@ func expandRequestIntegrationSettingsInstancesItsmUpdateItsmIntegrationSettingDa
 func searchITSM(m interface{}, vName string) (foundItem *dnacentersdkgo.ResponseItsmIntegrationGetAllItsmIntegrationSettingsData, err error) {
 	client := m.(*dnacentersdkgo.Client)
 
-	nResponse, _, err := client.ItsmIntegration.GetAllItsmIntegrationSettings()
+	nResponse, _, err := client.ItsmIntegration.GetAllItsmIntegrationSettings(nil)
 	if err != nil {
 		return foundItem, err
 	}
 
-	for _, item := range nResponse.Data {
+	for _, item := range *nResponse.Data {
 		if item.Name == vName {
 			return &item, err
 		}

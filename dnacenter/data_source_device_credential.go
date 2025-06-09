@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +15,7 @@ func dataSourceDeviceCredential() *schema.Resource {
 	return &schema.Resource{
 		Description: `It performs read operation on Network Settings.
 
-- API to get device credential details. This data source has been deprecated and will not be available in a Cisco DNA
-Center release after August 1st 2024 23:59:59 GMT. Please refer new Intent API : Get All Global Credentials V2
+- API to get device credential details.
 `,
 
 		ReadContext: dataSourceDeviceCredentialRead,
@@ -442,7 +441,21 @@ func dataSourceDeviceCredentialRead(ctx context.Context, d *schema.ResourceData,
 			queryParams1.SiteID = vSiteID.(string)
 		}
 
+		// has_unknown_response: None
+
 		response1, restyResp1, err := client.NetworkSettings.GetDeviceCredentialDetails(&queryParams1)
+
+		if err != nil || response1 == nil {
+			if restyResp1 != nil {
+				log.Printf("[DEBUG] Retrieved error response %s", restyResp1.String())
+			}
+			diags = append(diags, diagErrorWithAlt(
+				"Failure when executing 2 GetDeviceCredentialDetails", err,
+				"Failure at GetDeviceCredentialDetails, unexpected response", ""))
+			return diags
+		}
+
+		log.Printf("[DEBUG] Retrieved response %+v", responseInterfaceToString(*response1))
 
 		if err != nil || response1 == nil {
 			if restyResp1 != nil {

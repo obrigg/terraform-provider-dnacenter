@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,8 +18,8 @@ func resourceSitesTelemetrySettings() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages read and update operations on Network Settings.
 
-- Sets telemetry settings for the given site; *null* values indicate that the setting will be inherited from the parent
-site.
+- Sets telemetry settings for the given site; **null** values indicate that the setting will be inherited from the
+parent site.
 `,
 
 		CreateContext: resourceSitesTelemetrySettingsCreate,
@@ -169,7 +169,7 @@ site.
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
-									"enable_wired_data_collectio": &schema.Schema{
+									"enable_wired_data_collection": &schema.Schema{
 										Description: `Track the presence, location, and movement of wired endpoints in the network. Traffic received from endpoints is used to extract and store their identity information (MAC address and IP address). Other features, such as IEEE 802.1X, web authentication, Cisco Security Groups (formerly TrustSec), SD-Access, and Assurance, depend on this identity information to operate properly. Wired Endpoint Data Collection enables Device Tracking policies on devices assigned to the Access role in Inventory.
 `,
 										// Type:        schema.TypeBool,
@@ -275,7 +275,7 @@ site.
 							},
 						},
 						"id": &schema.Schema{
-							Description: `id path parameter. Site Id, retrievable from the *id* attribute in */dna/intent/api/v1/sites*
+							Description: `id path parameter. Site Id, retrievable from the **id** attribute in **/dna/intent/api/v1/sites**
 `,
 							Type:     schema.TypeString,
 							Required: true,
@@ -345,7 +345,7 @@ site.
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
-									"enable_wired_data_collectio": &schema.Schema{
+									"enable_wired_data_collection": &schema.Schema{
 										Description: `Track the presence, location, and movement of wired endpoints in the network. Traffic received from endpoints is used to extract and store their identity information (MAC address and IP address). Other features, such as IEEE 802.1X, web authentication, Cisco Security Groups (formerly TrustSec), SD-Access, and Assurance, depend on this identity information to operate properly. Wired Endpoint Data Collection enables Device Tracking policies on devices assigned to the Access role in Inventory.
 `,
 										// Type:        schema.TypeBool,
@@ -504,6 +504,7 @@ func resourceSitesTelemetrySettingsDelete(ctx context.Context, d *schema.Resourc
 		"Failure at SitesTelemetrySettingsDelete, unexpected response", ""))
 	return diags
 }
+
 func expandRequestSitesTelemetrySettingsSetTelemetrySettingsForASite(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsSetTelemetrySettingsForASite {
 	request := dnacentersdkgo.RequestNetworkSettingsSetTelemetrySettingsForASite{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".wired_data_collection")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".wired_data_collection")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".wired_data_collection")))) {
@@ -529,8 +530,8 @@ func expandRequestSitesTelemetrySettingsSetTelemetrySettingsForASite(ctx context
 
 func expandRequestSitesTelemetrySettingsSetTelemetrySettingsForASiteWiredDataCollection(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsSetTelemetrySettingsForASiteWiredDataCollection {
 	request := dnacentersdkgo.RequestNetworkSettingsSetTelemetrySettingsForASiteWiredDataCollection{}
-	if v, ok := d.GetOkExists(fixKeyAccess(key + ".enable_wired_data_collectio")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".enable_wired_data_collectio")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".enable_wired_data_collectio")))) {
-		request.EnableWiredDataCollectio = interfaceToBoolPtr(v)
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".enable_wired_data_collection")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".enable_wired_data_collection")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".enable_wired_data_collection")))) {
+		request.EnableWiredDataCollection = interfaceToBoolPtr(v)
 	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil

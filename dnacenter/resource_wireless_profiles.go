@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,7 +21,12 @@ func resourceWirelessProfiles() *schema.Resource {
 
 - This resource allows the user to create a Wireless Network Profile
 
-- This resource allows the user to update a Wireless Network Profile by ID
+- This resource allows the user to update a Wireless Network Profile by ID. Note that, when performing a PUT operation
+on a wireless network profile, it is essential to provide a complete payload. This is because the wireless network
+profile is tightly integrated with other network design entities. Consequently, all fields must be included—not just the
+fields to be updated. Any missing fields will be set to their default or null values. To ensure all fields are
+accurately populated, consider using the GET operation to retrieve the current resource data before proceeding with the
+PUT operation.
 
 - This resource allows the user to delete Wireless Network Profile by ID
 `,
@@ -45,8 +50,71 @@ func resourceWirelessProfiles() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
+						"additional_interfaces": &schema.Schema{
+							Description: `Additional Interfaces
+`,
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"ap_zones": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"ap_zone_name": &schema.Schema{
+										Description: `AP Zone Name
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"rf_profile_name": &schema.Schema{
+										Description: `RF Profile Name
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ssids": &schema.Schema{
+										Description: `ssids part of apZone
+`,
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"feature_templates": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"id": &schema.Schema{
+										Description: `Feature Template UUID
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ssids": &schema.Schema{
+										Description: `List of SSIDs
+`,
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 						"id": &schema.Schema{
-							Description: `Id
+							Description: `Wireless Profile Id
 `,
 							Type:     schema.TypeString,
 							Computed: true,
@@ -57,6 +125,12 @@ func resourceWirelessProfiles() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
+									"anchor_group_name": &schema.Schema{
+										Description: `Anchor Group Name
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
 									"dot11be_profile_id": &schema.Schema{
 										Description: `802.11be Profile ID
 `,
@@ -110,6 +184,12 @@ func resourceWirelessProfiles() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
+									"vlan_group_name": &schema.Schema{
+										Description: `VLAN Group Name
+`,
+										Type:     schema.TypeString,
+										Computed: true,
+									},
 									"wlan_profile_name": &schema.Schema{
 										Description: `WLAN Profile Name
 `,
@@ -135,6 +215,77 @@ func resourceWirelessProfiles() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
+						"additional_interfaces": &schema.Schema{
+							Description: `These additional interfaces will be configured on the device as independent interfaces in addition to the interfaces mapped to SSIDs. Max Limit 4094
+`,
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"ap_zones": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"ap_zone_name": &schema.Schema{
+										Description: `AP Zone Name
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"rf_profile_name": &schema.Schema{
+										Description: `RF Profile Name
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"ssids": &schema.Schema{
+										Description: `ssids part of apZone
+`,
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"feature_templates": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"id": &schema.Schema{
+										Description: `Feature Template UUID
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"ssids": &schema.Schema{
+										Description: `List of SSIDs
+`,
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 						"id": &schema.Schema{
 							Description: `id path parameter. Wireless Profile Id
 `,
@@ -148,6 +299,13 @@ func resourceWirelessProfiles() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
+									"anchor_group_name": &schema.Schema{
+										Description: `Anchor Group Name
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"dot11be_profile_id": &schema.Schema{
 										Description: `802.11be Profile Id. Applicable to IOS controllers with version 17.15 and higher. 802.11be Profiles if passed, should be same across all SSIDs in network profile being configured
 `,
@@ -191,7 +349,14 @@ func resourceWirelessProfiles() *schema.Resource {
 										},
 									},
 									"interface_name": &schema.Schema{
-										Description: `Interface Name. Default Value: management
+										Description: `Interface Name.
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"policy_profile_name": &schema.Schema{
+										Description: `Policy Profile Name. If 'policyProfileName' is not provided, the value of 'wlanProfileName' will be assigned to it. If 'profileName' is also not provided, an autogenerated name will be used. Autogenerated name is generated by appending ‘ssidName’ field’s value with ‘_profile’ (Example : If ‘ssidName’ = ‘ExampleSsid’, then autogenerated name will be ‘ExampleSsid_profile’).
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -204,8 +369,15 @@ func resourceWirelessProfiles() *schema.Resource {
 										Optional: true,
 										Computed: true,
 									},
+									"vlan_group_name": &schema.Schema{
+										Description: `VLAN Group Name
+`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"wlan_profile_name": &schema.Schema{
-										Description: `WLAN Profile Name
+										Description: `WLAN Profile Name, if not passed autogenerated profile name will be assigned.
 `,
 										Type:     schema.TypeString,
 										Optional: true,
@@ -474,6 +646,7 @@ func resourceWirelessProfilesDelete(ctx context.Context, d *schema.ResourceData,
 
 	return diags
 }
+
 func expandRequestWirelessProfilesCreateWirelessProfileConnectivity(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivity {
 	request := dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivity{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".wireless_profile_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".wireless_profile_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".wireless_profile_name")))) {
@@ -481,6 +654,15 @@ func expandRequestWirelessProfilesCreateWirelessProfileConnectivity(ctx context.
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ssid_details")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ssid_details")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ssid_details")))) {
 		request.SSIDDetails = expandRequestWirelessProfilesCreateWirelessProfileConnectivitySSIDDetailsArray(ctx, key+".ssid_details", d)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".additional_interfaces")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".additional_interfaces")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".additional_interfaces")))) {
+		request.AdditionalInterfaces = interfaceToSliceString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ap_zones")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ap_zones")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ap_zones")))) {
+		request.ApZones = expandRequestWirelessProfilesCreateWirelessProfileConnectivityApZonesArray(ctx, key+".ap_zones", d)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".feature_templates")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".feature_templates")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".feature_templates")))) {
+		request.FeatureTemplates = expandRequestWirelessProfilesCreateWirelessProfileConnectivityFeatureTemplatesArray(ctx, key+".feature_templates", d)
 	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil
@@ -531,6 +713,15 @@ func expandRequestWirelessProfilesCreateWirelessProfileConnectivitySSIDDetails(c
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".dot11be_profile_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".dot11be_profile_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".dot11be_profile_id")))) {
 		request.Dot11BeProfileID = interfaceToString(v)
 	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".anchor_group_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".anchor_group_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".anchor_group_name")))) {
+		request.AnchorGroupName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".vlan_group_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".vlan_group_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".vlan_group_name")))) {
+		request.VLANGroupName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".policy_profile_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".policy_profile_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".policy_profile_name")))) {
+		request.PolicyProfileName = interfaceToString(v)
+	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil
 	}
@@ -551,6 +742,83 @@ func expandRequestWirelessProfilesCreateWirelessProfileConnectivitySSIDDetailsFl
 	return &request
 }
 
+func expandRequestWirelessProfilesCreateWirelessProfileConnectivityApZonesArray(ctx context.Context, key string, d *schema.ResourceData) *[]dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivityApZones {
+	request := []dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivityApZones{}
+	key = fixKeyAccess(key)
+	o := d.Get(key)
+	if o == nil {
+		return nil
+	}
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return nil
+	}
+	for item_no := range objs {
+		i := expandRequestWirelessProfilesCreateWirelessProfileConnectivityApZones(ctx, fmt.Sprintf("%s.%d", key, item_no), d)
+		if i != nil {
+			request = append(request, *i)
+		}
+	}
+	if isEmptyValue(reflect.ValueOf(request)) {
+		return nil
+	}
+	return &request
+}
+
+func expandRequestWirelessProfilesCreateWirelessProfileConnectivityApZones(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivityApZones {
+	request := dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivityApZones{}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ap_zone_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ap_zone_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ap_zone_name")))) {
+		request.ApZoneName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".rf_profile_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".rf_profile_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".rf_profile_name")))) {
+		request.RfProfileName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ssids")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ssids")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ssids")))) {
+		request.SSIDs = interfaceToSliceString(v)
+	}
+	if isEmptyValue(reflect.ValueOf(request)) {
+		return nil
+	}
+	return &request
+}
+
+func expandRequestWirelessProfilesCreateWirelessProfileConnectivityFeatureTemplatesArray(ctx context.Context, key string, d *schema.ResourceData) *[]dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivityFeatureTemplates {
+	request := []dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivityFeatureTemplates{}
+	key = fixKeyAccess(key)
+	o := d.Get(key)
+	if o == nil {
+		return nil
+	}
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return nil
+	}
+	for item_no := range objs {
+		i := expandRequestWirelessProfilesCreateWirelessProfileConnectivityFeatureTemplates(ctx, fmt.Sprintf("%s.%d", key, item_no), d)
+		if i != nil {
+			request = append(request, *i)
+		}
+	}
+	if isEmptyValue(reflect.ValueOf(request)) {
+		return nil
+	}
+	return &request
+}
+
+func expandRequestWirelessProfilesCreateWirelessProfileConnectivityFeatureTemplates(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivityFeatureTemplates {
+	request := dnacentersdkgo.RequestWirelessCreateWirelessProfileConnectivityFeatureTemplates{}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".id")))) {
+		request.ID = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ssids")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ssids")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ssids")))) {
+		request.SSIDs = interfaceToSliceString(v)
+	}
+	if isEmptyValue(reflect.ValueOf(request)) {
+		return nil
+	}
+	return &request
+}
+
 func expandRequestWirelessProfilesUpdateWirelessProfileConnectivity(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivity {
 	request := dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivity{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".wireless_profile_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".wireless_profile_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".wireless_profile_name")))) {
@@ -558,6 +826,15 @@ func expandRequestWirelessProfilesUpdateWirelessProfileConnectivity(ctx context.
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ssid_details")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ssid_details")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ssid_details")))) {
 		request.SSIDDetails = expandRequestWirelessProfilesUpdateWirelessProfileConnectivitySSIDDetailsArray(ctx, key+".ssid_details", d)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".additional_interfaces")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".additional_interfaces")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".additional_interfaces")))) {
+		request.AdditionalInterfaces = interfaceToSliceString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ap_zones")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ap_zones")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ap_zones")))) {
+		request.ApZones = expandRequestWirelessProfilesUpdateWirelessProfileConnectivityApZonesArray(ctx, key+".ap_zones", d)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".feature_templates")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".feature_templates")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".feature_templates")))) {
+		request.FeatureTemplates = expandRequestWirelessProfilesUpdateWirelessProfileConnectivityFeatureTemplatesArray(ctx, key+".feature_templates", d)
 	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil
@@ -608,6 +885,15 @@ func expandRequestWirelessProfilesUpdateWirelessProfileConnectivitySSIDDetails(c
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".dot11be_profile_id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".dot11be_profile_id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".dot11be_profile_id")))) {
 		request.Dot11BeProfileID = interfaceToString(v)
 	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".anchor_group_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".anchor_group_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".anchor_group_name")))) {
+		request.AnchorGroupName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".vlan_group_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".vlan_group_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".vlan_group_name")))) {
+		request.VLANGroupName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".policy_profile_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".policy_profile_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".policy_profile_name")))) {
+		request.PolicyProfileName = interfaceToString(v)
+	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil
 	}
@@ -621,6 +907,83 @@ func expandRequestWirelessProfilesUpdateWirelessProfileConnectivitySSIDDetailsFl
 	}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".local_to_vlan")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".local_to_vlan")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".local_to_vlan")))) {
 		request.LocalToVLAN = interfaceToIntPtr(v)
+	}
+	if isEmptyValue(reflect.ValueOf(request)) {
+		return nil
+	}
+	return &request
+}
+
+func expandRequestWirelessProfilesUpdateWirelessProfileConnectivityApZonesArray(ctx context.Context, key string, d *schema.ResourceData) *[]dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivityApZones {
+	request := []dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivityApZones{}
+	key = fixKeyAccess(key)
+	o := d.Get(key)
+	if o == nil {
+		return nil
+	}
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return nil
+	}
+	for item_no := range objs {
+		i := expandRequestWirelessProfilesUpdateWirelessProfileConnectivityApZones(ctx, fmt.Sprintf("%s.%d", key, item_no), d)
+		if i != nil {
+			request = append(request, *i)
+		}
+	}
+	if isEmptyValue(reflect.ValueOf(request)) {
+		return nil
+	}
+	return &request
+}
+
+func expandRequestWirelessProfilesUpdateWirelessProfileConnectivityApZones(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivityApZones {
+	request := dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivityApZones{}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ap_zone_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ap_zone_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ap_zone_name")))) {
+		request.ApZoneName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".rf_profile_name")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".rf_profile_name")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".rf_profile_name")))) {
+		request.RfProfileName = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ssids")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ssids")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ssids")))) {
+		request.SSIDs = interfaceToSliceString(v)
+	}
+	if isEmptyValue(reflect.ValueOf(request)) {
+		return nil
+	}
+	return &request
+}
+
+func expandRequestWirelessProfilesUpdateWirelessProfileConnectivityFeatureTemplatesArray(ctx context.Context, key string, d *schema.ResourceData) *[]dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivityFeatureTemplates {
+	request := []dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivityFeatureTemplates{}
+	key = fixKeyAccess(key)
+	o := d.Get(key)
+	if o == nil {
+		return nil
+	}
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return nil
+	}
+	for item_no := range objs {
+		i := expandRequestWirelessProfilesUpdateWirelessProfileConnectivityFeatureTemplates(ctx, fmt.Sprintf("%s.%d", key, item_no), d)
+		if i != nil {
+			request = append(request, *i)
+		}
+	}
+	if isEmptyValue(reflect.ValueOf(request)) {
+		return nil
+	}
+	return &request
+}
+
+func expandRequestWirelessProfilesUpdateWirelessProfileConnectivityFeatureTemplates(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivityFeatureTemplates {
+	request := dnacentersdkgo.RequestWirelessUpdateWirelessProfileConnectivityFeatureTemplates{}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".id")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".id")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".id")))) {
+		request.ID = interfaceToString(v)
+	}
+	if v, ok := d.GetOkExists(fixKeyAccess(key + ".ssids")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".ssids")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".ssids")))) {
+		request.SSIDs = interfaceToSliceString(v)
 	}
 	if isEmptyValue(reflect.ValueOf(request)) {
 		return nil

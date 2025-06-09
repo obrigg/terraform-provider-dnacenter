@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -200,6 +200,7 @@ func resourceFabricsFabricIDWirelessMulticastDelete(ctx context.Context, d *sche
 	//       Returning empty diags to delete it on Terraform
 	return diags
 }
+
 func expandRequestFabricsFabricIDWirelessMulticastUpdateSdaWirelessMulticast(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestFabricWirelessUpdateSdaWirelessMulticast {
 	request := dnacentersdkgo.RequestFabricWirelessUpdateSdaWirelessMulticast{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".multicast_enabled")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".multicast_enabled")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".multicast_enabled")))) {

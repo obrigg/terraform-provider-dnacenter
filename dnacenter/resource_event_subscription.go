@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,9 +21,11 @@ func resourceEventSubscription() *schema.Resource {
 
 - Delete EventSubscriptions
 
-- Update SubscriptionEndpoint to list of registered events(Deprecated)
+- Update SubscriptionEndpoint to list of registered events. Deprecated since Guardian release. Alternative: PUT
+/intent/api/v1/event/subscription/rest
 
-- Subscribe SubscriptionEndpoint to list of registered events (Deprecated)
+- Subscribe SubscriptionEndpoint to list of registered events. Deprecated since Guardian release. Alternative: POST
+/intent/api/v1/event/subscription/rest
 `,
 
 		CreateContext: resourceEventSubscriptionCreate,
@@ -691,6 +693,7 @@ func resourceEventSubscriptionDelete(ctx context.Context, d *schema.ResourceData
 
 	return diags
 }
+
 func expandRequestEventSubscriptionCreateEventSubscriptions(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestEventManagementCreateEventSubscriptions {
 	request := dnacentersdkgo.RequestEventManagementCreateEventSubscriptions{}
 	if v := expandRequestEventSubscriptionCreateEventSubscriptionsItemArray(ctx, key+".payload", d); v != nil {

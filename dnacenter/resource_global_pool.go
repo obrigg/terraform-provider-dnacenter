@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v7/sdk"
+	dnacentersdkgo "github.com/cisco-en-programmability/dnacenter-go-sdk/v8/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,9 +18,9 @@ func resourceGlobalPool() *schema.Resource {
 	return &schema.Resource{
 		Description: `It manages create, read, update and delete operations on Network Settings.
 
-- API to update global pool
+- API to update global pool. There is a limit of updating 25 global pools per request.
 
-- API to create global pool.
+- API to create global pool. There is a limit of creating 25 global pools per request.
 
 - API to delete global IP pool.
 `,
@@ -593,6 +593,7 @@ func resourceGlobalPoolDelete(ctx context.Context, d *schema.ResourceData, m int
 
 	return diags
 }
+
 func expandRequestGlobalPoolCreateGlobalPool(ctx context.Context, key string, d *schema.ResourceData) *dnacentersdkgo.RequestNetworkSettingsCreateGlobalPool {
 	request := dnacentersdkgo.RequestNetworkSettingsCreateGlobalPool{}
 	if v, ok := d.GetOkExists(fixKeyAccess(key + ".settings")); !isEmptyValue(reflect.ValueOf(d.Get(fixKeyAccess(key+".settings")))) && (ok || !reflect.DeepEqual(v, d.Get(fixKeyAccess(key+".settings")))) {
